@@ -1,0 +1,345 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Product Sales Report for WooCommerce\n"
+"POT-Creation-Date: 2021-01-27 19:27+0100\n"
+"PO-Revision-Date: 2021-01-27 19:28+0100\n"
+"Last-Translator: \n"
+"Language-Team: WP Zone\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.2\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: __;esc_html__;_e;esc_attr\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: admin.php:12
+msgid "This plugin requires that WooCommerce is installed and activated."
+msgstr ""
+
+#: admin.php:15
+msgid ""
+"The Product Sales Report plugin requires WooCommerce 2.2 or higher. Please "
+"update your WooCommerce install."
+msgstr ""
+
+#: admin.php:39
+msgid "Report Period"
+msgstr ""
+
+#: admin.php:41
+msgid "Today"
+msgstr ""
+
+#: admin.php:42
+msgid "Yesterday"
+msgstr ""
+
+#: admin.php:43
+msgid "Previous 7 days (excluding today)"
+msgstr ""
+
+#: admin.php:44
+msgid "Previous 30 days (excluding today)"
+msgstr ""
+
+#: admin.php:45
+msgid "Current calendar month"
+msgstr ""
+
+#: admin.php:46
+msgid "Previous calendar month"
+msgstr ""
+
+#: admin.php:47
+msgid "Next 7 days (future dated orders)"
+msgstr ""
+
+#: admin.php:48
+msgid "Next 30 days (future dated orders)"
+msgstr ""
+
+#: admin.php:49
+msgid "Next calendar month (future dated orders)"
+msgstr ""
+
+#: admin.php:50
+msgid "All time"
+msgstr ""
+
+#: admin.php:51
+msgid "Custom date range"
+msgstr ""
+
+#: admin.php:59
+msgid "Start Date"
+msgstr ""
+
+#: admin.php:70
+msgid "End Date"
+msgstr ""
+
+#: admin.php:81
+msgid "Include Orders With Status"
+msgstr ""
+
+#: admin.php:94
+msgid "Include Products"
+msgstr ""
+
+#: admin.php:98
+msgid "All products"
+msgstr ""
+
+#: admin.php:101
+msgid "Products in categories"
+msgstr ""
+
+#: admin.php:111
+msgid "Product ID(s)"
+msgstr ""
+
+#: admin.php:114
+msgid "Use commas to separate multiple product IDs"
+msgstr ""
+
+#: admin.php:123
+msgid "Product Variations"
+msgstr ""
+
+#: admin.php:128
+msgid "Group product variations together"
+msgstr ""
+
+#: admin.php:132
+msgid "Report on each variation separately"
+msgstr ""
+
+#: admin.php:141
+msgid "Sort By"
+msgstr ""
+
+#: admin.php:145 hm-product-sales-report.php:103
+#: hm-product-sales-report.php:178
+msgid "Product ID"
+msgstr ""
+
+#: admin.php:146 hm-product-sales-report.php:109
+#: hm-product-sales-report.php:193
+msgid "Quantity Sold"
+msgstr ""
+
+#: admin.php:147 hm-product-sales-report.php:110
+#: hm-product-sales-report.php:196
+msgid "Gross Sales"
+msgstr ""
+
+#: admin.php:148 hm-product-sales-report.php:111
+#: hm-product-sales-report.php:199
+msgid "Gross Sales (After Discounts)"
+msgstr ""
+
+#: admin.php:151
+msgid "Ascending"
+msgstr ""
+
+#: admin.php:152
+msgid "Descending"
+msgstr ""
+
+#: admin.php:161
+msgid "Report Fields"
+msgstr ""
+
+#: admin.php:181
+msgid "Exclude free products"
+msgstr ""
+
+#: admin.php:186 admin.php:211
+msgid "Help"
+msgstr ""
+
+#: admin.php:187
+msgid ""
+"If checked, order line items with a total amount of zero (after discounts) "
+"will be excluded from the report calculations."
+msgstr ""
+
+#: admin.php:195
+msgid "Products number"
+msgstr ""
+
+#: admin.php:199
+#, php-format
+msgid "Show only the first %s products"
+msgstr ""
+
+#: admin.php:206
+msgid "Include header row"
+msgstr ""
+
+#: admin.php:212
+msgid "If checked, the first row of the report will contain the field names."
+msgstr ""
+
+#: admin.php:217
+#, php-format
+msgid ""
+"%sNote:%s Line item refunds created during the reporting period (regardless "
+"of the original order date) will be deducted from sales quantities and "
+"amounts if the status of the line item refund matches one of the selected "
+"order statuses (e.g. Complete), independent of the status of the original "
+"order. If you would like to disable this behavior, please check out our "
+"%sPro plugin%s, which also applies status filtering differently for line "
+"item refunds. Note that line item refunds are not the same as setting an "
+"entire order to the Refunded status, which does not automatically create a "
+"line item refund."
+msgstr ""
+
+#: admin.php:221
+msgid "View Report"
+msgstr ""
+
+#: admin.php:222
+msgid "Download Report as CSV"
+msgstr ""
+
+#: admin.php:252
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: admin.php:253
+#, php-format
+msgid ""
+"Upgrade to %sProduct Sales Report Pro%s for the following additional "
+"features:"
+msgstr ""
+
+#: admin.php:255
+msgid "Report on product variations individually"
+msgstr ""
+
+#: admin.php:256
+msgid "Optionally include products with no sales."
+msgstr ""
+
+#: admin.php:257
+msgid "Report on shipping methods used."
+msgstr ""
+
+#: admin.php:258
+msgid ""
+"Limit the report to orders with a matching custom meta field (e.g. delivery "
+"date)."
+msgstr ""
+
+#: admin.php:259
+msgid "Change the names and order of fields in the report."
+msgstr ""
+
+#: admin.php:260
+#, php-format
+msgid ""
+"Include %scustom fields%s defined by WooCommerce or another plugin on a "
+"product or product variation."
+msgstr ""
+
+#: admin.php:261
+msgid ""
+"Save multiple report presets to save time when generating different reports."
+msgstr ""
+
+#: admin.php:262
+msgid "Export in Excel (XLSX or XLS) format."
+msgstr ""
+
+#: admin.php:263
+msgid "Send the report as an email attachment."
+msgstr ""
+
+#: admin.php:265
+#, php-format
+msgid ""
+"%sReceive a %s discount with the coupon code %sWCREPORT10%s!%s (Not valid "
+"with any other discount)"
+msgstr ""
+
+#: admin.php:266
+msgid "Buy Now"
+msgstr ""
+
+#: admin.php:273
+msgid "Schedule Email Reports"
+msgstr ""
+
+#: admin.php:274
+msgid ""
+"Automatically send reports as email attachments on a recurring schedule."
+msgstr ""
+
+#: admin.php:275 admin.php:284
+msgid "Get the add-on plugin"
+msgstr ""
+
+#: admin.php:282
+msgid "Embed Report in Frontend Pages"
+msgstr ""
+
+#: admin.php:283
+msgid ""
+"Display the report or a download link in posts and pages using a shortcode."
+msgstr ""
+
+#: addons/addons.php:35
+msgid ""
+"We are unable to load the addons for this plugin right now. Please try again "
+"later!"
+msgstr ""
+
+#: addons/addons.php:93
+msgid "Install"
+msgstr ""
+
+#: addons/addons.php:99
+msgid ""
+"You do not have sufficient permissions to install plugins. If you think this "
+"message is in error, go to Plugins > Add New and search for the plugin name."
+msgstr ""
+
+#: addons/addons.php:102
+msgid "Already Installed"
+msgstr ""
+
+#: hm-product-sales-report.php:104 hm-product-sales-report.php:181
+msgid "Variation ID"
+msgstr ""
+
+#: hm-product-sales-report.php:105 hm-product-sales-report.php:184
+msgid "Product SKU"
+msgstr ""
+
+#: hm-product-sales-report.php:106 hm-product-sales-report.php:187
+msgid "Product Name"
+msgstr ""
+
+#: hm-product-sales-report.php:107 hm-product-sales-report.php:202
+msgid "Product Categories"
+msgstr ""
+
+#: hm-product-sales-report.php:108 hm-product-sales-report.php:190
+msgid "Variation Attributes"
+msgstr ""
+
+#: hm-product-sales-report.php:419
+msgid "Product Sales Report"
+msgstr ""
+
+#: hm-product-sales-report.php:422
+msgid "Last used settings"
+msgstr ""
+
+#: js/moment.min.js:6
+msgid "\n"
+msgstr ""

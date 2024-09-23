@@ -1,0 +1,112 @@
+.ags-settings-addons-list {
+    margin : 15px 0 0 0;
+}
+
+.ags-settings-addon {
+    display       : flex;
+    width         : 100%;
+    margin-bottom : 25px;
+    align-items   : center;
+}
+
+.ags-settings-addon-img {
+    width      : 90px;
+    height     : 90px;
+    object-fit : cover;
+    float      : left;
+    margin     : 0 15px 15px 0;
+}
+
+.ags-settings-addon-info {
+    width        : 100%;
+    margin-right : 15px;
+}
+
+.ags-settings-addon-info h4 {
+    margin    : 0 0 5px;
+    font-size : 18px;
+}
+
+.ags-settings-addon-info p {
+    margin : 0 !important;
+}
+
+.ags-settings-addon-info .ags-settings-addon-badge {
+    font-weight    : 500;
+    line-height    : 1.2;
+    padding        : 5px 10px;
+    font-size      : 10px;
+    border-radius  : 15px;
+    display        : inline-block;
+    vertical-align : super;
+    margin         : 7px 5px;
+}
+
+.ags-settings-addon-info .ags-settings-addon-badge:first-of-type {
+    margin-left : 10px;
+}
+
+a.ags-settings-addon-btn {
+    font-size        : 14px;
+    font-weight      : 600;
+    border-radius    : 4px;
+    border           : 2px solid #98A16F;
+    padding          : 10px 15px;
+    cursor           : pointer;
+    height           : auto;
+    color            : #504D49;
+    background-color : transparent;
+    line-height      : normal !important;
+    box-shadow       : none !important;
+    outline          : none;
+    min-width        : 120px;
+    margin           : 5px;
+    text-align       : center;
+    text-decoration  : none;
+}
+
+a.ags-settings-addon-btn:hover {
+    color            : #FFF;
+    background-color : #98A16F;
+    border-color     : #98A16F;
+}
+
+a.ags-settings-addon-btn-disabled,
+a.ags-settings-addon-btn-disabled:hover {
+    cursor           : not-allowed;
+    color            : #BBB;
+    border-color     : #BBB;
+    background-color : transparent;
+}
+
+@media (max-width : 700px) {
+    .ags-settings-addon {
+        flex-wrap : wrap;
+    }
+
+    .ags-settings-addon-info {
+        margin-right  : 0;
+        margin-bottom : 10px;
+    }
+
+    a.ags-settings-addon-btn {
+        width : 100%;
+    }
+}
+
+p.ags-settings-addons-error {
+    padding          : 10px 20px;
+    line-height      : 1.5;
+    font-size        : 15px !important;
+    color            : #3D3B38 !important;
+    box-shadow       : 0 2px 7px 0 rgba(0, 0, 0, 0.08);
+    position         : relative;
+    border-radius    : 4px;
+    background-color : #FFE5E5 !important;
+    border-left      : 5px solid;
+    border-color     : #D0021B;
+}
+
+p.ags-settings-addons-error a {
+    color : #D0021B;
+}
