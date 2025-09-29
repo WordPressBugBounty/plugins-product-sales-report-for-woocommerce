@@ -1,0 +1,255 @@
+@charset "UTF-8";
+/*!
+ * BerryPress SCSS Framework
+ * Copyright (c) 2025 BerryPress
+ * Source code: https://github.com/BerryPress/scss-framework
+ * License: https://github.com/BerryPress/scss-framework/blob/main/LICENSE
+ */
+.berrypress-page .berrypress-primary-color {
+  color: #0070F0 !important;
+}
+.berrypress-page .bg-primary-color {
+  background-color: #0070F0 !important;
+}
+
+.ninjalytics-about-page {
+  max-width: 1200px;
+  padding: 20px;
+}
+
+.ninjalytics-about-page p, .ninjalytics-about-page ul, .ninjalytics-about-page li {
+  font-size: 15px;
+}
+
+.ninjalytics-about-page h3 {
+  margin-top: 0;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #0070F0;
+}
+
+.about-section {
+  padding: 20px 0;
+  margin-top: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+/* List */
+.ninjalytics-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.ninjalytics-feature-list li {
+  padding: 8px 0 8px 25px;
+  border-bottom: 1px solid #e6e9f4;
+  position: relative;
+}
+
+.ninjalytics-feature-list li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #0070F0;
+  font-weight: bold;
+}
+
+.ninjalytics-feature-list li:last-child {
+  border-bottom: none;
+}
+
+.ninjalytics-support-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Box */
+.berrypress-box-cta {
+  text-align: center;
+  background: #F3F5F9;
+  padding: 30px;
+  border-radius: 8px;
+  margin-top: 30px;
+}
+
+.berrypress-box-cta h3 {
+  margin: 0 0 15px 0;
+}
+
+.berrypress-box-cta p {
+  color: #5A607F;
+  font-size: 14px;
+}
+
+.berrypress-addons-page {
+  max-width: 1200px;
+  margin: 20px 0;
+}
+
+.berrypress-addons-page .addons-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px;
+}
+
+.berrypress-addons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+  margin: 30px 0;
+}
+
+.berrypress-addon-item {
+  margin: 0;
+  padding: 2rem 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e6e9f4;
+  transition: transform 0.4s ease;
+}
+
+.berrypress-addon-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.berrypress-addon-icon {
+  margin-bottom: 20px;
+}
+
+.berrypress-addon-icon img {
+  width: 40px;
+  height: 40px;
+}
+
+.berrypress-addon-icon img:hover {
+  transform: scale(1.05);
+}
+
+.berrypress-addon-item h3 {
+  margin: 0 0 15px 0;
+}
+
+.berrypress-addon-item p {
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.berrypress-addon-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+  text-align: left;
+}
+
+.berrypress-addon-features li {
+  border-bottom: 1px solid #e6e9f4;
+  position: relative;
+  padding: 5px 0 5px 20px;
+}
+
+.berrypress-addon-features li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #0070F0;
+  font-weight: bold;
+}
+
+.berrypress-addon-features li:last-child {
+  border-bottom: none;
+}
+
+.berrypress-product-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #f5f6fa;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  background: #e6f0ff;
+  color: #1658f8;
+}
+
+.ninjalytics-pro-page {
+  max-width: 1200px;
+  padding: 20px;
+}
+
+.berrypress-coupon {
+  padding: 1rem;
+  border: 2px dashed #d7dbec;
+  font-size: 16px;
+  display: inline-block;
+  border-radius: 8px;
+}
+
+/* Pro Features */
+.berrypress-page .ninjalytics-pro-feature .ninjalytics-help-text {
+  color: #d7dbec;
+  text-align: left;
+}
+.berrypress-page button.ninjalytics-pro-feature,
+.berrypress-page .ninjalytics-pro-feature {
+  cursor: not-allowed;
+  position: relative;
+  color: #d7dbec !important;
+}
+.berrypress-page .berrypress-btn.berrypress-btn-secondary.ninjalytics-pro-feature,
+.berrypress-page .berrypress-btn.berrypress-btn-icon.ninjalytics-pro-feature {
+  background-color: #F3F5F9;
+  border-color: #F3F5F9;
+  color: #d7dbec;
+}
+.berrypress-page .berrypress-btn.berrypress-btn-secondary.ninjalytics-pro-feature i,
+.berrypress-page .berrypress-btn.berrypress-btn-icon.ninjalytics-pro-feature i {
+  color: #d7dbec;
+}
+.berrypress-page #ninjalytics-form .ninjalytics-settings-cb-list label.ninjalytics-settings-cb-list-item span.ninjalytics-pro-badge,
+.berrypress-page span.ninjalytics-pro-badge {
+  background-color: #e6e9f4;
+  color: #5A607F;
+  padding: 3px 5px;
+  border-radius: 3px;
+  font-size: 10px;
+  line-height: 1em;
+  vertical-align: middle;
+}
+.berrypress-page #ninjalytics-form .ninjalytics-settings-cb-list label.ninjalytics-settings-cb-list-item span.ninjalytics-pro-badge {
+  margin-left: 5px;
+}
+.berrypress-page .ninjalytics-pro-feature.instructions,
+.berrypress-page .ninjalytics-settings-box.ninjalytics-pro-feature .label {
+  color: #a1a7c4 !important;
+}
+.berrypress-page button .ninjalytics-pro-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: inline-block;
+}
+.berrypress-page .ags-psr-date-range-tabs .ninjalytics-pro-badge {
+  background-color: #0070F0;
+  color: #fff;
+}
+.berrypress-page label[for=report_time_mode_dynamic] {
+  color: #a1a7c4;
+  cursor: not-allowed !important;
+}
+.berrypress-page label[for=report_time_mode_dynamic]:hover {
+  color: #7e84a3 !important;
+}
+.berrypress-page .ags-psr-date-range-tabs input[type=radio]:checked + label[for=report_time_mode_dynamic] {
+  color: #7e84a3 !important;
+  border-bottom: 3px solid #d7dbec !important;
+}

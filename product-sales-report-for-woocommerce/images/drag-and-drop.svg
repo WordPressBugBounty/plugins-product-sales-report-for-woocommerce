@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="26" height="26" viewBox="0 0 26 26">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_9873" data-name="Rectangle 9873" width="26" height="26" transform="translate(686 491)" fill="none"/>
+    </clipPath>
+    <clipPath id="clip-path-2">
+      <rect id="Rectangle_9871" data-name="Rectangle 9871" width="5.737" height="4.511" transform="translate(0 0)" fill="none"/>
+    </clipPath>
+    <clipPath id="clip-path-3">
+      <rect id="Rectangle_9871-2" data-name="Rectangle 9871" width="5.737" height="4.511" fill="none"/>
+    </clipPath>
+  </defs>
+  <g id="Mask_Group_2" data-name="Mask Group 2" transform="translate(-686 -491)" clip-path="url(#clip-path)">
+    <path id="Path_129200" data-name="Path 129200" d="M20.753,10a.625.625,0,0,1,0,1.028l-3.266,2.245a.624.624,0,0,1-.976-.514V8.267a.624.624,0,0,1,.978-.514Z" transform="translate(688.489 493.489)" fill="#3a3a3a"/>
+    <path id="Path_129201" data-name="Path 129201" d="M3.534,7.752a.623.623,0,0,1,.977.514v4.49a.623.623,0,0,1-.976.514L.27,11.025a.612.612,0,0,1-.16-.161A.624.624,0,0,1,.27,10Z" transform="translate(688.489 493.489)" fill="#3a3a3a"/>
+    <path id="Line_68" data-name="Line 68" d="M1,15.043H-1V0H1Z" transform="translate(699 497)" fill="#3a3a3a"/>
+    <path id="Line_69" data-name="Line 69" d="M14,1H0V-1H14Z" transform="translate(692 504)" fill="#3a3a3a"/>
+    <g id="Group_12075" data-name="Group 12075" transform="translate(696.131 511)">
+      <g id="Group_12074" data-name="Group 12074" clip-path="url(#clip-path-2)">
+        <path id="Path_129203" data-name="Path 129203" d="M.11.977A.623.623,0,0,1,.624,0h4.49a.623.623,0,0,1,.514.976L3.383,4.241a.625.625,0,0,1-1.028,0Z" fill="#3a3a3a"/>
+      </g>
+    </g>
+    <g id="Group_12076" data-name="Group 12076" transform="translate(696.131 493)">
+      <g id="Group_12074-2" data-name="Group 12074" transform="translate(0 0)" clip-path="url(#clip-path-3)">
+        <path id="Path_129203-2" data-name="Path 129203" d="M.11,3.534a.623.623,0,0,0,.514.977h4.49a.623.623,0,0,0,.514-.976L3.383.27a.625.625,0,0,0-1.028,0Z" transform="translate(0 0)" fill="#3a3a3a"/>
+      </g>
+    </g>
+  </g>
+</svg>

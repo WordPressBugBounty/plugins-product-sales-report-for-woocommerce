@@ -1,1 +1,15 @@
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M14.83 4.89l1.34.94-5.81 8.38H9.02L5.78 9.67l1.34-1.25 2.57 2.4z' fill='#3EBB79'/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="23" height="23" viewBox="0 0 23 23">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_10363" data-name="Rectangle 10363" width="17" height="17" transform="translate(743 503)" fill="none"/>
+    </clipPath>
+    <clipPath id="clip-Artboard_2">
+      <rect width="23" height="23"/>
+    </clipPath>
+  </defs>
+  <g id="Artboard_2" data-name="Artboard – 2" clip-path="url(#clip-Artboard_2)">
+    <g id="Mask_Group_158" data-name="Mask Group 158" transform="translate(-740 -500)" clip-path="url(#clip-path)">
+      <path id="Path_130161" data-name="Path 130161" d="M4519.718,585.835a1.251,1.251,0,0,1-.843-.327L4516,582.886a1.25,1.25,0,0,1,1.686-1.847l1.9,1.733,3.118-3.813a1.25,1.25,0,0,1,1.936,1.583l-3.954,4.835a1.251,1.251,0,0,1-.877.455Q4519.763,585.835,4519.718,585.835Z" transform="translate(-3768.758 -70.667)" fill="#fff"/>
+    </g>
+  </g>
+</svg>

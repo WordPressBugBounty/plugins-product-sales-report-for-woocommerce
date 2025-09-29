@@ -1,0 +1,259 @@
+/*!
+ * BerryPress SCSS Framework
+ * Copyright (c) 2025 BerryPress
+ * Source code: https://github.com/BerryPress/scss-framework
+ * License: https://github.com/BerryPress/scss-framework/blob/main/LICENSE
+ */
+@font-face {
+  font-family: "Material Symbols Rounded BerryPress";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../font/MaterialSymbolsRounded.woff2") format("woff2");
+  font-display: block;
+}
+.berrypress-icon-filled {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+[class^=berrypress-icon-], [class*=" berrypress-icon-"] {
+  display: inline-block;
+  font-style: unset !important;
+  visibility: hidden;
+  width: 1em;
+}
+[class^=berrypress-icon-]::before, [class*=" berrypress-icon-"]::before {
+  font-family: "Material Symbols Rounded BerryPress", sans-serif;
+}
+
+.berrypress-font-loaded [class^=berrypress-icon-], [class*=" berrypress-icon-"] {
+  visibility: visible;
+  width: auto;
+}
+
+i.berrypress-icon-search::before {
+  content: "\e8b6";
+}
+
+i.berrypress-icon-home::before {
+  content: "\e88a";
+}
+
+i.berrypress-icon-settings::before {
+  content: "\e8b8";
+}
+
+i.berrypress-icon-check::before {
+  content: "\e5ca";
+}
+
+i.berrypress-icon-radio_button_checked::before {
+  content: "\e837";
+}
+
+i.berrypress-icon-radio_button_unchecked::before {
+  content: "\e836";
+}
+
+i.berrypress-icon-expand_more::before {
+  content: "\e5cf";
+}
+
+i.berrypress-icon-close::before {
+  content: "\e5cd";
+}
+
+i.berrypress-icon-remove::before {
+  content: "\e5cd";
+}
+
+i.berrypress-icon-error_outline::before {
+  content: "\e001";
+}
+
+i.berrypress-icon-first_page::before {
+  content: "\e5dc";
+}
+
+i.berrypress-icon-menu::before {
+  content: "\e5d2";
+}
+
+i.berrypress-icon-help::before {
+  content: "\e887";
+}
+
+i.berrypress-icon-star::before {
+  content: "\e838";
+}
+
+i.berrypress-icon-lock::before {
+  content: "\e897";
+}
+
+i.berrypress-icon-warning::before {
+  content: "\e002";
+}
+
+i.berrypress-icon-library_books::before {
+  content: "\e02f";
+}
+
+i.berrypress-icon-question_mark::before {
+  content: "\e8af";
+}
+
+i.berrypress-icon-key_vertical::before {
+  content: "\e73c";
+}
+
+i.berrypress-icon-check_circle::before {
+  content: "\e86c";
+}
+
+i.berrypress-icon-sync_alt::before {
+  content: "\ea18";
+}
+
+i.berrypress-icon-play_arrow::before {
+  content: "\e037";
+}
+
+i.berrypress-icon-filter_alt::before {
+  content: "\ef4f";
+}
+
+i.berrypress-icon-access_time::before {
+  content: "\e192";
+}
+
+i.berrypress-icon-cart::before {
+  content: "\f1cc";
+}
+
+i.berrypress-icon-bar-chart::before {
+  content: "\e26b";
+}
+
+i.berrypress-icon-add::before {
+  content: "\e145";
+}
+
+i.berrypress-icon-info::before {
+  content: "\e88e";
+}
+
+i.berrypress-icon-addons::before {
+  content: "\f102";
+}
+
+i.berrypress-icon-pro::before {
+  content: "\e65f";
+}
+
+i.berrypress-icon-keyboard_arrow_left::before {
+  content: "\e314";
+}
+
+i.berrypress-icon-keyboard_double_arrow_left::before {
+  content: "\eac3";
+}
+
+i.berrypress-icon-keyboard_arrow_right::before {
+  content: "\e315";
+}
+
+i.berrypress-icon-keyboard_double_arrow_right::before {
+  content: "\eac9";
+}
+
+/*!
+ * BerryPress SCSS Framework
+ * Copyright (c) 2025 BerryPress
+ * Source code: https://github.com/BerryPress/scss-framework
+ * License: https://github.com/BerryPress/scss-framework/blob/main/LICENSE
+ */
+#adminmenu li#toplevel_page_berrypress div.wp-menu-image {
+  background-size: 16px auto;
+}
+
+.berrypress-notice {
+  font-weight: 400;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fff;
+  color: #131523;
+  border: 1px solid #F3F5F9;
+}
+.berrypress-notice h3 {
+  margin-top: 10px;
+}
+
+.berrypress-notice.berrypress-notice-headline {
+  padding-top: 15px;
+}
+
+.berrypress-notice-icon {
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  justify-content: center;
+}
+
+.berrypress-notice-image {
+  align-self: flex-start;
+}
+
+.berrypress-page button.notice-dismiss {
+  position: absolute;
+  top: 10px;
+  right: 1px;
+  border: none;
+  margin: 0;
+  padding: 9px;
+  background: 0 0;
+  color: #787c82;
+  cursor: pointer;
+}
+
+.berrypress-notice.is-dismissible .notice-dismiss::before {
+  color: #7e84a3;
+}
+
+.berrypress-notice.berrypress-error {
+  border-right: unset;
+  border-top: unset;
+  border-bottom: unset;
+  border-left: 4px solid #d32f2f;
+}
+.berrypress-notice.berrypress-error .berrypress-notice-icon {
+  background-color: #d32f2f;
+}
+.berrypress-notice.berrypress-error .berrypress-notice-icon i {
+  color: #fff;
+  font-size: 14px;
+}
+.berrypress-notice.berrypress-error i {
+  font-size: 16px;
+  color: #d32f2f;
+}
+.berrypress-notice.berrypress-error a {
+  color: #131523;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.berrypress-notice.berrypress-notice-info {
+  border-left: 4px solid #0070F0;
+}
+.berrypress-notice.berrypress-notice-info a {
+  color: #0070F0;
+  text-decoration: underline;
+  font-weight: 600;
+}

@@ -1,0 +1,1205 @@
+/*!
+ * BerryPress SCSS Framework
+ * Copyright (c) 2025 BerryPress
+ * Source code: https://github.com/BerryPress/scss-framework
+ * License: https://github.com/BerryPress/scss-framework/blob/main/LICENSE
+ */
+@keyframes berrypress-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.berrypress-page button,
+.berrypress-page .button,
+.berrypress-page .wp-core-ui .button,
+.berrypress-page input[type=submit],
+.berrypress-page input[type=button],
+.berrypress-page input[type=reset],
+.berrypress-page a {
+  all: unset;
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+.berrypress-page button:disabled,
+.berrypress-page .button:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+}
+.berrypress-page .screen-reader-shortcut {
+  position: absolute;
+  top: -1000em;
+}
+
+.berrypress-page #wpcontent {
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica", "Arial", sans-serif;
+  color: #131523;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+.berrypress-page .berrypress-fs-24 {
+  font-size: 24px;
+}
+.berrypress-page .berrypress-fs-18 {
+  font-size: 18px;
+}
+.berrypress-page .berrypress-fs-16 {
+  font-size: 16px;
+}
+.berrypress-page .berrypress-fs-15 {
+  font-size: 15px;
+}
+.berrypress-page .berrypress-fs-13 {
+  font-size: 13px;
+}
+.berrypress-page .berrypress-fs-14 {
+  font-size: 14px;
+}
+.berrypress-page .berrypress-fs-12 {
+  font-size: 12px;
+}
+.berrypress-page .berrypress-fw-regular {
+  font-weight: 400;
+}
+.berrypress-page .berrypress-fw-medium {
+  font-weight: 500;
+}
+.berrypress-page .berrypress-fw-bold {
+  font-weight: 600;
+}
+.berrypress-page .berrypress-text-primary {
+  color: #131523;
+}
+.berrypress-page .berrypress-text-secondary {
+  color: #5A607F;
+}
+.berrypress-page .berrypress-text-center {
+  text-align: center;
+}
+.berrypress-page .berrypress-text-left {
+  text-align: left;
+}
+.berrypress-page .berrypress-text-right {
+  text-align: right;
+}
+
+#adminmenu li#toplevel_page_berrypress div.wp-menu-image {
+  background-size: 16px auto;
+}
+
+.berrypress-page input[type=submit].berrypress-btn,
+.berrypress-page .berrypress-btn {
+  cursor: pointer;
+  padding: 2px 24px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+  border: 1px solid #d7dbec;
+  text-align: center;
+  transition: background 0.3s ease, opacity 0.3s ease;
+}
+.berrypress-page input[type=submit].berrypress-btn-primary,
+.berrypress-page .berrypress-btn-primary {
+  background-color: #0070F0;
+  color: #fff;
+  border-color: #0070F0;
+  white-space: nowrap;
+}
+.berrypress-page input[type=submit].berrypress-btn-primary:hover,
+.berrypress-page .berrypress-btn-primary:hover {
+  background-color: rgb(0, 104.86, 224.7);
+}
+.berrypress-page input[type=submit].berrypress-btn-primary i,
+.berrypress-page .berrypress-btn-primary i {
+  font-size: 18px;
+  line-height: 18px;
+  vertical-align: middle;
+  position: relative;
+  left: -5px;
+}
+.berrypress-page input[type=submit].berrypress-btn-secondary,
+.berrypress-page .berrypress-btn-secondary {
+  background-color: #F3F5F9;
+  color: #131523;
+  white-space: nowrap;
+}
+.berrypress-page input[type=submit].berrypress-btn-secondary:hover,
+.berrypress-page .berrypress-btn-secondary:hover {
+  background-color: rgb(234.5, 237.9166666667, 244.75);
+}
+.berrypress-page input[type=submit].berrypress-btn-secondary i,
+.berrypress-page .berrypress-btn-secondary i {
+  line-height: 18px;
+  font-size: 18px;
+  vertical-align: middle;
+  position: relative;
+  left: -4px;
+}
+.berrypress-page a.berrypress-btn {
+  display: inline-block;
+}
+.berrypress-page .berrypress-btn.berrypress-btn-icon {
+  background-color: #F3F5F9;
+}
+.berrypress-page .berrypress-btn.berrypress-btn-icon:hover {
+  color: #131523;
+  background-color: #FEFEFE;
+}
+.berrypress-page .berrypress-btn-icon {
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  padding-top: 1px;
+  padding-left: 0;
+  padding-right: 0;
+  box-sizing: border-box;
+}
+.berrypress-page .berrypress-btn-icon:hover {
+  color: #0070F0;
+}
+.berrypress-page .berrypress-btn-icon i {
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+}
+.berrypress-page .berrypress-link {
+  padding: 0;
+  font-size: 14px;
+  line-height: 30px;
+  font-weight: 500;
+  text-decoration: underline;
+}
+.berrypress-page .berrypress-btn.berrypress-btn-loading {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.8;
+}
+.berrypress-page .berrypress-btn.berrypress-btn-loading i {
+  width: 10px;
+  height: 10px;
+  margin-right: 4px;
+  margin-top: -2px;
+  border: 2px solid #5A607F;
+  border-bottom-color: #d7dbec;
+  border-left-color: #d7dbec;
+  border-radius: 50%;
+  animation: berrypress-spin 1s linear infinite;
+}
+.berrypress-page .berrypress-btn.berrypress-btn-loading i::before {
+  content: "";
+}
+.berrypress-page .berrypress-btn.berrypress-btn-success {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.berrypress-page .berrypress-btn.berrypress-btn-success i::before {
+  content: "\e5ca";
+}
+
+.berrypress-form-vertical .berrypress-field-wrapper {
+  margin-bottom: 10px;
+}
+
+.berrypress-inline-error {
+  background-color: #ffe6e6;
+  color: #f0142f;
+  padding: 8px 15px;
+  border-radius: 5px;
+  line-height: 1.4em;
+}
+.berrypress-inline-error i {
+  margin-right: 5px;
+  line-height: 16px;
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+.berrypress-inline-success {
+  background-color: #def2e6;
+  padding: 8px 15px;
+  border-radius: 5px;
+  color: #098f43;
+  line-height: 1.4em;
+}
+.berrypress-inline-success i {
+  margin-right: 5px;
+  line-height: 16px;
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+.berrypress-field {
+  display: grid;
+  align-items: start;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  position: relative;
+  margin-bottom: 10px;
+  line-height: 16px;
+}
+.berrypress-field label {
+  font-size: 14px;
+  color: #131523;
+  cursor: pointer;
+  vertical-align: super;
+}
+
+.berrypress-page select,
+.berrypress-page input[type=search],
+.berrypress-page input[type=email],
+.berrypress-page input[type=number],
+.berrypress-page input[type=text] {
+  height: 30px;
+  padding: 0 12px;
+  line-height: 28px;
+  border: 1px solid #d7dbec;
+  border-radius: 5px;
+  font-size: 14px;
+}
+.berrypress-page select:focus,
+.berrypress-page input[type=search]:focus,
+.berrypress-page input[type=email]:focus,
+.berrypress-page input[type=number]:focus,
+.berrypress-page input[type=text]:focus {
+  border: 1px solid #a1a7c4;
+  box-shadow: unset;
+  outline: unset;
+}
+.berrypress-page select,
+.berrypress-page input[type=email],
+.berrypress-page input[type=text] {
+  min-width: 100px;
+}
+.berrypress-page select {
+  padding-right: 30px;
+}
+.berrypress-page input[type=search]::placeholder {
+  color: #5A607F;
+}
+
+.berrypress-page input[type=checkbox] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background-color: #FEFEFE;
+  border: 1px solid #a1a7c4;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  margin: 0;
+}
+.berrypress-page input[type=checkbox]:checked {
+  background-color: #0070F0;
+  border-color: #0070F0;
+}
+.berrypress-page input[type=checkbox]:checked::before {
+  content: "\e5ca";
+  font-family: "Material Symbols Rounded BerryPress";
+  font-size: 18px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: unset;
+}
+.berrypress-page input[type=checkbox]:focus {
+  outline: unset;
+  box-shadow: unset;
+}
+.berrypress-page input[type=checkbox]:disabled:checked {
+  opacity: 0.4;
+}
+.berrypress-page input[type=checkbox]:disabled:not(:checked) {
+  opacity: 0.4;
+  background-color: #e6e9f4;
+  border-color: #a1a7c4;
+}
+
+.berrypress-page .berrypress-switch input[type=checkbox] {
+  appearance: none;
+  width: 30px;
+  height: 17px;
+  background-color: transparent;
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  border: 1px solid #a1a7c4;
+}
+.berrypress-page .berrypress-switch input[type=checkbox]::after {
+  content: "";
+  width: 11px;
+  height: 11px;
+  background-color: #a1a7c4;
+  border-radius: 50%;
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  transition: left 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+.berrypress-page .berrypress-switch input[type=checkbox]::before {
+  display: none;
+}
+.berrypress-page .berrypress-switch input[type=checkbox]:checked {
+  background-color: #0070F0;
+  border: 1px solid #0070F0;
+}
+.berrypress-page .berrypress-switch input[type=checkbox]:checked::after {
+  left: 15px;
+  background-color: #fff;
+}
+.berrypress-page .berrypress-switch input[type=checkbox]:disabled:checked {
+  opacity: 0.4;
+}
+.berrypress-page .berrypress-switch input[type=checkbox]:disabled:not(:checked) {
+  background-color: #e6e9f4;
+}
+.berrypress-page .berrypress-switch input[type=checkbox]:focus {
+  outline: none;
+}
+
+.berrypress-page input[type=radio] {
+  position: absolute;
+  opacity: 0;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.berrypress-page input[type=radio] ~ label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.berrypress-page input[type=radio] ~ label:before {
+  content: "";
+  background: #FEFEFE;
+  border-radius: 50%;
+  border: 1px solid #a1a7c4;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  position: relative;
+  text-align: center;
+  transition: all 250ms ease;
+}
+.berrypress-page input[type=radio]:checked + label::before {
+  background-color: #0070F0;
+  box-shadow: inset 0 0 0 4px #FEFEFE;
+}
+.berrypress-page input[type=radio]:focus + label::before {
+  outline: none;
+  border-color: #0070F0;
+}
+.berrypress-page input[type=radio]:checked:disabled + label::before {
+  box-shadow: inset 0 0 0 4px #e6e9f4;
+  background-color: #a1a7c4;
+  border-color: #a1a7c4;
+  opacity: 0.4;
+}
+.berrypress-page input[type=radio]:disabled + label::before {
+  background-color: #e6e9f4;
+  border-color: #a1a7c4;
+  opacity: 0.4;
+}
+
+/*!
+ * Adapted from WooCommerce's select2.scss
+ * Source: woocommerce/assets/css/select2.scss
+ * License: See license.txt in the plugin root directory.
+ */
+.berrypress-page .select2-container {
+  box-sizing: border-box;
+  display: inline-block;
+  margin: 0;
+  position: relative;
+  vertical-align: middle;
+  min-width: 240px;
+}
+.berrypress-page .select2-container .select2-selection--multiple {
+  min-width: 240px;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: block;
+  user-select: none;
+  -webkit-user-select: none;
+  min-height: 30px;
+  padding: 0 30px 0 12px;
+  line-height: 28px;
+  border: 1px solid #d7dbec;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E) no-repeat right 5px top 55%;
+  background-size: 16px 16px;
+}
+.berrypress-page .select2-container .select2-selection--multiple:focus {
+  border: 1px solid #a1a7c4;
+  box-shadow: none;
+  outline: none;
+}
+.berrypress-page .select2-container .select2-selection--single {
+  min-width: 240px;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: block;
+  user-select: none;
+  -webkit-user-select: none;
+  height: 30px;
+  padding: 0 30px 0 12px;
+  line-height: 28px;
+  border: 1px solid #d7dbec;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E) no-repeat right 5px top 55%;
+  background-size: 16px 16px;
+}
+.berrypress-page .select2-container .select2-selection--single:focus {
+  border: 1px solid #a1a7c4;
+  box-shadow: none;
+  outline: none;
+}
+.berrypress-page .select2-container .select2-selection--single .select2-selection__rendered {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.berrypress-page .select2-container .select2-selection .select2-selection__clear {
+  position: relative;
+}
+.berrypress-page .select2-dropdown {
+  background-color: #fff;
+  border: 1px solid #d7dbec;
+  border-radius: 4px;
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  left: -100000px;
+  width: 100%;
+  z-index: 1051;
+  top: -4px;
+}
+.berrypress-page .select2-container--open .select2-dropdown {
+  left: 0;
+}
+.berrypress-page .select2-container--open .select2-dropdown--above {
+  border-bottom: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.berrypress-page .select2-container--open .select2-dropdown--below {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.berrypress-page .select2-container--open.select2-container--above .select2-selection--single {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.berrypress-page .select2-container--open.select2-container--below .select2-selection--single {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.berrypress-page .select2-results {
+  display: block;
+}
+.berrypress-page .select2-results__options {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.berrypress-page .select2-results__options .select2-results__option {
+  padding: 6px 6px 6px 10px;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+.berrypress-page .select2-results__options .select2-results__option[data-selected=true], .berrypress-page .select2-results__options .select2-results__option[aria-selected=true] {
+  background-color: #e6e9f4;
+}
+.berrypress-page .select2-results__options .select2-results__option[data-selected=true] {
+  cursor: default;
+}
+.berrypress-page .select2-results__options .select2-results__option--highlighted[data-selected] {
+  background-color: #0070F0;
+  color: white;
+}
+.berrypress-page .select2-results__options .select2-results__option[role=group] {
+  padding: 0;
+}
+.berrypress-page .select2-results__options .select2-results__option .select2-results__option {
+  padding-left: 14px;
+}
+.berrypress-page .select2-results__options__group {
+  cursor: default;
+  display: block;
+  padding: 6px;
+}
+.berrypress-page .select2-results__options[aria-disabled=true] {
+  color: #7e84a3;
+  background-color: #F3F5F9;
+}
+.berrypress-page .select2-search--dropdown {
+  display: block;
+  padding: 4px;
+}
+.berrypress-page .select2-search--dropdown.select2-search--hide {
+  display: none;
+}
+.berrypress-page .select2-search--dropdown .select2-search__field {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 18px 4px 4px;
+  border: 1px solid #d7dbec;
+  background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23a1a7c4"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM10 14a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>') no-repeat right 8px center;
+  background-size: 16px 16px;
+}
+.berrypress-page .select2-selection__arrow {
+  display: none;
+}
+.berrypress-page .select2-hidden-accessible {
+  border: 0 !important;
+  clip: rect(0 0 0 0) !important;
+  height: 1px !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 1px !important;
+}
+.berrypress-page .select2-container--default .select2-selection--single {
+  background-color: #fff;
+  border: 1px solid #d7dbec;
+  border-radius: 5px;
+}
+.berrypress-page .select2-container--default .select2-selection--single .select2-selection__clear {
+  cursor: pointer;
+  float: right;
+  font-weight: bold;
+}
+.berrypress-page .select2-container--default .select2-selection--single .select2-selection__placeholder {
+  color: #d7dbec;
+}
+.berrypress-page .select2-container--default .select2-search--inline .select2-search__field {
+  background: transparent;
+  border: none;
+  outline: 0;
+  box-shadow: none;
+  -webkit-appearance: textfield;
+}
+.berrypress-page .select2-container--default .select2-search--dropdown .select2-search__field {
+  border: 1px solid #d7dbec;
+  padding-left: 4px;
+  padding-right: 18px;
+}
+.berrypress-page .select2-container--default[dir=rtl] .select2-selection--single .select2-selection__clear {
+  float: left;
+}
+.berrypress-page .select2-search--inline {
+  float: left;
+  padding: 0;
+}
+.berrypress-page .select2-search--inline .select2-search__field {
+  box-sizing: border-box;
+  border: none;
+  font-size: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  outline: 0;
+  box-shadow: none;
+  -webkit-appearance: textfield;
+}
+
+.berrypress-page .tablenav.top {
+  margin-top: 7px;
+}
+.berrypress-page .tablenav.top button {
+  margin-bottom: 4px;
+}
+.berrypress-page .tablenav.bottom button {
+  margin-bottom: 4px;
+}
+.berrypress-page table.berrypress-table {
+  width: calc(100% - 20px);
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid #e6e9f4;
+  background: #fff;
+}
+.berrypress-page table.berrypress-table thead {
+  background-color: #F3F5F9;
+}
+.berrypress-page table.berrypress-table thead th {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #e6e9f4;
+}
+.berrypress-page table.berrypress-table tfoot {
+  background-color: #F3F5F9;
+}
+.berrypress-page table.berrypress-table tfoot th {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #e6e9f4;
+}
+.berrypress-page table.berrypress-table tbody tr {
+  background: transparent;
+}
+.berrypress-page table.berrypress-table tbody tr:nth-child(even) {
+  background: transparent;
+}
+.berrypress-page table.berrypress-table tbody td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #e6e9f4;
+  vertical-align: middle;
+}
+.berrypress-page table.berrypress-table tbody h2 {
+  font-size: 14px;
+  margin: 0;
+}
+.berrypress-page table.berrypress-table tfoot th, .berrypress-page table.berrypress-table td {
+  border: unset;
+}
+
+.berrypress-page table.berrypress-table tbody tr.no-items td {
+  text-align: center;
+  padding: 45px 10px;
+  border-bottom: 1px solid #e6e9f4;
+}
+.berrypress-page table.berrypress-table tbody tr.no-items td::before {
+  font-family: "Material Symbols Rounded BerryPress", sans-serif;
+  content: "\e001";
+  display: block;
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #5A607F;
+}
+
+.berrypress-page table.berrypress-table #the-list tr.no-items td {
+  border-bottom: 1px solid #e6e9f4 !important;
+}
+
+.berrypress-page a.php-apc-doc-note {
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  margin-right: 8px !important;
+}
+.berrypress-page a.php-apc-doc-note i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #5A607F;
+  border: 1px solid #5A607F;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  font-size: 10px;
+  margin-left: 3px;
+}
+.berrypress-page a.php-apc-doc-note::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 280px;
+  background-color: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  text-align: left;
+  padding: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  border-radius: 4px;
+  opacity: 0;
+  white-space: normal;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 9999;
+}
+.berrypress-page a.php-apc-doc-note:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(5px);
+}
+
+.berrypress-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-height: 90px;
+  background: #fafbfd;
+  padding: 15px 20px;
+  width: 100%;
+  z-index: 1000;
+  font-size: 14px;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+@media (max-width: 1200px) {
+  .berrypress-header .berrypress-header-right {
+    margin-left: 0;
+  }
+}
+
+.berrypress-page .berrypress-header-left {
+  display: flex;
+  font-weight: 500;
+  gap: 8px;
+  align-items: center;
+  padding-right: 20px;
+}
+@media (min-width: 1250px) {
+  .berrypress-page .berrypress-header-left {
+    width: 240px;
+  }
+}
+
+.berrypress-nav a {
+  gap: 5px;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  padding: 8px 6px 8px 4px;
+  margin-right: 8px;
+  justify-content: center;
+}
+.berrypress-nav a i::before {
+  vertical-align: middle;
+}
+.berrypress-nav a:hover, .berrypress-nav a:hover i {
+  color: #0070F0;
+}
+.berrypress-nav a.active::after {
+  height: 2px;
+  width: 100%;
+  background-color: #0070F0;
+  content: "";
+  border-radius: 8px;
+  position: absolute;
+  display: block;
+  bottom: 0;
+  left: 0;
+}
+
+.berrypress-header-right {
+  margin-left: auto;
+}
+.berrypress-header-right a {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  position: relative;
+  padding: 8px 6px 8px 4px;
+  margin-right: 8px;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+.berrypress-header-right a i::before {
+  vertical-align: middle;
+}
+.berrypress-header-right a:not(.last) {
+  margin-right: 8px;
+}
+.berrypress-header-right a:hover, .berrypress-header-right a:hover i {
+  color: #0070F0;
+}
+
+#berrypress-toggle-menu-mobile {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .berrypress-page .berrypress-header #berrypress-toggle-menu-mobile {
+    display: inline-block;
+    margin-right: 5px;
+  }
+  .berrypress-page .berrypress-header .berrypress-header-left {
+    width: unset;
+  }
+  .berrypress-page .berrypress-header .berrypress-header-right,
+  .berrypress-page .berrypress-header .berrypress-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .berrypress-page .berrypress-header .berrypress-logo {
+    font-size: 12px;
+  }
+  .berrypress-page .berrypress-header .berrypress-header-left img {
+    display: none;
+  }
+}
+@media (min-width: 701px) {
+  .berrypress-mobile-only {
+    display: none !important;
+  }
+}
+@media (max-width: 700px) {
+  .berrypress-md-only {
+    display: none !important;
+  }
+}
+.berrypress-page #wpfooter {
+  display: none;
+}
+
+.berrypress-sidebar {
+  width: 240px;
+  background: #FEFEFE;
+  padding: 20px;
+  border-right: 1px solid #e6e9f4;
+  transition: transform 0.3s ease-in-out;
+  position: sticky;
+  top: 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: calc(100vh - 32px);
+  z-index: 10;
+}
+.berrypress-sidebar .berrypress-menu {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+  border-top: 1px solid #e6e9f4;
+  font-size: 14px;
+}
+.berrypress-sidebar .berrypress-menu li {
+  padding: 8px 0;
+  margin: 0;
+}
+.berrypress-sidebar .berrypress-menu h3 {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-weight: 500;
+  font-size: 12px;
+}
+.berrypress-sidebar .berrypress-menu a {
+  color: #5A607F;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  position: relative;
+}
+.berrypress-sidebar .berrypress-menu a i::before {
+  vertical-align: middle;
+}
+.berrypress-sidebar .berrypress-menu a:hover {
+  color: #0070F0;
+}
+.berrypress-sidebar .berrypress-menu .active a {
+  color: #131523;
+  font-weight: 500;
+}
+.berrypress-sidebar .berrypress-menu .active a::after {
+  width: 2px;
+  height: 14px;
+  background-color: #0070F0;
+  content: "";
+  border-radius: 50%;
+  position: absolute;
+  display: block;
+  top: 50%;
+  transform: translateY(-50%);
+  left: -10px;
+}
+.berrypress-sidebar .berrypress-upgrade-box {
+  margin: auto auto 0;
+  max-width: 300px;
+}
+.berrypress-sidebar .berrypress-upgrade-box > div {
+  margin-top: 20px;
+  background: #F3F5F9;
+  padding: 0 15px 35px;
+  text-align: center;
+  border-radius: 5px;
+}
+.berrypress-sidebar .berrypress-upgrade-box h4 {
+  font-size: 16px;
+}
+.berrypress-sidebar .berrypress-upgrade-box ul {
+  margin-bottom: 25px;
+}
+.berrypress-sidebar .berrypress-upgrade-box .berrypress-icon-lock {
+  display: inline-block;
+  font-size: 24px;
+  color: #0058FF;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 50%;
+  position: relative;
+  margin-top: -24px;
+  border: 8px solid #F3F5F9;
+}
+
+.berrypress-sidebar.collapsed {
+  overflow: hidden;
+  padding-top: 30px;
+  width: 60px;
+  z-index: 0;
+}
+.berrypress-sidebar.collapsed .berrypress-icon-first_page {
+  transform: scale(-1);
+}
+.berrypress-sidebar.collapsed h2 {
+  display: none;
+}
+.berrypress-sidebar.collapsed > .berrypress-menu,
+.berrypress-sidebar.collapsed .berrypress-upgrade-box {
+  opacity: 0;
+  visibility: hidden;
+}
+.berrypress-sidebar.collapsed > .berrypress-menu a,
+.berrypress-sidebar.collapsed .berrypress-upgrade-box a {
+  pointer-events: none;
+}
+.berrypress-sidebar.collapsed .berrypress-sidebar-header {
+  flex-direction: column;
+}
+
+.berrypress-sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+@media (max-width: 700px) {
+  .berrypress-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 100%;
+    z-index: 999999;
+    padding-top: 10px;
+    transition: left 0.3s ease-in-out;
+    background-color: #fff;
+    overflow: auto;
+  }
+  .berrypress-sidebar.collapsed {
+    display: none;
+  }
+  .berrypress-settings-container .berrypress-content {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+.berrypress-settings-container {
+  display: flex;
+  flex-direction: column;
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica", "Arial", sans-serif;
+  background: #FEFEFE;
+}
+
+.berrypress-main {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+}
+
+.berrypress-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 20px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.berrypress-content .wrap {
+  margin: 0 0.5rem;
+}
+
+.berrypress-page #wpbody-content {
+  padding-bottom: 0;
+  position: relative;
+}
+
+.berrypress-page #wpcontent:has(.berrypress-main) {
+  padding-left: 0;
+}
+
+.berrypress-page #screen-meta-links {
+  display: none;
+}
+
+#screen-meta {
+  border: 0;
+}
+
+#screen-options-wrap label input[type=checkbox] {
+  display: inline-block;
+}
+
+.berrypress-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.berrypress-mb-2 {
+  margin-bottom: 10px;
+}
+
+.berrypress-mb-3 {
+  margin-bottom: 20px;
+}
+
+.berrypress-mb-4 {
+  margin-bottom: 30px;
+}
+
+.berrypress-mt-3 {
+  margin-top: 20px;
+}
+
+.berrypress-mt-4 {
+  margin-top: 30px;
+}
+
+.berrypress-page {
+  background-color: #FEFEFE;
+}
+
+a.berrypress-logo {
+  max-width: 150px;
+  width: 100%;
+  display: block;
+  margin: 40px auto 10px;
+}
+a.berrypress-logo img {
+  max-width: 100%;
+}
+
+.berrypress-form-license {
+  max-width: 445px;
+  margin: 20px auto;
+  border: 1px solid #e6e9f4;
+  padding: 40px 25px 10px;
+  border-radius: 10px;
+}
+.berrypress-form-license h1 {
+  font-size: 1.6em;
+  margin-bottom: 1.2em;
+}
+.berrypress-form-license p {
+  margin-bottom: 2em;
+}
+.berrypress-form-license a {
+  text-decoration: underline;
+  font-weight: bold;
+}
+.berrypress-form-license .berrypress-field-wrapper {
+  margin-bottom: 1.2em;
+}
+.berrypress-form-license .berrypress-field-wrapper .berrypress-label {
+  text-transform: uppercase;
+  color: #5A607F;
+  margin-bottom: 0.4em;
+  display: block;
+  font-size: 0.95em;
+}
+.berrypress-form-license .berrypress-field-wrapper input {
+  width: 100%;
+}
+.berrypress-form-license .berrypress-btn-primary {
+  width: 100%;
+  box-sizing: border-box;
+  display: block;
+  margin-bottom: 25px;
+}
+.berrypress-form-license .form-footer {
+  font-size: 12px;
+  color: #5A607F;
+}
+
+.berrypress-cards-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -0.5rem;
+}
+
+.berrypress-card {
+  box-sizing: border-box;
+  margin: 0.5rem;
+  padding: 10px 20px;
+}
+.berrypress-card-25 {
+  width: calc(25% - 1rem);
+}
+.berrypress-card-33 {
+  width: calc(33.333% - 1rem);
+}
+.berrypress-card-50 {
+  width: calc(50% - 1rem);
+}
+.berrypress-card-66 {
+  width: calc(66.666% - 1rem);
+}
+.berrypress-card-75 {
+  width: calc(75% - 1rem);
+}
+.berrypress-card-100 {
+  width: calc(100% - 1rem);
+}
+.berrypress-card p {
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .berrypress-card {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+  }
+}
+.berrypress-card {
+  border: 1px solid #e6e9f4;
+  border-radius: 5px;
+}
+.berrypress-card .berrypress-card-header {
+  border-bottom: 1px solid #e6e9f4;
+  margin: -10px -20px;
+  padding: 12px 20px;
+  background: #F3F5F9;
+}
+.berrypress-card .berrypress-card-header h2 {
+  margin: 0;
+}
+.berrypress-card .berrypress-card-content {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}

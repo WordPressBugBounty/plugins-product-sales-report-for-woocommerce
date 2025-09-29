@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_12102" data-name="Rectangle 12102" width="24" height="24" transform="translate(1596 293)" fill="none"/>
+    </clipPath>
+  </defs>
+  <g id="Mask_Group_12807" data-name="Mask Group 12807" transform="translate(-1596 -293)" clip-path="url(#clip-path)">
+    <path id="Rectangle_12101" data-name="Rectangle 12101" d="M1.833-1H14.167A2.836,2.836,0,0,1,17,1.833V12.167A2.836,2.836,0,0,1,14.167,15H1.833A2.836,2.836,0,0,1-1,12.167V1.833A2.836,2.836,0,0,1,1.833-1ZM14.167,13A.834.834,0,0,0,15,12.167V1.833A.834.834,0,0,0,14.167,1H1.833A.834.834,0,0,0,1,1.833V12.167A.834.834,0,0,0,1.833,13Z" transform="translate(1600 299)" fill="#0c2137"/>
+    <path id="Line_21" data-name="Line 21" d="M6.9,6.525a1,1,0,0,1-.624-.219L-.625.781A1,1,0,0,1-.781-.625,1,1,0,0,1,.625-.781l6.9,5.525A1,1,0,0,1,6.9,6.525Z" transform="translate(1601.098 300.475)" fill="#0c2137"/>
+    <path id="Line_22" data-name="Line 22" d="M0,6.525A1,1,0,0,1-.781,6.15,1,1,0,0,1-.625,4.745l6.9-5.525a1,1,0,0,1,1.406.156A1,1,0,0,1,7.528.781L.625,6.306A1,1,0,0,1,0,6.525Z" transform="translate(1608 300.475)" fill="#0c2137"/>
+  </g>
+</svg>

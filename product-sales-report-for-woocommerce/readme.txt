@@ -1,48 +1,50 @@
-=== Product Sales Report for WooCommerce ===
-Contributors:      aspengrovestudios, annaqq
-Tags:              woocommerce, sales report, woocommerce sales, reporting, analytics, csv, excel, spreadsheets
-Requires at least: 3.5
+=== Ninjalytics ===
+Contributors:      berrypress, kurowskanna, berrypressjonhall
+Tags:              woocommerce, sales report, woocommerce sales, reporting, analytics
+Requires at least: 6.2
 Requires PHP:      7.0
-Tested up to:      6.6.1
-Stable tag:        1.5.6
+Tested up to:      6.8
+Stable tag:        2.0.0
 License:           GPLv3 or later
 License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
 
-Quickly create sales reports for your WooCommerce store with advanced sorting by date range, id, category, tag, status, and more.
+Quickly create sales reports and charts for your WooCommerce store with advanced filtering by date range, id, category, tag, status, and more.
 
 ==Description==
 
-**Setup a custom sales report for the products in your WooCommerce store with toggle sorting options. Including or excluding items based on date range, sale status, product category and id, define display order, choose what fields to include, and generate your report with a click.**
+**Setup custom sales reports for the products in your WooCommerce store. Generate tables, spreadsheets, line charts, and bar charts. Include or exclude sales based on date range, order status, and products, choose what fields to include, set up custom segmentation, and much more! Preview your report live in the WordPress admin, or download the data in CSV format.**
 
 Quickly create sale reports for smart decision making, monitoring sales, setting sales strategies, forecasting, inventory management, and accounting.
 
 ### Reporting Features & Benefits
-- One-click generate and share - view or download your reports with a click
-- Sort by date range - built-in presets or custom start and end dates
-- Order status sorting - include or exclude based transaction status
-- Product-specific reporting - store-wide reports, by product, or a group of products
-- Group variations - show all variations for a product as a single line item
-- Set display order - based on product id, quantity of sales, or gross sales
+
+- Live preview and one-click download
+- Filter by date range, relative or absolute
+- Order status filtering - include or exclude sales based on transaction status
+- Product-specific reporting - store-wide reports, by product(s), product categories, and/or custom segmentation
+- Create interactive line and bar charts to help visualize your data
+- Create report presets - save custom report settings to regenerate reports later
+- Report on variations separately or together
+- Set display order
 - Reporting fields - choose what fields to include in your report
 - Exclude free products - leave free products out of your report
 - Limit included products - set report to only include a set number of products
 - CSV exporter - export in versatile CSV format for universal spreadsheet compatibility
 
 ### Get Pro Features
-If you are a power user needing advanced options for fine-tuning, styling, and sharing reports, [upgrade to pro](https://wpzone.co/product/product-sales-report-pro-for-woocommerce/):
 
-- Create report presets - save custom report settings, regenerate reports, and move preset to other sites
+If you are a power user needing advanced options for fine-tuning reports, [upgrade to pro](https://wpzone.co/product/product-sales-report-pro-for-woocommerce/):
+
 - Email reports - send reports to any email address with a click
-- More formats - Save reports in XLSX, XLS, HTML, or Enhanced HTML
-- Sort by field - use conditional range selectors to include/exclude products with specific fields
-- User role sorting - generate reports by user roles (default and custom roles).
-- Expanded product sorting - adds tag, field, and product variation sorting
-- Group products -  additional layer clustering products
-- Field ordering - add, remove, and drag and drop ordering
-- Advanced styling - dynamic titles, include a header row, and style with custom CSS
+- More formats - Save reports in XLSX, HTML, or Enhanced HTML
+- User role filtering - generate reports by user roles (default and custom roles)
+- Expanded product filtering - adds tag, field, and product variation sorting
+- Use multiple custom segments at the same time
+- Create custom calculated fields with your own formulas
 - **Want more?** - check out our add-ons for expansion plugins
 
 ### View, Download, and Share
+
 Use the report builder to quickly create a custom report, view in your dashboard, or click “Download Report” and your custom report will be generated and downloaded as a CSV. Import to your favorite spreadsheet software or share it with members of your team.
 
  ⭐️⭐️⭐️⭐️⭐️
@@ -52,10 +54,12 @@ Use the report builder to quickly create a custom report, view in your dashboard
 > “I was looking for good frontend reports for my marketplace and I came across the winning trio, [Products Sales Report Pro](https://wpzone.co/product/product-sales-report-pro-for-woocommerce/), [Export Items Pro](https://wordpress.org/plugins/export-order-items-for-woocommerce/) in combination with [Frontend Reports](https://wpzone.co/product/frontend-reports-for-woocommerce/). This trio was the best for the job.” `-` Yinon Tubi
 
 
-### Simple Sorting
-Product Sales Reports gives you a ton of control for zeroing in on what’s important. See what products are performing best based on quantity or gross sales so you can refine your online sales strategy. Sort by date range, order status, item, category, and field.
+### Simple Filtering
+
+Ninjalytics gives you a ton of control for zeroing in on what’s important. See what products are performing best based on quantity or sales so you can refine your online sales strategy. Filter by date range, order status, item, and/or category.
 
 #### Reporting Fields Include:
+
 - Product ID
 - Product SKU
 - Product Name
@@ -68,10 +72,8 @@ Product Sales Reports gives you a ton of control for zeroing in on what’s impo
 
 If you like this plugin, please consider leaving a comment or review.
 
-### Work Faster With Presets (Pro)
-Set up your reports and save them as templates you can use again and again. [Product Sales Report Pro](https://wpzone.co/product/product-sales-report-pro-for-woocommerce/) lets you store an unlimited number of presets that can be used for comparative growth analysis. Or export your presets and use them across all the WooCommerce stores you manage.
-
 ### Addons & Integrations
+
 Looking to automate your reports, share them on the frontend of your site, or export details about an individual sale for order fulfillment? Upgrade or become a member for access to these add-ons:
 
 [Scheduled Email Reports](https://wpzone.co/product/scheduled-email-reports-for-woocommerce/) - email your reports as an attachment on a recurring schedule
@@ -80,25 +82,13 @@ Looking to automate your reports, share them on the frontend of your site, or ex
 
 
 ## You may also like these plugins
-[WP Zone](https://wpzone.co/) has built a bunch of plugins, add-ons, and themes. Check out other favorites here on the repository and don’t forget to leave a 5-star review to help others in the community decide.
+
+[BerryPress](https://berrypress.com/) has built a bunch of plugins for WooCommerce and WordPress. Check out other favorites here on the repository and don’t forget to leave a 5-star review to help others in the community decide.
 
 * [Export Order Items for WooCommerce](https://wordpress.org/plugins/export-order-items-for-woocommerce/) - export the order details for each sale in your WooCommerce store. Simplify order fulfillment, generate accounting reports in a few clicks, and download into CSV format for readability and universal compatibility with Export Order Items.
-* [Replace Image](https://wordpress.org/plugins/replace-image/) – keep the same URL when uploading to the WordPress media library
-* [Force Update Check for Plugins and Themes](https://wordpress.org/plugins/force-update-check-for-plugins-and-themes/) -force Update Check for Plugins and Themes forces WordPress to run a theme and plugin update check whenever you visit the WordPress updates page
-* [Connect SendGrid for Emails](https://wordpress.org/plugins/connect-sendgrid-for-emails/) -  connect SendGrid for Emails is a third-party fork of (and a drop-in replacement for) the official SendGrid plugin
-* [Custom CSS and JavaScript](https://wordpress.org/plugins/custom-css-and-javascript/) - allows you to add custom site-wide CSS styles and JavaScript code to your WordPress site. Useful for overriding your theme’s styles and adding client-side functionality.
-* [Disable User Registration Notification Emails](https://wordpress.org/plugins/disable-user-registration-notification-emails/) - when this plugin is activated, it disables the notification sent to the admin email when a new user account is registered.
 * [Inline Image Upload for BBPress](https://wordpress.org/plugins/image-upload-for-bbpress/) - enables the TinyMCE WYSIWYG editor for BBPress forum topics and replies and adds a button to the editor’s “Insert/edit image” dialog that allows forum users to upload images from their computer and insert them inline into their posts.
-* [Password Strength for WooCommerce](https://wordpress.org/plugins/password-strength-for-woocommerce/) - disables password strength enforcement in WooCommerce.
-* [Potent Donations for WooCommerce](https://wordpress.org/plugins/donations-for-woocommerce/) – acceptance donations through your WooCommerce store
-* [Shortcodes for Divi](https://wordpress.org/plugins/shortcodes-for-divi/) - allows to use Divi Library layouts as shortcodes everywhere where text comes.
-* [Stock Export and Import for WooCommerce](https://wordpress.org/plugins/stock-export-and-import-for-woocommerce/) - generates reports on the stock status (in stock / out of stock) and quantity of individual WooCommerce products.
-* [Random Quiz Generator for LifterLMS](https://wordpress.org/plugins/random-quiz-addon-for-lifterlms/) - pull a random set of questions from your quiz so users never get the same question twice when retaking or setting up a practice quiz.
-* [WP and Divi Icons](https://wordpress.org/plugins/wp-and-divi-icons/) - adds over 660 custom outline SVG icons to your website. SVG icons are vector icons, so they are sharp and look good on any screen at any size.
-* [WP Layouts](https://wordpress.org/plugins/wp-layouts/) - the best way to organize, import, and export your layouts, especially if you have multiple websites.
-* [WP Squish](https://wordpress.org/plugins/wp-squish/) - reduce the amount of storage space consumed by your WordPress installation through the application of user-definable JPEG compression levels and image resolution limits to uploaded images.
 
-To view WP Zone's premium WordPress plugins and themes, visit our [WordPress products catalog page](https://wpzone.co/product/).
+To view BerryPress's premium WordPress plugins and themes, visit our [WordPress products catalog page](https://berrypress.com/shop/).
 
 Enjoy!
 
@@ -109,30 +99,29 @@ Enjoy!
 
 In some cases output may be affected by the limited precision of PHP's floating point numbers (see the warning in the PHP manual: https://www.php.net/manual/en/language.types.float.php). This may occur retrieving values from the database, when the plugin does calculations after retrieving values from the database, such as when a report field consists of two database fields added together, or when calculating the totals row. When this occurs, a tiny fractional error may be introduced each time a calculation is performed, typically less than 0.000000000000001 per calculation or retrieval. This is not likely to affect the accuracy of the output in normal usage where only a few decimal places are used, even if a value has been derived from many calculations such as the totals row in a very long report. However, if output rounding is not in effect, you may see unexpected additional decimal places in some fields in your output. In this case we recommend rounding the output values as needed.
 
-= What’s the difference between Product Sales Report and Export Order Items? =
+= What’s the difference between Ninjalytics and Export Order Items? =
 
-Product Sales Report is for creating a report about all your products or a group of products for comparison and sales performance. [Export Order Items](https://wordpress.org/plugins/export-order-items-for-woocommerce/) generates a report with the items from an individual order, specific purchase, or specific customer for order fulfillment or accounting.
+Ninjalytics is for creating a report about all your products or a group of products for comparison and sales performance. [Export Order Items](https://wordpress.org/plugins/export-order-items-for-woocommerce/) generates a report with the items from an individual order, specific purchase, or specific customer for order fulfillment or accounting.
 
 = What’s the difference between the free and pro version? =
 
-The free version is powerful and works well for 90% of store owners. If you need additional control the [pro version](https://wpzone.co/product/product-sales-report-pro-for-woocommerce/) includes the ability to report on product variations individually, report on products with no sales, report on shipping methods used, export in Excel formats, send the report as an attachment, save an unlimited number of presets, change the names of fields in the report, change the order of the fields/columns, limit the report to orders with a matching custom meta field (e.g. delivery date), and include any custom field defined by WooCommerce or another plugin and associated with a product (note: custom fields associated with individual product variations are not supported at this time).
-Or, you can upgrade to a [membership](https://wpzone.co/membership/) to access all of our premium plugins and add-ons including [Scheduled Email Reports](https://wpzone.co/product/scheduled-email-reports-for-woocommerce/) for automating report generation.
+The free version is powerful and works well for 90% of store owners. If you need additional control the [pro version](https://berrypress.com/product/woocommerce/ninjalytics/) includes the ability to export in Excel formats, send the report as an attachment, change the names of fields in the report, limit the report to orders with a matching custom meta field (e.g. delivery date), and include any custom field defined by WooCommerce or another plugin and associated with a product (note: custom fields associated with individual product variations are not supported at this time).
 
 = Can I schedule my reports to send automatically? =
 
-We built [Scheduled Email Reports for WooCommerce](https://wpzone.co/product/scheduled-email-reports-for-woocommerce/) as a premium add-on that can be used to schedule reports from both Product Sales Report to and [Export Order Items](https://wordpress.org/plugins/export-order-items-for-woocommerce/).
+We built [Scheduled Email Reports for WooCommerce](https://wpzone.co/product/scheduled-email-reports-for-woocommerce/) as a premium add-on that can be used to schedule reports from both Ninjalytics and [Export Order Items](https://wordpress.org/plugins/export-order-items-for-woocommerce/).
 
 = Where can I get your other add-ons for WooCommerce? =
-After you install and activate the Product Sales Report for WooCommerce, from the Product Sales Report tab located in the WooCommerce menu, select add-ons to install free and premium feature upgrades for your ecommerce store.
+After you install and activate Ninjalytics, open the Ninjalytics page from the WordPres admin menu, and select the Addons tab to install free and premium feature upgrades for your ecommerce store.
 
 
 
 == Installation ==
 
 1. Click "Plugins" > "Add New" in the WordPress admin menu.
-1. Search for "Product Sales Report".
-1. Click "Install Now".
-1. Click "Activate Plugin".
+2. Search for "Ninjalytics".
+3. Click "Install Now".
+4. Click "Activate Plugin".
 
 Alternatively, you can manually upload the plugin to your wp-content/plugins directory.
 
@@ -144,6 +133,22 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 2.0.0 =
+- Rebrand to Ninjalytics
+New features:
+- Live report table and chart previews
+- Expanded report fields and data options
+- Quick report creation from pre-built templates
+- Detailed product sales reports including variations and shipping data
+- Modern, intuitive reporting interface
+- Interactive line and bar charts for data visualization
+- Save and reuse multiple custom report configurations
+- Flexible date range selection with relative and absolute time ranges
+- Custom data segmentation and grouping options
+- Row count limits - show only the top X results
+- Customizable CSV export settings (delimiters, quotes, escape characters)
+- Support for both WooCommerce and Easy Digital Downloads (beta)
 
 = 1.5.6 =
 * Revert: "Limit Gross Sales and Gross Sales (After Discounts) fields to 10 decimal places (amounts are rounded if more than 10 decimal places)"
