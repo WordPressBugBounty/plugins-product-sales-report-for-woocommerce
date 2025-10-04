@@ -1,10 +1,10 @@
-=== Ninjalytics ===
+=== Ninjalytics (formerly Product Sales Report) ===
 Contributors:      berrypress, kurowskanna, berrypressjonhall
 Tags:              woocommerce, sales report, woocommerce sales, reporting, analytics
 Requires at least: 6.2
 Requires PHP:      7.0
 Tested up to:      6.8
-Stable tag:        2.0.0
+Stable tag:        2.0.1
 License:           GPLv3 or later
 License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -12,7 +12,7 @@ Quickly create sales reports and charts for your WooCommerce store with advanced
 
 ==Description==
 
-**Setup custom sales reports for the products in your WooCommerce store. Generate tables, spreadsheets, line charts, and bar charts. Include or exclude sales based on date range, order status, and products, choose what fields to include, set up custom segmentation, and much more! Preview your report live in the WordPress admin, or download the data in CSV format.**
+**Ninjalytics (formerly Product Sales Report) helps you set up custom sales reports for the products in your WooCommerce store. Generate detailed tables, spreadsheets, line charts, and bar charts. Include or exclude sales based on date range, order status, or specific products. Choose which fields to display, set up custom segmentation, and more! Preview your report live in the WordPress admin, or export the data in CSV format.**
 
 Quickly create sale reports for smart decision making, monitoring sales, setting sales strategies, forecasting, inventory management, and accounting.
 
@@ -48,10 +48,10 @@ If you are a power user needing advanced options for fine-tuning reports, [upgra
 Use the report builder to quickly create a custom report, view in your dashboard, or click “Download Report” and your custom report will be generated and downloaded as a CSV. Import to your favorite spreadsheet software or share it with members of your team.
 
  ⭐️⭐️⭐️⭐️⭐️
->“I needed reports to help make informed decisions for ordering new stock from suppliers and the Product Sales Report for WooCommerce was perfect. It can create very granular reports for specific product categories or one grand report for all our products. Well done!” `-`  @krooisant
+>“I needed reports to help make informed decisions for ordering new stock from suppliers and the Ninjalytics was perfect. It can create very granular reports for specific product categories or one grand report for all our products. Well done!” `-`  @krooisant
 
  ⭐️⭐️⭐️⭐️⭐️
-> “I was looking for good frontend reports for my marketplace and I came across the winning trio, [Products Sales Report Pro](https://wpzone.co/product/product-sales-report-pro-for-woocommerce/), [Export Items Pro](https://wordpress.org/plugins/export-order-items-for-woocommerce/) in combination with [Frontend Reports](https://wpzone.co/product/frontend-reports-for-woocommerce/). This trio was the best for the job.” `-` Yinon Tubi
+> “I was looking for good frontend reports for my marketplace and I came across the winning trio, [Ninjalytics](https://wpzone.co/product/product-sales-report-pro-for-woocommerce/), [Export Items Pro](https://wordpress.org/plugins/export-order-items-for-woocommerce/) in combination with [Frontend Reports](https://wpzone.co/product/frontend-reports-for-woocommerce/). This trio was the best for the job.” `-` Yinon Tubi
 
 
 ### Simple Filtering
@@ -72,6 +72,24 @@ Ninjalytics gives you a ton of control for zeroing in on what’s important. See
 
 If you like this plugin, please consider leaving a comment or review.
 
+### Documentation
+
+Explore the full **Ninjalytics** documentation:
+
+- [Introduction](https://berrypress.com/docs/ninjalytics/)
+- [Compatibility](https://berrypress.com/docs/ninjalytics/compatibility)
+- [Presets & Templates](https://berrypress.com/docs/ninjalytics/presets-and-templates)
+- [Report Dates](https://berrypress.com/docs/ninjalytics/report-dates)
+- **Report Configuration**
+  - [Products](https://berrypress.com/docs/ninjalytics/report-configuration/products)
+  - [Orders](https://berrypress.com/docs/ninjalytics/report-configuration/orders)
+  - [Segmentation](https://berrypress.com/docs/ninjalytics/report-configuration/segmentation)
+  - [Fields](https://berrypress.com/docs/ninjalytics/report-configuration/fields)
+  - [Table & Downloads](https://berrypress.com/docs/ninjalytics/report-configuration/table-and-downloads)
+  - [Charts](https://berrypress.com/docs/ninjalytics/report-configuration/chart)
+  - [Data & Display](https://berrypress.com/docs/ninjalytics/report-configuration/data-and-display)
+- [Extending Ninjalytics](https://berrypress.com/docs/ninjalytics/extending)
+
 ### Addons & Integrations
 
 Looking to automate your reports, share them on the frontend of your site, or export details about an individual sale for order fulfillment? Upgrade or become a member for access to these add-ons:
@@ -83,11 +101,14 @@ Looking to automate your reports, share them on the frontend of your site, or ex
 
 ## You may also like these plugins
 
-[BerryPress](https://berrypress.com/) has built a bunch of plugins for WooCommerce and WordPress. Check out other favorites here on the repository and don’t forget to leave a 5-star review to help others in the community decide.
+[BerryPress](https://berrypress.com/) has built a range of powerful plugins for WooCommerce and WordPress. Check out some of our favorites below — and don’t forget to leave a ⭐⭐⭐⭐⭐ review to help others in the community discover them!
 
-* [Export Order Items for WooCommerce](https://wordpress.org/plugins/export-order-items-for-woocommerce/) - export the order details for each sale in your WooCommerce store. Simplify order fulfillment, generate accounting reports in a few clicks, and download into CSV format for readability and universal compatibility with Export Order Items.
-* [Inline Image Upload for BBPress](https://wordpress.org/plugins/image-upload-for-bbpress/) - enables the TinyMCE WYSIWYG editor for BBPress forum topics and replies and adds a button to the editor’s “Insert/edit image” dialog that allows forum users to upload images from their computer and insert them inline into their posts.
-
+- [Export Order Items for WooCommerce](https://wordpress.org/plugins/export-order-items-for-woocommerce/) — Export detailed order data for every sale in your WooCommerce store. Simplify fulfillment, create accounting reports in just a few clicks, and download CSV files for easy sharing and compatibility.
+- [Inline Image Upload for BBPress](https://wordpress.org/plugins/image-upload-for-bbpress/) — Add a TinyMCE WYSIWYG editor to BBPress forums and enable inline image uploads, so users can easily attach and display images within their posts.
+- [PhotoBerry Studio](https://wordpress.org/plugins/photoberry-studio/) — Create beautiful, customizable product photo galleries directly in your WordPress dashboard.
+- [Automatic Product Categories](https://berrypress.com/product/woocommerce/automatic-product-categories/) — Available as a free version and Pro. Automatically assign products to categories based on custom rules, saving you time and keeping your store organized.
+- [Live Carts](https://berrypress.com/product/woocommerce/live-carts/) — Available as a free version and Pro. View and analyze live shopping carts in real time to understand user behavior and optimize conversions.
+- [Customer Address Change Notification for WooCommerce](https://wordpress.org/plugins/customer-address-change-notification-for-woocommerce/) — Get instant notifications when customers update their shipping or billing address, helping you stay on top of changes and prevent delivery issues.
 To view BerryPress's premium WordPress plugins and themes, visit our [WordPress products catalog page](https://berrypress.com/shop/).
 
 Enjoy!
@@ -114,7 +135,33 @@ We built [Scheduled Email Reports for WooCommerce](https://wpzone.co/product/sch
 = Where can I get your other add-ons for WooCommerce? =
 After you install and activate Ninjalytics, open the Ninjalytics page from the WordPres admin menu, and select the Addons tab to install free and premium feature upgrades for your ecommerce store.
 
+= Where can I find the documentation? =
 
+Full documentation with setup guides, configuration details, and troubleshooting tips is available here:
+[https://berrypress.com/docs/ninjalytics/](https://berrypress.com/docs/ninjalytics/)
+
+You can also access specific topics directly, including [compatibility](https://berrypress.com/docs/ninjalytics/compatibility), [presets & templates](https://berrypress.com/docs/ninjalytics/presets-and-templates), and [report configuration](https://berrypress.com/docs/ninjalytics/report-configuration/).
+
+---
+
+= How can I get support? =
+
+
+For technical issues or custom configuration questions, please open a private support ticket here:
+[https://help.berrypress.com/open.php](https://help.berrypress.com/open.php)
+
+We recommend avoiding posting access details in public threads — use the private form above for secure communication.
+
+For general questions or community support, you can also open a ticket on the WordPress.org forum:
+[https://wordpress.org/support/plugin/product-sales-report-for-woocommerce/](https://wordpress.org/support/plugin/product-sales-report-for-woocommerce/)
+
+---
+
+= Is Ninjalytics compatible with my theme or plugins? =
+
+Ninjalytics is built to work with most third-party plugins. If you encounter a conflict, please contact support with details.
+
+---
 
 == Installation ==
 
@@ -133,6 +180,10 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 2.0.1 =
+- Fix toggle issues
+- Fix report templates
 
 = 2.0.0 =
 - Rebrand to Ninjalytics

@@ -3,7 +3,7 @@
  * Plugin Name:          Ninjalytics Free (formerly Product Sales Report)
  * Description:          Generates a report on individual WooCommerce products sold during a specified time period.
  * Plugin URI:           https://berrypress.com/product/woocommerce/ninjalytics/
- * Version:              2.0.0
+ * Version:              2.0.1
  * WC tested up to:      10.2
  * WC requires at least: 2.2
  * Author:               BerryPress
@@ -43,7 +43,7 @@
 
 use Ninjalytics\Reporters\PlatformFeatures;
 
-define('NINJALYTICS_VERSION', '2.0.0');
+define('NINJALYTICS_VERSION', '2.0.1');
 
 add_filter('default_option_ninjalytics_settings', 'ninjalytics_psr_import');
 function ninjalytics_psr_import($default) {
@@ -141,7 +141,7 @@ add_action('before_woocommerce_init', 'ninjalytics_on_before_woocommerce_init');
 
 function ninjalytics_page()
 {
-	
+
 	include_once(dirname(__FILE__).'/includes/berrypress-admin-framework/Page.php');
 	include_once(dirname(__FILE__).'/admin/admin.php');
 	
@@ -1540,13 +1540,28 @@ function ninjalytics_get_custom_field_value($productIds, $field)
 	}
 }
 
-add_action('admin_enqueue_scripts', 'ninjalytics_admin_enqueue_scripts');
 
-function ninjalytics_admin_enqueue_scripts()
-{
+add_action('current_screen', 'ninjalytics_on_current_screen');
+function ninjalytics_on_current_screen($screen) {
+	if ($screen->id == 'toplevel_page_ninjalytics') {
+		add_filter('admin_body_class',  'ninjalytics_admin_add_body_classes');
+	    add_action('admin_enqueue_scripts', 'ninjalytics_admin_enqueue_scripts');
+	}
+
+	add_action('admin_enqueue_scripts', 'ninjalytics_admin_global_enqueue_scripts');
+}
+function ninjalytics_admin_add_body_classes($classes) {
+	$classes .= ' berrypress-page';
+	return $classes;
+}
+
+function ninjalytics_admin_global_enqueue_scripts() {
 	// Enqueue BerryPress Admin Framework styles
 	wp_enqueue_style('berrypress-nj-global-admin', plugins_url('includes/berrypress-admin-framework/assets/css/global-admin.css', __FILE__), null, NINJALYTICS_VERSION);
 
+}
+function ninjalytics_admin_enqueue_scripts()
+{
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- just checking which page we're on for enqueues
 	if ( isset( $_GET["page"] ) &&  $_GET["page"] == "ninjalytics" ) {
 
@@ -1557,17 +1572,11 @@ function ninjalytics_admin_enqueue_scripts()
 		wp_enqueue_style('ninjalyticsfree_admin_style', plugins_url('css/ninjalytics-free.css', __FILE__), array(), NINJALYTICS_VERSION);
 		wp_enqueue_script('ags-psr-datatables', plugins_url('js/datatables/datatables.min.js', __FILE__), [], NINJALYTICS_VERSION, true);
 		wp_enqueue_style('ags-psr-datatables', plugins_url('js/datatables/datatables.min.css', __FILE__), [], NINJALYTICS_VERSION);
-		
+
 		wp_enqueue_script('ninjalytics', plugins_url('js/ninjalytics.js', __FILE__), [], NINJALYTICS_VERSION, true);
 		wp_enqueue_script('ninjalytics-chart', plugins_url('js/chartjs/chart.umd.js', __FILE__), [], NINJALYTICS_VERSION, true);
 
 	}
-}
-
-add_filter('admin_body_class', 'ninjalytics_admin_add_body_classes', 1);
-function ninjalytics_admin_add_body_classes($classes) {
-	$classes .= ' berrypress-page';
-	return $classes;
 }
 
 // Schedulable email report hook

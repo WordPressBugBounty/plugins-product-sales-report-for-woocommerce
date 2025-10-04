@@ -202,7 +202,7 @@ class AdminPage extends BerryPressPage {
 			} else {
 				$reportSettings = array_merge(
 					ninjalytics_default_report_settings(),
-					$openPreset == '_' ? ((ninjalytics_get_active_reporter()->getReportTemplates())[substr($openPreset, 1)] ?? []) : ($savedReportSettings[ $openPreset ] ?? []),
+					$openPreset[0] == '_' ? ((ninjalytics_get_active_reporter()->getReportTemplates())[substr($openPreset, 1)] ?? []) : ($savedReportSettings[ $openPreset ] ?? []),
 					((int) $openPreset) ? json_decode(get_option('ninjalytics_report_dates_'.((int) $openPreset), '{}'), true) : []
 				);
 				
@@ -397,7 +397,7 @@ class AdminPage extends BerryPressPage {
 										<input type="checkbox" class="ags-psr-no-update">
 										<span>Advanced</span>
 									</label>
-                                    <button class="berrypress-btn-icon">
+                                    <button class="berrypress-btn-icon" type="button">
                                         <i class="berrypress-icon-expand_more"></i>
                                     </button>
 								</div>
@@ -584,7 +584,7 @@ class AdminPage extends BerryPressPage {
 						<span>Advanced</span>
 					</label>
 
-                    <button class="berrypress-btn-icon">
+                    <button class="berrypress-btn-icon" type="button">
                         <i class="berrypress-icon-expand_more"></i>
                     </button>
 				</div>
@@ -879,7 +879,7 @@ class AdminPage extends BerryPressPage {
 			<div class="ninjalytics-settings-toggle">
                 <div class="ags-psr-section-title">
                     <h3>Segmentation</h3>
-                    <button class="berrypress-btn-icon">
+                    <button class="berrypress-btn-icon" type="button">
                         <i class="berrypress-icon-expand_more"></i>
                     </button>
 			</div>
@@ -983,7 +983,7 @@ class AdminPage extends BerryPressPage {
 			<div class="ninjalytics-settings-toggle">
 				<div class="ags-psr-section-title">
 					<h3>Fields</h3>
-                    <button class="berrypress-btn-icon">
+                    <button class="berrypress-btn-icon" type="button">
                         <i class="berrypress-icon-expand_more"></i>
                     </button>
 				</div>
@@ -1110,7 +1110,7 @@ class AdminPage extends BerryPressPage {
 						<input type="checkbox" class="ags-psr-no-update">
 						<span>Advanced</span>
 					</label>
-                    <button class="berrypress-btn-icon">
+                    <button class="berrypress-btn-icon" type="button">
                         <i class="berrypress-icon-expand_more"></i>
                     </button>
 				</div>
@@ -1256,7 +1256,7 @@ class AdminPage extends BerryPressPage {
 			<div class="ninjalytics-settings-toggle">
 				<div class="ags-psr-section-title">
 					<h3>Chart</h3>
-                    <button class="berrypress-btn-icon">
+                    <button class="berrypress-btn-icon" type="button">
                         <i class="berrypress-icon-expand_more"></i>
                     </button>
 				</div>
@@ -1326,7 +1326,7 @@ class AdminPage extends BerryPressPage {
 						<input type="checkbox" class="ags-psr-no-update">
 						<span>Advanced</span>
 					</label>
-                    <button class="berrypress-btn-icon">
+                    <button class="berrypress-btn-icon" type="button">
                         <i class="berrypress-icon-expand_more"></i>
                     </button>
 				</div>
