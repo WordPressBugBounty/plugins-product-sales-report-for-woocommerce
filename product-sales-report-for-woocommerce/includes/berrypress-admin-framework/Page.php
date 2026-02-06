@@ -1,11 +1,42 @@
 <?php
-namespace Ninjalytics\Admin;
+namespace NinjalyticsFree\Admin;
 
+defined( 'ABSPATH' ) || exit;
 
 abstract class Page {
 	
 	protected $reviewUrl, $docsUrl, $supportUrl;
-	
+
+	/**
+	 * Check if we're in Black Friday promotional period and return appropriate notice
+	 *
+	 * @param string $product_url URL to the product page
+	 * @param string $product_name Name of the product (optional)
+	 * @return string HTML for the promotional notice or empty string
+	 */
+	public static function get_black_friday_notice( $product_url, $product_name = 'Pro' ) {
+		$current_date = current_time('Y-m-d');
+		$black_friday_start = '2025-11-24'; // Black Friday start date
+		$black_friday_end = '2025-11-30';   // End date
+
+		if ( $current_date >= $black_friday_start && $current_date <= $black_friday_end ) {
+			return sprintf(
+				'<div class="berrypress-top-bar berrypress-top-bar-promo"><h2><span class="berrypress-fw-bold">%s</span> %s <a target="_blank" class="berrypress-btn berrypress-btn-secondary" href="%s">%s<i class="berrypress-icon-filled berrypress-icon-keyboard_double_arrow_right"></i></a></h2></div>',
+				esc_html__( 'Our Black Friday sale is live!', 'product-sales-report-for-woocommerce' ),
+				sprintf(
+				/* translators: %s is the product name */
+					esc_html__( 'Get %s 25%% OFF — plus discounts on all BerryPress products! ', 'product-sales-report-for-woocommerce' ),
+					esc_html( $product_name )
+				),
+				esc_html( $product_url ),
+				esc_html__( 'Get 25% OFF Now', 'product-sales-report-for-woocommerce' )
+			);
+		}
+
+
+		return '';
+	}
+
 	function render() {
 		$this->header();
 		if (!apply_filters('berrypress_admin_page_replace_body', false, $this)) {
@@ -14,19 +45,30 @@ abstract class Page {
 		$this->footer();
 	}
 	
-	function header() {
+	abstract function getNav();
+	abstract function getTopNav();
+	abstract function getLogoUrl();
+	abstract function getProductUrl();
+	abstract function getHeaderText();
+	abstract function getAboveHeaderHtml();
 
-	$nav = apply_filters('berrypress_admin_page_nav', array(), $this);
-	$top_nav = apply_filters('berrypress_admin_page_top_nav', array(), $this);
-	$logo          = apply_filters( 'berrypress_admin_page_logo', '' );
-	$product_url    = apply_filters( 'berrypress_admin_page_header_url', '' );
-	$header_text   = apply_filters( 'berrypress_admin_page_header_text', '' );
+	function header() {
+	
+	$top_nav              = $this->getTopNav();
+	$nav                  = $this->getNav();
+	$logo                 = $this->getLogoUrl();
+	$product_url          = $this->getProductUrl();
+	$header_text          = $this->getHeaderText();
+	$display_above_header = $this->getAboveHeaderHtml();
+
+
 	$display_sidebar   = apply_filters( 'berrypress_admin_page_display_sidebar', true , '' );
 	$display_top_nav   = apply_filters( 'berrypress_admin_page_display_top_nav', true , '' );
 	$display_top_right_nav   = apply_filters( 'berrypress_admin_page_display_top_right_nav', true , '' );
 
 ?>
     <div class="berrypress-settings-container">
+        <?php echo(wp_kses_post($display_above_header)); ?>
 
         <header class="berrypress-header">
             <button id="berrypress-toggle-menu-mobile" class="berrypress-btn berrypress-btn-icon" aria-label="Toggle Sidebar"><i class="berrypress-icon-menu" aria-hidden="true"></i></button>
@@ -37,7 +79,7 @@ abstract class Page {
                 ?>" alt="<?php esc_attr_e("Logo", "product-sales-report-for-woocommerce"); ?>">
                 <span class="berrypress-logo">
 					<?php echo esc_html( $header_text ); ?>
-					<span style="font-weight:300">Alpha</span>
+					<span style="font-weight:300">Beta</span>
 				</span>
             </a>
 
@@ -54,9 +96,6 @@ abstract class Page {
 	        <?php endif; ?>
 	        <?php if ($display_top_right_nav) : ?>
                 <div class="berrypress-header-right">
-                    <a class="berrypress-help-btn last" href="<?php echo esc_url( $this->supportUrl ); ?>" target="_blank" rel="noopener">
-                        <i class="berrypress-icon-help"></i> Help
-                    </a>
 
 			        <?php if ($this->reviewUrl) { ?>
                         <a href="<?php echo(esc_url($this->reviewUrl)); ?>" target="_blank"><i class="berrypress-icon-star"></i><?php esc_html_e( 'Leave a Review', 'product-sales-report-for-woocommerce' ); ?></a>

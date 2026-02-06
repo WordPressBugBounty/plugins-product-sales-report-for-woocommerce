@@ -142,12 +142,12 @@ i.berrypress-icon-info::before {
   content: "\e88e";
 }
 
-i.berrypress-icon-addons::before {
-  content: "\f102";
-}
-
 i.berrypress-icon-pro::before {
   content: "\e65f";
+}
+
+i.berrypress-icon-addons::before {
+  content: "\f102";
 }
 
 i.berrypress-icon-keyboard_arrow_left::before {
@@ -187,6 +187,7 @@ i.berrypress-icon-keyboard_double_arrow_right::before {
   background-color: #fff;
   color: #131523;
   border: 1px solid #F3F5F9;
+  margin-left: 0;
 }
 .berrypress-notice h3 {
   margin-top: 10px;
@@ -212,7 +213,8 @@ i.berrypress-icon-keyboard_double_arrow_right::before {
 
 .berrypress-page button.notice-dismiss {
   position: absolute;
-  top: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   right: 1px;
   border: none;
   margin: 0;
@@ -226,24 +228,30 @@ i.berrypress-icon-keyboard_double_arrow_right::before {
   color: #7e84a3;
 }
 
-.berrypress-notice.berrypress-error {
+.berrypress-notice.berrypress-error,
+.berrypress-notice.berrypress-notice-error {
   border-right: unset;
   border-top: unset;
   border-bottom: unset;
   border-left: 4px solid #d32f2f;
+  background-color: #ffe6e6;
 }
-.berrypress-notice.berrypress-error .berrypress-notice-icon {
-  background-color: #d32f2f;
+.berrypress-notice.berrypress-error .berrypress-notice-icon,
+.berrypress-notice.berrypress-notice-error .berrypress-notice-icon {
+  background-color: transparent;
 }
-.berrypress-notice.berrypress-error .berrypress-notice-icon i {
-  color: #fff;
-  font-size: 14px;
+.berrypress-notice.berrypress-error .berrypress-notice-icon i,
+.berrypress-notice.berrypress-notice-error .berrypress-notice-icon i {
+  color: #d32f2f;
+  font-size: 18px;
 }
-.berrypress-notice.berrypress-error i {
+.berrypress-notice.berrypress-error i,
+.berrypress-notice.berrypress-notice-error i {
   font-size: 16px;
   color: #d32f2f;
 }
-.berrypress-notice.berrypress-error a {
+.berrypress-notice.berrypress-error a,
+.berrypress-notice.berrypress-notice-error a {
   color: #131523;
   text-decoration: underline;
   font-weight: 600;
@@ -251,6 +259,11 @@ i.berrypress-icon-keyboard_double_arrow_right::before {
 
 .berrypress-notice.berrypress-notice-info {
   border-left: 4px solid #0070F0;
+  background-color: #e3f2fd;
+}
+.berrypress-notice.berrypress-notice-info i {
+  color: #0070F0;
+  font-size: 16px;
 }
 .berrypress-notice.berrypress-notice-info a {
   color: #0070F0;

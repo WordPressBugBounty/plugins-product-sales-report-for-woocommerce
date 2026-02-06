@@ -1,4 +1,7 @@
 /*!
+This file is part of Ninjalytics. For licensing and copyright notices, please see ../../license.txt.
+*/
+/*!
  * Chart.js v4.4.7
  * https://www.chartjs.org
  * (c) 2024 Chart.js Contributors

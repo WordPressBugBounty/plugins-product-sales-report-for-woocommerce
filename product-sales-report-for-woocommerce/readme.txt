@@ -2,9 +2,9 @@
 Contributors:      berrypress, kurowskanna, berrypressjonhall
 Tags:              woocommerce, sales report, woocommerce sales, reporting, analytics
 Requires at least: 6.2
-Requires PHP:      7.0
-Tested up to:      6.8
-Stable tag:        2.0.1
+Requires PHP:      8.1
+Tested up to:      6.9
+Stable tag:        2.0.11
 License:           GPLv3 or later
 License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -30,6 +30,7 @@ Quickly create sale reports for smart decision making, monitoring sales, setting
 - Exclude free products - leave free products out of your report
 - Limit included products - set report to only include a set number of products
 - CSV exporter - export in versatile CSV format for universal spreadsheet compatibility
+- Works with [WooCommerce](https://wordpress.org/plugins/woocommerce/) and [Easy Digital Downloads](https://wordpress.org/plugins/easy-digital-downloads/)
 
 ### Get Pro Features
 
@@ -41,6 +42,7 @@ If you are a power user needing advanced options for fine-tuning reports, [upgra
 - Expanded product filtering - adds tag, field, and product variation sorting
 - Use multiple custom segments at the same time
 - Create custom calculated fields with your own formulas
+- Ninjalytics App - access your reports on the go with the Ninjalytics app for Android (beta) (stay tuned for the iOS version)!
 - **Want more?** - check out our add-ons for expansion plugins
 
 ### View, Download, and Share
@@ -126,7 +128,7 @@ Ninjalytics is for creating a report about all your products or a group of produ
 
 = What’s the difference between the free and pro version? =
 
-The free version is powerful and works well for 90% of store owners. If you need additional control the [pro version](https://berrypress.com/product/woocommerce/ninjalytics/) includes the ability to export in Excel formats, send the report as an attachment, change the names of fields in the report, limit the report to orders with a matching custom meta field (e.g. delivery date), and include any custom field defined by WooCommerce or another plugin and associated with a product (note: custom fields associated with individual product variations are not supported at this time).
+The free version is powerful and works well for 90% of store owners. If you need additional control the [pro version](https://berrypress.com/product/woocommerce/ninjalytics/?utm_campaign=upsell&source=ninjalytics-free-readme) includes the ability to export in Excel formats, send the report as an attachment, change the names of fields in the report, limit the report to orders with a matching custom meta field (e.g. delivery date), and include any custom field defined by WooCommerce or another plugin and associated with a product (note: custom fields associated with individual product variations are not supported at this time).
 
 = Can I schedule my reports to send automatically? =
 
@@ -180,6 +182,65 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 2.0.11, 2025-02-05 =
+- Add: Quick Dates (last X days, etc) to report dates
+- Fix: Order source issue
+- Fix: "Other" (custom) report fields should have disabled state
+
+= 2.0.10, 2025-01-23 =
+- Fix: Enable custom segments toggle not working
+
+= 2.0.9, 2025-01-08 =
+- Add: New Live Carts templates and improvements to existing ones
+- Fix: Issues when Ninjalytics Pro is active
+- Add: Notice on charts when duplicate series values are detected
+- Fix: The berrypress-page body class being added to other admin pages, which could cause styling issues
+- Fix: Potential JavaScript error on the report page
+- Fix: Add a seconds component to absolute time when missing
+- Improvement: Remove unused files ahead of the redesign
+- Other: Miscellaneous minor improvements and fixes
+
+= 2.0.8, 2025-12-30 =
+- Styling Improvements
+- Add: new report page
+- Add: filtering for report templates
+- Miscellaneous improvements: translatable strings, accessibility, etc.
+- Fix and improvements: capability checks
+- Improvement: product search select
+- Add: Order export and Live Carts reports
+
+= 2.0.7, 2025-12-15 =
+- Fix issue after deleting report preset
+
+= 2.0.6, 2025-12-09 =
+- Add message when trying to connecting to Ninjalytics App Beta
+
+= 2.0.5, 2025-11-18 =
+- Add support for Cost of Goods
+- Add new fields:
+    - Cost of Goods Sold
+    - Profit
+    - Gross Margin
+    - Current COGS per item
+
+= 2.0.4, 2025-11-11 =
+- Fix php warning
+- Licenses update
+- Licenses update
+- Admin framework hooks changes
+- Fix scroll issue
+- Fix issue with month based date offset in start date
+- Improvement: update start/end time defaults
+- Minor styling changes
+
+= 2.0.3, 2025-10-16 =
+- Miscellaneous back end improvements
+
+= 2.0.2 =
+- Add addons tab
+- Change tooltip styling
+-Fix: Resolved an issue where the report templates — Sales by US State, Sales by Payment Method, Sales by Currency, and Sales by Country — were not functioning correctly
 
 = 2.0.1 =
 - Fix toggle issues

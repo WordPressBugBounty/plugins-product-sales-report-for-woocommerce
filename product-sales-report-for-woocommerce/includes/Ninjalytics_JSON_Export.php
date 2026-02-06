@@ -24,15 +24,19 @@ if (!class_exists('Ninjalytics_JSON_Export')) {
 			$this->debugSql[] = $sql;
 		}
 		
+		public function writeDebugSql() {
+			if ($this->debugSql) {
+				foreach ($this->debugSql as $sqlLine) {
+// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- No equivalent function in WP_Filesystem
+					fwrite($this->handle, '/*debugSql:'.wp_json_encode($sqlLine).'*/');
+				}
+				$this->debugSql = [];
+			}
+		}
+		
 		public function putRow($data, $header=false, $footer=false) {
 			if (!$header && (!$this->isTotals || $footer)) {
-				if ($this->debugSql) {
-					foreach ($this->debugSql as $sqlLine) {
-// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- No equivalent function in WP_Filesystem
-						fwrite($this->handle, '/*debugSql:'.wp_json_encode($sqlLine).'*/');
-					}
-					$this->debugSql = [];
-				}
+				$this->writeDebugSql();
 				foreach ($data as &$field) {
 					$field = $field ?? '';
 				}
@@ -43,6 +47,7 @@ if (!class_exists('Ninjalytics_JSON_Export')) {
 		}
 		
 		public function close() {
+			$this->writeDebugSql();
 // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- No equivalent function in WP_Filesystem
 			fwrite($this->handle, "\n]\n");
 		}

@@ -1,13 +1,15 @@
 <?php
-namespace Ninjalytics\Reporters;
+namespace NinjalyticsFree\Reporters;
 
 if ( !defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-include_once(__DIR__.'/base.php');
+include_once(__DIR__.'/orders-base.php');
 
-class EDD extends Base {
+class EDD extends OrdersBase {
+	
+	const ID = 'edd';
 	
 	public function __construct() {
 		global $wpdb;
@@ -33,12 +35,17 @@ class EDD extends Base {
 		$this->refundOrderType = 'refund';
 		$this->productOrderItemsType = 'download';
 		$this->completedOrderStatus = 'complete';
-		$this->defaultOrderStatuses = edd_get_gross_order_statuses();
+		$this->defaultOrderStatuses = function_exists('edd_get_gross_order_statuses') ? edd_get_gross_order_statuses() : [];
 		$this->billingStateMetaKey = '_billing_region';
 	}
 	
+	public function getDefaultFields($exportOrders) {
+		return $exportOrders ? ['builtin::product_id', 'builtin::product_name', 'builtin::quantity', 'builtin::line_total', 'builtin::order_date', 'builtin::billing_name', 'builtin::billing_email'] : array('builtin::product_id', 'builtin::product_sku', 'builtin::product_name', 'builtin::quantity_sold', 'builtin::gross_sales');
+	}
+	
+	
 	public function getPlatformFeatures() {
-		return [PlatformFeatures::LINE_ITEM_ADJUSTMENTS];
+		return [PlatformFeatures::CHILD_ITEMS, PlatformFeatures::CHILD_ITEMS_META, PlatformFeatures::META, PlatformFeatures::LINE_ITEM_ADJUSTMENTS];
 	}
 	
 	public function getStandardFields() {

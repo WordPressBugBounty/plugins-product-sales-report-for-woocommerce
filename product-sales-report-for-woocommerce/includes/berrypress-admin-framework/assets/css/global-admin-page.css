@@ -256,6 +256,8 @@
 .berrypress-page input[type=search],
 .berrypress-page input[type=email],
 .berrypress-page input[type=number],
+.berrypress-page input[type=date],
+.berrypress-page input[type=time],
 .berrypress-page input[type=text] {
   height: 30px;
   padding: 0 12px;
@@ -268,6 +270,8 @@
 .berrypress-page input[type=search]:focus,
 .berrypress-page input[type=email]:focus,
 .berrypress-page input[type=number]:focus,
+.berrypress-page input[type=date]:focus,
+.berrypress-page input[type=time]:focus,
 .berrypress-page input[type=text]:focus {
   border: 1px solid #a1a7c4;
   box-shadow: unset;
@@ -380,6 +384,7 @@
   top: 50%;
   transform: translateY(-50%);
 }
+.berrypress-page input[type=radio] ~ .label,
 .berrypress-page input[type=radio] ~ label {
   position: relative;
   display: flex;
@@ -387,6 +392,7 @@
   gap: 10px;
   cursor: pointer;
 }
+.berrypress-page input[type=radio] ~ .label:before,
 .berrypress-page input[type=radio] ~ label:before {
   content: "";
   background: #FEFEFE;
@@ -399,234 +405,28 @@
   text-align: center;
   transition: all 250ms ease;
 }
+.berrypress-page input[type=radio]:checked + .label::before,
 .berrypress-page input[type=radio]:checked + label::before {
   background-color: #0070F0;
   box-shadow: inset 0 0 0 4px #FEFEFE;
 }
+.berrypress-page input[type=radio]:focus + .label::before,
 .berrypress-page input[type=radio]:focus + label::before {
   outline: none;
   border-color: #0070F0;
 }
+.berrypress-page input[type=radio]:checked:disabled + .label::before,
 .berrypress-page input[type=radio]:checked:disabled + label::before {
   box-shadow: inset 0 0 0 4px #e6e9f4;
   background-color: #a1a7c4;
   border-color: #a1a7c4;
   opacity: 0.4;
 }
+.berrypress-page input[type=radio]:disabled + .label::before,
 .berrypress-page input[type=radio]:disabled + label::before {
   background-color: #e6e9f4;
   border-color: #a1a7c4;
   opacity: 0.4;
-}
-
-/*!
- * Adapted from WooCommerce's select2.scss
- * Source: woocommerce/assets/css/select2.scss
- * License: See license.txt in the plugin root directory.
- */
-.berrypress-page .select2-container {
-  box-sizing: border-box;
-  display: inline-block;
-  margin: 0;
-  position: relative;
-  vertical-align: middle;
-  min-width: 240px;
-}
-.berrypress-page .select2-container .select2-selection--multiple {
-  min-width: 240px;
-  box-sizing: border-box;
-  cursor: pointer;
-  display: block;
-  user-select: none;
-  -webkit-user-select: none;
-  min-height: 30px;
-  padding: 0 30px 0 12px;
-  line-height: 28px;
-  border: 1px solid #d7dbec;
-  border-radius: 5px;
-  font-size: 14px;
-  background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E) no-repeat right 5px top 55%;
-  background-size: 16px 16px;
-}
-.berrypress-page .select2-container .select2-selection--multiple:focus {
-  border: 1px solid #a1a7c4;
-  box-shadow: none;
-  outline: none;
-}
-.berrypress-page .select2-container .select2-selection--single {
-  min-width: 240px;
-  box-sizing: border-box;
-  cursor: pointer;
-  display: block;
-  user-select: none;
-  -webkit-user-select: none;
-  height: 30px;
-  padding: 0 30px 0 12px;
-  line-height: 28px;
-  border: 1px solid #d7dbec;
-  border-radius: 5px;
-  font-size: 14px;
-  background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E) no-repeat right 5px top 55%;
-  background-size: 16px 16px;
-}
-.berrypress-page .select2-container .select2-selection--single:focus {
-  border: 1px solid #a1a7c4;
-  box-shadow: none;
-  outline: none;
-}
-.berrypress-page .select2-container .select2-selection--single .select2-selection__rendered {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.berrypress-page .select2-container .select2-selection .select2-selection__clear {
-  position: relative;
-}
-.berrypress-page .select2-dropdown {
-  background-color: #fff;
-  border: 1px solid #d7dbec;
-  border-radius: 4px;
-  box-sizing: border-box;
-  display: block;
-  position: absolute;
-  left: -100000px;
-  width: 100%;
-  z-index: 1051;
-  top: -4px;
-}
-.berrypress-page .select2-container--open .select2-dropdown {
-  left: 0;
-}
-.berrypress-page .select2-container--open .select2-dropdown--above {
-  border-bottom: none;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-.berrypress-page .select2-container--open .select2-dropdown--below {
-  border-top: none;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-.berrypress-page .select2-container--open.select2-container--above .select2-selection--single {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-.berrypress-page .select2-container--open.select2-container--below .select2-selection--single {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-.berrypress-page .select2-results {
-  display: block;
-}
-.berrypress-page .select2-results__options {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  max-height: 240px;
-  overflow-y: auto;
-}
-.berrypress-page .select2-results__options .select2-results__option {
-  padding: 6px 6px 6px 10px;
-  user-select: none;
-  -webkit-user-select: none;
-  cursor: pointer;
-}
-.berrypress-page .select2-results__options .select2-results__option[data-selected=true], .berrypress-page .select2-results__options .select2-results__option[aria-selected=true] {
-  background-color: #e6e9f4;
-}
-.berrypress-page .select2-results__options .select2-results__option[data-selected=true] {
-  cursor: default;
-}
-.berrypress-page .select2-results__options .select2-results__option--highlighted[data-selected] {
-  background-color: #0070F0;
-  color: white;
-}
-.berrypress-page .select2-results__options .select2-results__option[role=group] {
-  padding: 0;
-}
-.berrypress-page .select2-results__options .select2-results__option .select2-results__option {
-  padding-left: 14px;
-}
-.berrypress-page .select2-results__options__group {
-  cursor: default;
-  display: block;
-  padding: 6px;
-}
-.berrypress-page .select2-results__options[aria-disabled=true] {
-  color: #7e84a3;
-  background-color: #F3F5F9;
-}
-.berrypress-page .select2-search--dropdown {
-  display: block;
-  padding: 4px;
-}
-.berrypress-page .select2-search--dropdown.select2-search--hide {
-  display: none;
-}
-.berrypress-page .select2-search--dropdown .select2-search__field {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 4px 18px 4px 4px;
-  border: 1px solid #d7dbec;
-  background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23a1a7c4"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM10 14a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>') no-repeat right 8px center;
-  background-size: 16px 16px;
-}
-.berrypress-page .select2-selection__arrow {
-  display: none;
-}
-.berrypress-page .select2-hidden-accessible {
-  border: 0 !important;
-  clip: rect(0 0 0 0) !important;
-  height: 1px !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  padding: 0 !important;
-  position: absolute !important;
-  width: 1px !important;
-}
-.berrypress-page .select2-container--default .select2-selection--single {
-  background-color: #fff;
-  border: 1px solid #d7dbec;
-  border-radius: 5px;
-}
-.berrypress-page .select2-container--default .select2-selection--single .select2-selection__clear {
-  cursor: pointer;
-  float: right;
-  font-weight: bold;
-}
-.berrypress-page .select2-container--default .select2-selection--single .select2-selection__placeholder {
-  color: #d7dbec;
-}
-.berrypress-page .select2-container--default .select2-search--inline .select2-search__field {
-  background: transparent;
-  border: none;
-  outline: 0;
-  box-shadow: none;
-  -webkit-appearance: textfield;
-}
-.berrypress-page .select2-container--default .select2-search--dropdown .select2-search__field {
-  border: 1px solid #d7dbec;
-  padding-left: 4px;
-  padding-right: 18px;
-}
-.berrypress-page .select2-container--default[dir=rtl] .select2-selection--single .select2-selection__clear {
-  float: left;
-}
-.berrypress-page .select2-search--inline {
-  float: left;
-  padding: 0;
-}
-.berrypress-page .select2-search--inline .select2-search__field {
-  box-sizing: border-box;
-  border: none;
-  font-size: 100%;
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  outline: 0;
-  box-shadow: none;
-  -webkit-appearance: textfield;
 }
 
 .berrypress-page .tablenav.top {
@@ -703,47 +503,29 @@
   border-bottom: 1px solid #e6e9f4 !important;
 }
 
-.berrypress-page a.php-apc-doc-note {
-  position: relative;
-  cursor: pointer;
+.berrypress-upgrade-box > div {
+  margin-top: 20px;
+  background: #F3F5F9;
+  padding: 0 15px 35px;
+  text-align: center;
+  border-radius: 5px;
+}
+.berrypress-upgrade-box h4 {
+  font-size: 16px;
+}
+.berrypress-upgrade-box ul {
+  margin-bottom: 25px;
+}
+.berrypress-upgrade-box .berrypress-icon-lock {
   display: inline-block;
-  margin-right: 8px !important;
-}
-.berrypress-page a.php-apc-doc-note i {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #5A607F;
-  border: 1px solid #5A607F;
+  font-size: 24px;
+  color: #0058FF;
+  background-color: #fff;
+  padding: 20px;
   border-radius: 50%;
-  width: 14px;
-  height: 14px;
-  font-size: 10px;
-  margin-left: 3px;
-}
-.berrypress-page a.php-apc-doc-note::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  top: 120%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 280px;
-  background-color: rgba(0, 0, 0, 0.85);
-  color: #fff;
-  text-align: left;
-  padding: 8px;
-  font-size: 12px;
-  line-height: 1.4;
-  border-radius: 4px;
-  opacity: 0;
-  white-space: normal;
-  pointer-events: none;
-  transition: opacity 0.3s, transform 0.3s;
-  z-index: 9999;
-}
-.berrypress-page a.php-apc-doc-note:hover::after {
-  opacity: 1;
-  transform: translateX(-50%) translateY(5px);
+  position: relative;
+  margin-top: -24px;
+  border: 8px solid #F3F5F9;
 }
 
 .berrypress-header {
@@ -934,30 +716,6 @@
 .berrypress-sidebar .berrypress-upgrade-box {
   margin: auto auto 0;
   max-width: 300px;
-}
-.berrypress-sidebar .berrypress-upgrade-box > div {
-  margin-top: 20px;
-  background: #F3F5F9;
-  padding: 0 15px 35px;
-  text-align: center;
-  border-radius: 5px;
-}
-.berrypress-sidebar .berrypress-upgrade-box h4 {
-  font-size: 16px;
-}
-.berrypress-sidebar .berrypress-upgrade-box ul {
-  margin-bottom: 25px;
-}
-.berrypress-sidebar .berrypress-upgrade-box .berrypress-icon-lock {
-  display: inline-block;
-  font-size: 24px;
-  color: #0058FF;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 50%;
-  position: relative;
-  margin-top: -24px;
-  border: 8px solid #F3F5F9;
 }
 
 .berrypress-sidebar.collapsed {

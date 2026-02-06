@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Define plugin base path for icons
+// Define plugin base path for icons - use same method as logo in header
 $plugin_url = plugin_dir_url(dirname(dirname(dirname(__FILE__))) . '/hm-product-sales-report.php');
 ?>
 
@@ -26,6 +26,18 @@ $plugin_url = plugin_dir_url(dirname(dirname(dirname(__FILE__))) . '/hm-product-
     
     <div class="berrypress-addons-grid">
         <div class="berrypress-addon-item">
+            <span class="berrypress-product-badge berrypress-product-badge-highlight">NEW!</span>
+            <div class="berrypress-addon-icon">
+                <img src="<?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app.png'); ?>"
+                     srcset="<?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app.png'); ?> 1x, <?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app-2x.png'); ?> 2x"
+                     alt="<?php esc_attr_e('Mobile App Icon', 'product-sales-report-for-woocommerce'); ?>" />
+            </div>
+            <h3><?php esc_html_e('Ninjalytics App (Android)', 'product-sales-report-for-woocommerce'); ?></h3>
+            <p><?php esc_html_e('Access your reports on the go with the Ninjalytics app for Android (beta) (stay tuned for the iOS version)! Works with Ninjalytics Pro.', 'product-sales-report-for-woocommerce'); ?></p>
+            <a href="https://play.google.com/store/apps/details?id=com.berrypress.ninjalytics" class="berrypress-btn berrypress-btn-primary" target="_blank"><?php esc_html_e('Install for Free', 'product-sales-report-for-woocommerce'); ?></a>
+        </div>
+
+        <div class="berrypress-addon-item">
             <span class="berrypress-product-badge">Free & Pro</span>
             <div class="berrypress-addon-icon">
                 <img src="<?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/live-carts-for-woocommerce.png'); ?>" 
@@ -38,7 +50,7 @@ $plugin_url = plugin_dir_url(dirname(dirname(dirname(__FILE__))) . '/hm-product-
         </div>
         
         <div class="berrypress-addon-item">
-            <span class="berrypress-product-badge">Pro</span>
+            <span class="berrypress-product-badge">Free & Pro</span>
             <div class="berrypress-addon-icon">
                 <img src="<?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/automatic-product-categories.png'); ?>" 
                      srcset="<?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/automatic-product-categories.png'); ?> 1x, <?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/automatic-product-categories-2x.png'); ?> 2x"
@@ -58,7 +70,7 @@ $plugin_url = plugin_dir_url(dirname(dirname(dirname(__FILE__))) . '/hm-product-
             </div>
             <h3><?php esc_html_e('Ninjalytics', 'product-sales-report-for-woocommerce'); ?></h3>
             <p><?php esc_html_e('Report, analyze, and visualize your store\'s data to gain actionable insights for growth, support operations, and satisfy customers!', 'product-sales-report-for-woocommerce'); ?></p>
-            <a href="https://berrypress.com/product/woocommerce/ninjalytics/" class="berrypress-btn berrypress-btn-primary" target="_blank"><?php esc_html_e('View Product', 'product-sales-report-for-woocommerce'); ?></a>
+            <a href="https://berrypress.com/product/woocommerce/ninjalytics/?utm_campaign=upsell&source=ninjalytics-free-plugin" class="berrypress-btn berrypress-btn-primary" target="_blank"><?php esc_html_e('View Product', 'product-sales-report-for-woocommerce'); ?></a>
         </div>
         
         <div class="berrypress-addon-item">

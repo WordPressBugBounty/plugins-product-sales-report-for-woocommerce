@@ -1,5 +1,5 @@
 <?php
-namespace Ninjalytics\Reporters\WooCommerce;
+namespace NinjalyticsFree\Reporters\WooCommerce;
 
 if ( !defined( 'ABSPATH' ) ) {
 	exit;
@@ -8,6 +8,8 @@ if ( !defined( 'ABSPATH' ) ) {
 include_once(__DIR__.'/woocommerce.php');
 
 class Hpos extends Base {
+	
+	const ID = 'woocommerce';
 	
 	public function __construct() {
 		parent::__construct();
