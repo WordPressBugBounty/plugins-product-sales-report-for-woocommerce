@@ -225,6 +225,7 @@ abstract class OrdersBase extends Base {
 					'builtin::refund_taxes' => 'Tax Refunded [Pro]',
 					'builtin::publish_time' => 'Product Publish Date/Time',
 					'builtin::line_item_count' => 'Line Item Count',
+					'builtin::order_count' => 'Order Count',
 					'builtin::product_desc' => 'Product Description',
 					'builtin::product_excerpt' => 'Product Description Excerpt',
 					'builtin::product_menu_order' => 'Product Menu Order',
@@ -438,14 +439,16 @@ abstract class OrdersBase extends Base {
 		)
 	);
 	
-	if ( !empty($exportOrders) ) {
-		
+	if ($exportOrders || in_array('builtin::order_count', $baseFields)) {
        $dataParams[ $standardFields['order_id'][1] ] = array(
             'type' => $standardFields['order_id'][0],
-            'function' => '',
             'name' => 'order_id',
-            //'join_type' => 'LEFT'
+			'function' => empty($_POST['export_orders']) ?  'GROUP_CONCAT' : '',
         );
+	}
+	
+	if ( $exportOrders ) {
+		
         $dataParams[ $standardFields['order_item_id'][1] ] = array(
             'type' => $standardFields['order_item_id'][0],
             'function' => '',
@@ -761,7 +764,7 @@ abstract class OrdersBase extends Base {
 						default:
 							$sqlFunction = 'DATE';
 					}
-					$dataParams[$standardFields['order_date'][1]] = array(
+					$dataParams[$sqlFunction.'.'.$standardFields['order_date'][1]] = array(
 						'type' => $standardFields['order_date'][0],
 						'order_item_type' => 'line_item',
 						'function' => $sqlFunction,

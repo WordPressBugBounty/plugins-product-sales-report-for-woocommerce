@@ -3,7 +3,7 @@
  * Plugin Name:          Ninjalytics Free (formerly Product Sales Report)
  * Description:          Generates a report on individual WooCommerce products sold during a specified time period.
  * Plugin URI:           https://berrypress.com/product/woocommerce/ninjalytics/?utm_campaign=wordpressorg&source=ninjalytics-free-plugin
- * Version:              2.0.11
+ * Version:              2.0.12
  * WC tested up to:      10.4
  * WC requires at least: 2.2
  * Requires PHP:         8.1
@@ -51,7 +51,7 @@ use NinjalyticsFree\Reporters\PlatformFeatures;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define('NINJALYTICS_FREE_VERSION', '2.0.11');
+define('NINJALYTICS_FREE_VERSION', '2.0.12');
 
 add_filter('default_option_ninjalytics_settings', __NAMESPACE__.'\\ninjalytics_psr_import');
 function ninjalytics_psr_import($default) {
@@ -552,6 +552,30 @@ function ninjalytics_get_report_dates_presets()
 				'report_time_basic_to_round' => 'm',
 			]
 		],
+		'year' => [
+			'label' => __( 'This year', 'ninjalytics' ),
+			'settings' => [
+				'report_time_mode' => 'basic',
+				'report_time_basic_from_unit' => 'cy',
+				'report_time_basic_from' => '0',
+				'report_time_basic_from_round' => 'y',
+				'report_time_basic_to_unit' => 'cy',
+				'report_time_basic_to' => '0',
+				'report_time_basic_to_round' => 'y',
+			]
+		],
+		'lastyear' => [
+			'label' => __( 'Last year', 'ninjalytics' ),
+			'settings' => [
+				'report_time_mode' => 'basic',
+				'report_time_basic_from_unit' => '-cy',
+				'report_time_basic_from' => '1',
+				'report_time_basic_from_round' => 'y',
+				'report_time_basic_to_unit' => '-cy',
+				'report_time_basic_to' => '1',
+				'report_time_basic_to_round' => 'y',
+			]
+		],
 		'forever' => [
 			'label' => __( 'All time', 'product-sales-report-for-woocommerce' ),
 			'settings' => [
@@ -612,6 +636,10 @@ function ninjalytics_get_report_dates($reporter, $withDesc=false)
 						$num = ((int) $_POST['report_time_basic_'.$time] ?? 0) * $invert;
 						$date = strtotime(($num < 0 ? '' : '+').$num.' month', current_time('timestamp'));
 						break;
+					case 'cy':
+						$num = ((int) $_POST['report_time_basic_'.$time] ?? 0) * $invert;
+						$date = strtotime(($num < 0 ? '' : '+').$num.' year', current_time('timestamp'));
+						break;
 				}
 				
 				switch ($_POST['report_time_basic_'.$time.'_round'] ?? '') {
@@ -620,6 +648,9 @@ function ninjalytics_get_report_dates($reporter, $withDesc=false)
 						break;
 					case 'm':
 						$date = strtotime(wp_date('Y-m', ($time == 'from' ? $date : strtotime('+1 month', $date))).'-01 00:00:00') - ($time == 'from' ? 0 : 1);
+						break;
+					case 'y':
+						$date = strtotime((wp_date('Y', $date) + ($time == 'from' ? 0 : 1)).'-01-01 00:00:00') - ($time == 'from' ? 0 : 1);
 						break;
 				}
 				
@@ -1279,8 +1310,11 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 							return get_post_meta($itemId, '_cogs_total_value', true);
 						}, $product->_variation_ids ? $product->_variation_ids : ($product->_product_ids ? $product->_product_ids : []));
 						break;
+					case 'builtin::order_count':
+						$rowValue = empty($product->order_id) ? 0 : count(array_unique(explode(',', $product->order_id)));
+						break;
 					case 'builtin::line_item_count':
-						$rowValue = empty($product->order_item_ids) ? 0 : substr_count($product->order_item_ids, ',') + 1;
+						$rowValue = empty($product->order_item_ids) ? 0 : count(array_unique(explode(',', $product->order_item_ids)));
 						break;
 					case 'builtin::order_shipping_methods':
 						$rowValueDelimiter = ', ';
@@ -1754,9 +1788,12 @@ function ninjalytics_get_shipping_row($shipping, $fields, &$totals)
 				case 'builtin::product_id':
 					$rowValue = $shipping->product_id;
 					break;
+				case 'builtin::order_count':
+					$rowValue = empty($shipping->order_id) ? 0 : count(array_unique(explode(',', $shipping->order_id)));
+					break;
 				case 'builtin::quantity_sold':
 				case 'builtin::line_item_count':
-					$rowValue = empty($shipping->order_item_ids) ? 0 : substr_count($shipping->order_item_ids, ',') + 1;
+					$rowValue = empty($shipping->order_item_ids) ? 0 : count(array_unique(explode(',', $shipping->order_item_ids)));
 					break;
 				case 'builtin::gross_sales':
 					$rowValue = $shipping->gross;
@@ -2659,6 +2696,16 @@ function ninjalytics_getShippingReportData($reporter, $baseFields, $startDate, $
 			'name' => 'order_shipping_methods'
 		];
 	}
+	
+	if (in_array('builtin::order_count', $baseFields)) {
+       $dataParams[ 'order_id' ] = array(
+            'type' => 'order_item',
+			'order_item_type' => 'shipping',
+            'name' => 'order_id',
+			'function' => empty($_POST['export_orders']) ?  'GROUP_CONCAT' : '',
+        );
+	}
+	
 
 	if ( !$refundOrders || in_array('builtin::line_item_count', $baseFields) || $taxes || ninjalytics_hasTaxBreakoutField($baseFields) ) {
 		$dataParams[$reporter->orderItemsIdColumn] = array(
@@ -2702,7 +2749,7 @@ function ninjalytics_getShippingReportData($reporter, $baseFields, $startDate, $
 						default:
 							$sqlFunction = 'DATE';
 					}
-					$dataParams[$standardFields['order_date'][1]] = array(
+					$dataParams[$sqlFunction.'.'.$standardFields['order_date'][1]] = array(
 						'type' => $standardFields['order_date'][0],
 						'order_item_type' => 'shipping',
 						'function' => $sqlFunction,

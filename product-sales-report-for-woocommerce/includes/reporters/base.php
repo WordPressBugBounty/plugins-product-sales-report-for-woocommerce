@@ -382,7 +382,7 @@ abstract class Base {
 
 		foreach ( $data as $raw_key => $value ) {
 			
-			if (strstr($raw_key, '.', true) === $value['type']) {
+			if (in_array(strstr($raw_key, '.', true), [ $value['type'], $value['function'] ], true)) {
 				$raw_key = substr(strstr($raw_key, '.'), 1);
 			}
 			

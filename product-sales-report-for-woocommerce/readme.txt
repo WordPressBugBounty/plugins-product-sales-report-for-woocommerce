@@ -4,7 +4,7 @@ Tags:              woocommerce, sales report, woocommerce sales, reporting, anal
 Requires at least: 6.2
 Requires PHP:      8.1
 Tested up to:      6.9
-Stable tag:        2.0.11
+Stable tag:        2.0.12
 License:           GPLv3 or later
 License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -183,15 +183,19 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 
 == Changelog ==
 
-= 2.0.11, 2025-02-05 =
+= 2.0.12, 2026-02-22 =
+- Add: field order count field
+- Add: this year and last year date options to quick date
+
+= 2.0.11, 2026-02-05 =
 - Add: Quick Dates (last X days, etc) to report dates
 - Fix: Order source issue
 - Fix: "Other" (custom) report fields should have disabled state
 
-= 2.0.10, 2025-01-23 =
+= 2.0.10, 2026-01-23 =
 - Fix: Enable custom segments toggle not working
 
-= 2.0.9, 2025-01-08 =
+= 2.0.9, 2026-01-08 =
 - Add: New Live Carts templates and improvements to existing ones
 - Fix: Issues when Ninjalytics Pro is active
 - Add: Notice on charts when duplicate series values are detected

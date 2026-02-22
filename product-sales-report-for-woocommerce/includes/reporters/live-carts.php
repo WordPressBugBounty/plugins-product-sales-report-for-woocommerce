@@ -270,7 +270,7 @@ class LiveCarts extends \NinjalyticsFree\Reporters\Base {
 								default:
 									$sqlFunction = 'DATE';
 							}
-							$dataParams['created'] = array(
+							$dataParams[$sqlFunction.'.created'] = array(
 								'type' => 'post_data',
 								'function' => $sqlFunction,
 								'join_type' => 'LEFT',

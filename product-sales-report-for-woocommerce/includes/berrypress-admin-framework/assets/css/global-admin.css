@@ -1,9 +1,14 @@
+@charset "UTF-8";
 /*!
  * BerryPress SCSS Framework
  * Copyright (c) 2025 BerryPress
  * Source code: https://github.com/BerryPress/scss-framework
  * License: https://github.com/BerryPress/scss-framework/blob/main/LICENSE
  */
+/*!
+This file includes a modified icon font originally licensed under the Apache License 2.0.
+Modified by BerryPress - unused icons removed.”
+*/
 @font-face {
   font-family: "Material Symbols Rounded BerryPress";
   font-style: normal;
@@ -174,6 +179,15 @@ i.berrypress-icon-keyboard_double_arrow_right::before {
  */
 #adminmenu li#toplevel_page_berrypress div.wp-menu-image {
   background-size: 16px auto;
+}
+
+#adminmenu li#toplevel_page_berrypress .wp-submenu a[href="https://berrypress.com/docs"]::after {
+  content: "\f504";
+  font: normal 16px/1 dashicons;
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-left: 3px;
+  opacity: 0.75;
 }
 
 .berrypress-notice {

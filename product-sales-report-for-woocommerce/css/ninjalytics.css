@@ -204,6 +204,15 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
   margin-top: 5px;
   color: #5A607F;
 }
+#ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body .ninjalytics-date-range-dropdown-tab-content#ninjalytics-date-range-preset > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+#ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body .ninjalytics-date-range-dropdown-tab-content#ninjalytics-date-range-preset > div select#ninjalytics-date-range-preset-select {
+  min-width: 160px;
+}
 #ninjalytics-date-range-dropdown:has(input#report_time_mode_preset:checked) #ninjalytics-date-range-preset.ninjalytics-date-range-dropdown-tab-content {
   display: block;
 }
@@ -1378,6 +1387,27 @@ i.berrypress-icon-drag-indicator::before {
 }
 .ninjalytics-custom-segment .ninjalytics-segment-reset {
   vertical-align: middle;
+}
+
+.ninjalytics-debug-sql-box {
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-top: 1.5em;
+}
+
+.ninjalytics-debug-sql-box .ninjalytics-debug-sql-content {
+  max-width: 95%;
+  padding: 10px 12px;
+  line-height: 1.3em;
+  border: 1px solid #d7dbec;
+  border-radius: 5px;
+  font-size: 12px;
+  width: 100%;
+  max-height: 15em;
+  overflow: auto;
+  font-family: ui-monospace, monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 .ninjalytics-new-report-hero {
