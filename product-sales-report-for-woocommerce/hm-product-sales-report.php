@@ -3,8 +3,8 @@
  * Plugin Name:          Ninjalytics Free (formerly Product Sales Report)
  * Description:          Generates a report on individual WooCommerce products sold during a specified time period.
  * Plugin URI:           https://berrypress.com/product/woocommerce/ninjalytics/?utm_campaign=wordpressorg&source=ninjalytics-free-plugin
- * Version:              2.0.12
- * WC tested up to:      10.4
+ * Version:              2.0.13
+ * WC tested up to:      10.6
  * WC requires at least: 2.2
  * Requires PHP:         8.1
  * Author:               BerryPress
@@ -51,19 +51,46 @@ use NinjalyticsFree\Reporters\PlatformFeatures;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define('NINJALYTICS_FREE_VERSION', '2.0.12');
+define('NINJALYTICS_FREE_VERSION', '2.0.13');
 
 add_filter('default_option_ninjalytics_settings', __NAMESPACE__.'\\ninjalytics_psr_import');
 function ninjalytics_psr_import($default) {
 	$default = get_option('hm_psr_report_settings', $default);
 	if (isset($default[0])) {
 		$default[0]['preset_name'] = 'Last used settings from Product Sales Report';
+		if (in_array($default[0]['orderby'] ?? '', ['product_id', 'quantity', 'gross', 'gross_after_discount'])) {
+			$default[0]['orderby'] = 'builtin::'.$default[0]['orderby'];
+		}
 	} else {
 		$default = [];
 	}
 	array_unshift($default, []);
+	
+	
+	$xoiDefault = get_option('hm_xoiwc_report_settings', []);
+	if (isset($xoiDefault[0]) && !isset($xoiDefault[0]['report_start_time'])) { // don't import Pro settings
+		$xoiDefault[0]['preset_name'] = 'Last used settings from Export Order Items';
+		$xoiDefault[0]['export_orders'] = 1;
+		if (isset($xoiDefault[0]['orderby'])) {
+			$xoiDefault[0]['orderby'] = 'builtin::'.$xoiDefault[0]['orderby'];
+		}
+		$default[] = $xoiDefault[0];
+	}
+	
 	return $default;
 }
+
+/*
+function ninjalytics_import_map_free_fields($settings) {
+	$fieldsNeedPrefix = ['product_id', 'order_id', 'order_status', 'order_date', 'product_sku', 'product_name', 'product_categories', 'billing_name', 'billing_phone', 'billing_email', 'billing_address', 'shipping_name', 'shipping_phone', 'shipping_email', 'shipping_address', 'quantity', 'line_subtotal', 'line_total', 'variation_id', 'variation_attributes', 'quantity_sold', 'gross_sales', 'gross_after_discount'];
+	foreach ($settings['fields'] as &$fieldId) {
+		if (in_array($fieldId, $fieldsNeedPrefix)) {
+			$fieldId = 'builtin::'.$fieldId;
+		}
+	}
+	return $settings;
+}
+*/
 
 add_filter('ninjalytics_report_templates', function($templates) {
 	foreach ($templates as &$template) {
@@ -183,6 +210,10 @@ function ninjalytics_maybe_run_report()
 		switch ($ninjalytics_action_free) {
 			case 'run':
 			
+			if (empty($_REQUEST['hm-psr-nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['hm-psr-nonce'])), 'hm-psr-run') ) {
+				wp_die('The current request is invalid. Please go back and try again.');
+			}
+			
 			$reportersInfo = ninjalytics_get_reporters_info();
 			$reporterId = ninjalytics_get_active_reporter_id();
 			
@@ -191,10 +222,6 @@ function ninjalytics_maybe_run_report()
 			}
 			
 			$reporter = ninjalytics_get_reporter_by_id($reporterId);
-			
-			if (empty($_REQUEST['hm-psr-nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['hm-psr-nonce'])), 'hm-psr-run') ) {
-				wp_die('The current request is invalid. Please go back and try again.');
-			}
 			
 			$isChart = !empty($_REQUEST['_chart']);
 			$isTimeChart = $isChart && in_array( sanitize_text_field(wp_unslash($_POST['chart_type'] ?? '')), ['line_series', 'line_totals'] );
@@ -269,7 +296,8 @@ function ninjalytics_maybe_run_report()
 			foreach (array(
 				'limit_on', 'include_nil', 'include_shipping', 'include_unpublished', 'include_header', 'include_totals',
 				'format_amounts', 'exclude_free', 'report_unfiltered',
-				'refunds', 'adjustments', 'report_title_on', 'hm_psr_debug', 'disable_product_grouping', 'intermediate_rounding'
+				'refunds', 'adjustments', 'report_title_on', 'hm_psr_debug', 'disable_product_grouping', 'intermediate_rounding',
+				'advanced_table_downloads', 'advanced_data_display', 'advanced_products', 'advanced_orders'
 				) as $checkboxField) {
 				
 				if (!isset($newSettings[$checkboxField])) {
@@ -553,7 +581,7 @@ function ninjalytics_get_report_dates_presets()
 			]
 		],
 		'year' => [
-			'label' => __( 'This year', 'ninjalytics' ),
+			'label' => __( 'This year', 'product-sales-report-for-woocommerce' ),
 			'settings' => [
 				'report_time_mode' => 'basic',
 				'report_time_basic_from_unit' => 'cy',
@@ -565,7 +593,7 @@ function ninjalytics_get_report_dates_presets()
 			]
 		],
 		'lastyear' => [
-			'label' => __( 'Last year', 'ninjalytics' ),
+			'label' => __( 'Last year', 'product-sales-report-for-woocommerce' ),
 			'settings' => [
 				'report_time_mode' => 'basic',
 				'report_time_basic_from_unit' => '-cy',
@@ -590,6 +618,21 @@ function ninjalytics_get_report_dates_presets()
 		]
 	];
 }
+
+function ninjalytics_get_field_group_prefix($fieldGroupName, $reportSettings)
+{
+	switch ( $fieldGroupName ) {
+		case 'Product Variation':
+			return 'variation::';
+		case 'Order Item':
+			return $reportSettings['export_orders'] ? 'order_item_meta::' : 'order_item_total::';
+		case 'Order':
+			return 'order_meta::';
+		case 'Customer User':
+			return 'customer_user_meta::';
+	}
+}
+
 function ninjalytics_get_report_dates($reporter, $withDesc=false)
 {
 	
@@ -739,7 +782,7 @@ function ninjalytics_get_report_dates($reporter, $withDesc=false)
 	}
 	
 	
-	return $dates;
+	return apply_filters('ninjalytics_report_dates_resolved', $dates);
 	
 	// Backwards compatibility with old presets
 	
@@ -1316,10 +1359,6 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 					case 'builtin::line_item_count':
 						$rowValue = empty($product->order_item_ids) ? 0 : count(array_unique(explode(',', $product->order_item_ids)));
 						break;
-					case 'builtin::order_shipping_methods':
-						$rowValueDelimiter = ', ';
-						$rowValue = array_unique(explode(',', $product->order_shipping_methods));
-						break;
 					case 'builtin::groupby_field':
 						if (!empty($_POST['enable_custom_segments'])) {
 							$selectedGroupByField = sanitize_text_field(wp_unslash($_POST['groupby'] ?? ''));
@@ -1487,10 +1526,15 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 					case 'builtin::order_shipping_cost':
 					case 'builtin::order_shipping_tax':
 					case 'builtin::order_shipping_cost_with_tax':
-						if (!isset($orderShippingCache[$product->order_id])) {
-							$orderShippingCache[$product->order_id] = ninjalytics_get_order_shipping_fields_values($product->order_id, array_map('sanitize_text_field', wp_unslash($_POST['fields'] ?? [])));
+						if ($field == 'builtin::order_shipping_methods' && isset($product->order_shipping_methods)) {
+							$rowValueDelimiter = ', ';
+							$rowValue = array_unique(explode(',', $product->order_shipping_methods));
+						} else {
+							if (!isset($orderShippingCache[$product->order_id])) {
+								$orderShippingCache[$product->order_id] = ninjalytics_get_order_shipping_fields_values($product->order_id, array_map('sanitize_text_field', wp_unslash($_POST['fields'] ?? [])));
+							}
+							$rowValue = ($orderShippingCache[$product->order_id] ? $orderShippingCache[$product->order_id][$field] : 'Error');
 						}
-						$rowValue = ($orderShippingCache[$product->order_id] ? $orderShippingCache[$product->order_id][$field] : 'Error');
 						break;
 					case 'builtin::order_total_qty':
 						if (!isset($orders[$product->order_id])) {
@@ -1943,7 +1987,6 @@ function ninjalytics_admin_enqueue_scripts()
 		
 		wp_enqueue_script('ninjalytics-chart-free', plugins_url('js/chartjs/chart.umd.js', __FILE__), [], NINJALYTICS_FREE_VERSION, true);
 }
-
 function ninjalytics_admin_add_body_classes($classes) {
 	$classes .= ' berrypress-page';
 	return $classes;
@@ -1994,7 +2037,7 @@ function ninjalytics_add_schedulable_email_reports($reports)
 	return $reports;
 }
 
-function ninjalytics_run_scheduled_report($reportId, $start, $end, $args = array(), $output = false)
+function ninjalytics_run_scheduled_report($reportId, $start, $end, $args = array(), $output = false, $debugSqlCb = null)
 {
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- the calling function is responsible for doing any nonce checks
 	
@@ -2034,32 +2077,31 @@ function ninjalytics_run_scheduled_report($reportId, $start, $end, $args = array
 	
 	if ($start === null && $end === null) {
 		list($start, $end) = ninjalytics_get_report_dates($reporter);
+		do_action('pp_wcser_report_dates_resolved', $start, $end);
 	} else {
-		// Add one day to end since we're setting the time to midnight
+		if (empty($args['report_start_time'])) {
+			$start -= $start % 86400; // midnight
+		} else {
+			$start = strtotime($args['report_start_time'], $start);
+		}
+		
 		$end += 86400;
 		
-		$_POST['report_time'] = 'custom';
-		$_POST['report_start'] = gmdate('Y-m-d', $start);
-		$_POST['report_start_time'] = '12:00:00 AM';
-		$_POST['report_end'] = gmdate('Y-m-d', $end);
-		$_POST['report_end_time'] = '12:00:00 AM';
+		if (empty($args['report_end_time'])) {
+			// Set time component to 11:59:59
+			$end -= $end % 86400;
+			$end -= 1;
+		} else {
+			$end = strtotime($args['report_end_time'], $end) - 1; // provided end time is exclusive
+		}
 	}
 	
 		$titleVars = array(
 			'now' => time(),
-			'preset' => (empty($_POST['preset_name']) ? 'Product Sales' : sanitize_text_field(wp_unslash($_POST['preset_name'])))
+			'preset' => (empty($_POST['preset_name']) ? 'Product Sales' : sanitize_text_field(wp_unslash($_POST['preset_name']))),
+			'start' => $start,
+			'end' => $end
 		);
-		
-		$reportTimeMode = sanitize_text_field(wp_unslash($_POST['report_time'] ?? ''));
-		if ($reportTimeMode != 'all') {
-			$titleVars['start'] = $start;
-			$titleVars['end'] = $end;
-			if ($reportTimeMode == 'custom') {
-				$titleVars['end'] -= 1;
-			} else {
-				$titleVars['end'] += 86399;
-			}
-		}
 		
 		if (!$output) {
 			
@@ -2089,6 +2131,11 @@ function ninjalytics_run_scheduled_report($reportId, $start, $end, $args = array
 	
 	if (!empty($_POST['report_title_on'])) {
 		$dest->putTitle(ninjalytics_dynamic_title(sanitize_text_field(wp_unslash($_POST['report_title'] ?? '')), $titleVars));
+	}
+	
+	
+	if (is_callable($debugSqlCb)) {
+		$reporter->setDebugSqlCallback($debugSqlCb);
 	}
 	
 	if (!empty($_POST['include_header']))

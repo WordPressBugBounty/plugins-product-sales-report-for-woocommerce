@@ -243,6 +243,8 @@ jQuery(document).ready(function($) {
 	$(document.body).on('click', function(ev) {
 		if (!$(ev.target).closest('#ninjalytics-date-range').length) {
 			$('#ninjalytics-date-range-dropdown').addClass('berrypress-hidden');
+			$('#ninjalytics-date-range-dropdown .ninjalytics-date-range-dropdown-alt-dates').addClass('berrypress-hidden');
+			$('#ninjalytics-date-range-dropdown .ninjalytics-alt-dates-toggle-btn').text('Change');
 		}
 	});
 	$('.berrypress-modal-close').on('click', function() {
@@ -405,6 +407,20 @@ jQuery(document).ready(function($) {
 			hm_psr_add_custom_field('builtin::groupby_field', $field.find('option:selected:first').text());
 		}
 	});
+
+	$('#ninjalytics-date-range-dropdown .ninjalytics-alt-dates-toggle-btn').on('click', function(e) {
+		e.preventDefault();
+		var $altDates = $('#ninjalytics-date-range-dropdown .ninjalytics-date-range-dropdown-alt-dates');
+		var $label = $('#ninjalytics-date-range-dropdown .ninjalytics-alt-dates-label');
+		var isHidden = $altDates.hasClass('berrypress-hidden');
+		$altDates.toggleClass('berrypress-hidden', !isHidden);
+		$(this).text(isHidden ? 'Hide' : 'Change');
+		if (!isHidden) {
+		} else {
+			$label.html('<span class="berrypress-fw-bold berrypress-text-primary">Advanced Options</span>');
+		}
+	});
+
 	$('#hm_psr_field_include_totals').change(function() {
 		if ($(this).is(':checked')) {
 			$('.hm_psr_total_field').removeClass('berrypress-hidden');
@@ -575,6 +591,9 @@ jQuery(document).ready(function($) {
 		var reportTitle = null;
 
 		var data = {};
+		var debugSqlLog = [];
+		$('#ninjalytics-debug-sql-content').empty();
+		$('#ninjalytics-debug-sql-box').addClass('berrypress-hidden').attr('aria-hidden', 'true');
 
 		function buildData(batchStart, batchSize) {
 
@@ -592,8 +611,9 @@ jQuery(document).ready(function($) {
 					var responseComments = response[1];
 					if (responseComments.debugSql) {
 						responseComments.debugSql.forEach(function(sqlLine) {
-							console.log('Report SQL: ' + sqlLine);
+							debugSqlLog.push(sqlLine);
 						});
+						hm_psr_update_debug_sql_box(debugSqlLog);
 					}
 					response = JSON.parse(response[0]);
 					var meta = ajax.getResponseHeader('X-Psr-Meta');
@@ -657,6 +677,13 @@ jQuery(document).ready(function($) {
 
 	}
 
+	function hm_psr_update_debug_sql_box(queries) {
+		if (queries && queries.length && $('#ninjalytics-enable-debug').prop('checked')) {
+			$('#ninjalytics-debug-sql-content').text(queries.join('\n\n'));
+			$('#ninjalytics-debug-sql-box').removeClass('berrypress-hidden').attr('aria-hidden', 'false');
+		}
+	}
+
 	function extractJsonComments(str) {
 		var comments = {};
 		return [
@@ -674,6 +701,12 @@ jQuery(document).ready(function($) {
 	ninjalytics_update_chart();
 	$('#ninjalytics-form').on('change', ':input:not(.ninjalytics-no-update,.dt-input)', ninjalytics_update_chart);
 
+	$('#ninjalytics-enable-debug').on('change', function() {
+		if (!$(this).prop('checked')) {
+			$('#ninjalytics-debug-sql-content').empty();
+			$('#ninjalytics-debug-sql-box').addClass('berrypress-hidden').attr('aria-hidden', 'true');
+		}
+	});
 
 	function hm_psr_build_table(data, fieldNames, showHeader, showTotals, reportTitle) {
 		// // Destroy existing table instance if it exists
@@ -879,6 +912,26 @@ jQuery(document).ready(function($) {
 		}
 	);
 
+	// Initial state: reuse existing change handler so toggle panels match saved checkboxes
+	$('#ninjalytics-form input[data-toggle-key]:checked').trigger('change');
+
+	// When a section is expanded or "Advanced" is checked, refresh toggle panels in that section
+	$(document).on('click change', '#ninjalytics-settings', function(e) {
+		var $toggle = (e.type === 'click' && $(e.target).closest('.ninjalytics-section-title').length && !$(e.target).closest('label').length)
+			? $(e.target).closest('.ninjalytics-settings-toggle')
+			: (e.type === 'change' && $(e.target).is('input.ninjalytics-no-update') ? $(e.target).closest('.ninjalytics-settings-toggle') : $());
+		if (!$toggle.length) return;
+		var $body = $toggle.find('.ninjalytics-section-body');
+		setTimeout(function() {
+			if (e.type === 'change' || $toggle.hasClass('ninjalytics-active')) {
+				var seen = {};
+				$body.find('input[data-toggle-key]').each(function() {
+					var $scope = getScopeFromInput($(this));
+					if ($scope.length && !seen[$scope[0]]) { seen[$scope[0]] = 1; refreshScope($scope); }
+				});
+			}
+		}, 0);
+	});
 });
 
 function hm_psr_add_custom_field(fieldId, fieldName) {

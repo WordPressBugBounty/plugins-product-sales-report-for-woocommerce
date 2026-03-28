@@ -16,6 +16,7 @@ enum PlatformFeatures {
 	case CHILD_ITEMS_FILTER;
 	case META;
 	case COGS;
+	case ALT_DATES;
 }
 
 abstract class Base {
@@ -94,6 +95,10 @@ abstract class Base {
 			'report_title' => '[preset] - [start] to [end]',
 			'hm_psr_debug' => 0,
 			'time_limit' => 300,
+			'advanced_table_downloads' => 0,
+			'advanced_data_display' => 0,
+			'advanced_products' => 0,
+			'advanced_orders' => 0,
 			'format_csv_delimiter' => ',',
 			'format_csv_surround' => '"',
 			'format_csv_escape' => '\\',

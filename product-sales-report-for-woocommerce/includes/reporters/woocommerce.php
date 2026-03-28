@@ -82,7 +82,7 @@ abstract class Base extends \NinjalyticsFree\Reporters\OrdersBase {
 	}
 	
 	public function getPlatformFeatures() {
-		return [PlatformFeatures::CHILD_ITEMS, PlatformFeatures::CHILD_ITEMS_META, PlatformFeatures::META, PlatformFeatures::VARIATIONS, PlatformFeatures::SHIPPING, PlatformFeatures::CUSTOMER_USERS, PlatformFeatures::COGS, PlatformFeatures::ORDER_SOURCE];
+		return [PlatformFeatures::CHILD_ITEMS, PlatformFeatures::CHILD_ITEMS_META, PlatformFeatures::META, PlatformFeatures::VARIATIONS, PlatformFeatures::SHIPPING, PlatformFeatures::CUSTOMER_USERS, PlatformFeatures::COGS, PlatformFeatures::ORDER_SOURCE, PlatformFeatures::ALT_DATES];
 	}
 	
 	public function getDefaults() {
@@ -107,14 +107,16 @@ abstract class Base extends \NinjalyticsFree\Reporters\OrdersBase {
 	public function getOldestOrderYear() {
 		$maxOrder = wc_get_orders([
 			'limit' => 1,
-			'order' => 'ASC'
+			'order' => 'ASC',
+			'type' => [$this->orderType, $this->refundOrderType]
 		]);
 		return $maxOrder ? (int) current($maxOrder)->get_date_created()->date('Y') : null;
 	}
 	
 	public function getNewestOrderYear() {
 		$maxOrder = wc_get_orders([
-			'limit' => 1
+			'limit' => 1,
+			'type' => [$this->orderType, $this->refundOrderType]
 		]);
 		return $maxOrder ? (int) current($maxOrder)->get_date_created()->date('Y') : null;
 	}

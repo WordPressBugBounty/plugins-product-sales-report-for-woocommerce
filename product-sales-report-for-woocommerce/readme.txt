@@ -1,53 +1,133 @@
-=== Ninjalytics (formerly Product Sales Report) ===
+=== Ninjalytics: Sales Reports & Order Export for WooCommerce and EDD ===
 Contributors:      berrypress, kurowskanna, berrypressjonhall
-Tags:              woocommerce, sales report, woocommerce sales, reporting, analytics
+Tags:              woocommerce, sales report, order export, reporting, analytics, product sales
 Requires at least: 6.2
 Requires PHP:      8.1
 Tested up to:      6.9
-Stable tag:        2.0.12
+Stable tag:        2.0.13
 License:           GPLv3 or later
 License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
 
-Quickly create sales reports and charts for your WooCommerce store with advanced filtering by date range, id, category, tag, status, and more.
+Create sales reports and order exports for WooCommerce with product analytics, order fulfillment data, filtering, charts, and 15+ templates.
 
 ==Description==
 
-**Ninjalytics (formerly Product Sales Report) helps you set up custom sales reports for the products in your WooCommerce store. Generate detailed tables, spreadsheets, line charts, and bar charts. Include or exclude sales based on date range, order status, or specific products. Choose which fields to display, set up custom segmentation, and more! Preview your report live in the WordPress admin, or export the data in CSV format.**
+**Ninjalytics creates powerful sales reports and order exports for your WooCommerce store. Generate detailed product sales reports with charts, or export individual order line items for fulfillment and accounting. Choose from 15+ pre-built templates, customize which fields to include, filter by date ranges and order status, and preview everything live before downloading.**
 
-Quickly create sale reports for smart decision making, monitoring sales, setting sales strategies, forecasting, inventory management, and accounting.
+Perfect for smart decision making, monitoring sales performance, order fulfillment, inventory management, and accounting. Works with both WooCommerce and Easy Digital Downloads.
+
+Previously using "Product Sales Report for WooCommerce" and "Export Order Items for WooCommerce" as separate plugins? Ninjalytics replaces both - everything you need is now in one plugin, plus more.
 
 ### Reporting Features & Benefits
 
-- Live preview and one-click download
-- Filter by date range, relative or absolute
-- Order status filtering - include or exclude sales based on transaction status
-- Product-specific reporting - store-wide reports, by product(s), product categories, and/or custom segmentation
-- Create interactive line and bar charts to help visualize your data
-- Create report presets - save custom report settings to regenerate reports later
-- Report on variations separately or together
-- Set display order
-- Reporting fields - choose what fields to include in your report
-- Exclude free products - leave free products out of your report
-- Limit included products - set report to only include a set number of products
-- CSV exporter - export in versatile CSV format for universal spreadsheet compatibility
-- Works with [WooCommerce](https://wordpress.org/plugins/woocommerce/) and [Easy Digital Downloads](https://wordpress.org/plugins/easy-digital-downloads/)
+- **Live preview and one-click download** - see your data instantly before exporting
+- **Pre-built report templates** - quickly create reports from 15+ ready-made templates including Top Selling Products, Stock Reports, Sales by Region, Live Carts analysis*, and more
+- **Order Export Mode** - export individual order line items with full order details (billing/shipping info, order status, dates) - *replaces Export Order Items plugin functionality*
+- **Flexible date ranges** - use quick shortcuts like "Last 7 days," "This Year," or set precise relative and absolute date ranges
+- **Order status filtering** - include or exclude sales based on transaction status
+- **Product-specific reporting** - store-wide reports, by product(s), product categories, and/or custom segmentation
+- **Interactive charts** - create line and bar charts to help visualize your data
+- **Report presets** - save custom report settings to regenerate reports later
+- **Variation support** - report on variations separately or together
+- **Custom sorting** - set display order for your data
+- **Flexible field selection** - choose what fields to include in your report from dozens of available fields
+- **Cost of Goods (COGS) tracking** - calculate profit and margins (requires compatible COGS plugin)
+- **Exclude free products** - leave free products out of your report
+- **Row limits** - set report to only include top X results
+- **CSV export** - export in versatile CSV format for universal spreadsheet compatibility
+- **High Performance Order Storage (HPOS)** - full support for WooCommerce's modern order storage system
+- Works with [WooCommerce](https://wordpress.org/plugins/woocommerce/), [Live Carts for WooCommerce](https://wordpress.org/plugins/live-carts-for-woocommerce/) and [Easy Digital Downloads](https://wordpress.org/plugins/easy-digital-downloads/) (beta)
 
-### Get Pro Features
-
-If you are a power user needing advanced options for fine-tuning reports, [upgrade to pro](https://wpzone.co/product/product-sales-report-pro-for-woocommerce/):
-
-- Email reports - send reports to any email address with a click
-- More formats - Save reports in XLSX, HTML, or Enhanced HTML
-- User role filtering - generate reports by user roles (default and custom roles)
-- Expanded product filtering - adds tag, field, and product variation sorting
-- Use multiple custom segments at the same time
-- Create custom calculated fields with your own formulas
-- Ninjalytics App - access your reports on the go with the Ninjalytics app for Android (beta) (stay tuned for the iOS version)!
-- **Want more?** - check out our add-ons for expansion plugins
 
 ### View, Download, and Share
 
 Use the report builder to quickly create a custom report, view in your dashboard, or click “Download Report” and your custom report will be generated and downloaded as a CSV. Import to your favorite spreadsheet software or share it with members of your team.
+
+### Pre-Built Report Templates
+
+Ninjalytics includes 15+ ready-to-use report templates to get you started quickly:
+
+#### Product Sales Templates:
+- **All Sales** - comprehensive sales overview with charts
+- **Top Selling Products** - identify best performers by revenue
+- **Top Rated Products**  - products with highest customer ratings, only available in Pro
+- **Stock Report** - monitor inventory levels and identify restocking needs
+- **Sales by Product** - detailed product performance breakdown
+
+#### Geographic & Segmentation Templates:
+- **Sales by US State** - regional sales analysis for US market
+- **Sales by Country** - international performance tracking
+- **Sales by Currency** - multi-currency sales breakdown
+- **Sales by Payment Method** - payment gateway analysis
+
+#### Order Export Templates:
+- **New Order Export** - detailed order line items export for fulfillment
+- **New Sales Report** - aggregated sales data overview
+
+#### Live Carts Templates:
+- **Live Carts Report** - aggregate cart statistics and trends
+- **Live Carts Export** - individual cart details export
+- **Carts by Status** - segment carts by status (active, abandoned, converted)
+- **Average Cart Value** - monitor cart value trends over time
+
+Requires free [Live Carts for WooCommerce](https://wordpress.org/plugins/live-carts-for-woocommerce/) plugin)
+
+### Simple Filtering
+
+Ninjalytics gives you a ton of control for zeroing in on what’s important. See what products are performing best based on quantity or sales so you can refine your online sales strategy. Filter by date range, order status, item, and/or category.
+
+### Live Carts Integration
+
+When you have the free [Live Carts for WooCommerce](https://wordpress.org/plugins/live-carts-for-woocommerce/) plugin installed (Pro version also [available](https://berrypress.com/product/woocommerce/live-carts/)), Ninjalytics automatically adds specialized reporting templates for analyzing abandoned and active shopping carts. Track cart abandonment rates, monitor cart values, and understand customer behavior before checkout to optimize your conversion funnel.
+
+### Key Reporting Fields Available:
+
+#### Product Sales Reports:
+- Product ID, SKU, Name
+- Variation ID, SKU, Attributes
+- Product Categories
+- Current Stock Quantity
+- Quantity Sold
+- Gross Sales
+- Gross Sales (After Discounts)
+- Total Sales Including Tax
+- Cost of Goods Sold (COGS, Profit, Gross Margin)
+- Order Count, Average Order Total
+- Line Item Count
+- And more...
+
+#### Order Export Reports:
+- Order ID, Status, Total, Date/Time
+- Order Item Type, Line Item Name
+- Billing Name, Phone, Email, Address, State
+- Shipping Name, Phone, Email, Address
+- Line Item Quantity, Gross, Total
+- Order Shipping Methods
+- Product details for each line item
+- And more...
+
+*Note: The Pro version adds additional advanced fields including product prices, detailed taxes, refund data, customer notes, order notes, custom meta fields, and more. See "Get Pro Features" section for details.*
+
+### Get Pro Features
+
+If you are a power user needing advanced options for fine-tuning reports, [upgrade to pro](https://berrypress.com/product/woocommerce/ninjalytics/):
+
+- **Email reports** - send reports to any email address with a single click, or use [scheduled reports addon](https://berrypress.com/product/woocommerce/scheduled-email-reports/) for automation
+- **Multiple export formats** - save reports in XLSX (Excel), HTML, or Enhanced HTML formats in addition to CSV
+- **Pie charts** - create pie charts for visual data representation (free version includes line and bar charts)
+- **Alternative date ranges** - filter orders by paid date, completed date, or custom date fields (e.g., delivery date from other plugins) instead of order date
+- **Custom calculated fields** - create your own formulas using arithmetic operators and built-in functions (Concatenate, Get Post Title, Get Permalink, Timestamp to Date/Time, and more) to calculate custom metrics
+- **Advanced field customization** - rename any field in your reports and include custom product/order meta fields
+- **Expanded product filtering** - filter by product tags, custom fields, and product variation-specific attributes
+- **Multiple custom segments** - use several custom segmentation fields at the same time for complex data grouping
+- **User role filtering** - generate reports filtered by customer user roles (both default and custom roles)
+- **Order meta filtering** - limit reports to orders matching specific custom meta field values (e.g., delivery date, custom order tags)
+- **Advanced order fields** - access to Order Source, Order Notes, Customer Notes, Shipping State, and refund-related fields
+- **Ninjalytics App** - access your reports on the go with the Ninjalytics app for Android or iOS (beta)!
+- **Want more?** - check out our add-ons for expansion plugins
+
+
+### Reviews
 
  ⭐️⭐️⭐️⭐️⭐️
 >“I needed reports to help make informed decisions for ordering new stock from suppliers and the Ninjalytics was perfect. It can create very granular reports for specific product categories or one grand report for all our products. Well done!” `-`  @krooisant
@@ -56,21 +136,6 @@ Use the report builder to quickly create a custom report, view in your dashboard
 > “I was looking for good frontend reports for my marketplace and I came across the winning trio, [Ninjalytics](https://wpzone.co/product/product-sales-report-pro-for-woocommerce/), [Export Items Pro](https://wordpress.org/plugins/export-order-items-for-woocommerce/) in combination with [Frontend Reports](https://wpzone.co/product/frontend-reports-for-woocommerce/). This trio was the best for the job.” `-` Yinon Tubi
 
 
-### Simple Filtering
-
-Ninjalytics gives you a ton of control for zeroing in on what’s important. See what products are performing best based on quantity or sales so you can refine your online sales strategy. Filter by date range, order status, item, and/or category.
-
-#### Reporting Fields Include:
-
-- Product ID
-- Product SKU
-- Product Name
-- Quantity Sold
-- Gross Sales
-- Variation ID
-- Product Categories
-- Variation Attributes
-- Gross Sales (After Discounts)
 
 If you like this plugin, please consider leaving a comment or review.
 
@@ -103,14 +168,14 @@ Looking to automate your reports, share them on the frontend of your site, or ex
 
 ## You may also like these plugins
 
-[BerryPress](https://berrypress.com/) has built a range of powerful plugins for WooCommerce and WordPress. Check out some of our favorites below — and don’t forget to leave a ⭐⭐⭐⭐⭐ review to help others in the community discover them!
+[BerryPress](https://berrypress.com/) has built a range of powerful plugins for WooCommerce and WordPress. Check out some of our favorites below - and don’t forget to leave a ⭐⭐⭐⭐⭐ review to help others in the community discover them!
 
-- [Export Order Items for WooCommerce](https://wordpress.org/plugins/export-order-items-for-woocommerce/) — Export detailed order data for every sale in your WooCommerce store. Simplify fulfillment, create accounting reports in just a few clicks, and download CSV files for easy sharing and compatibility.
-- [Inline Image Upload for BBPress](https://wordpress.org/plugins/image-upload-for-bbpress/) — Add a TinyMCE WYSIWYG editor to BBPress forums and enable inline image uploads, so users can easily attach and display images within their posts.
-- [PhotoBerry Studio](https://wordpress.org/plugins/photoberry-studio/) — Create beautiful, customizable product photo galleries directly in your WordPress dashboard.
-- [Automatic Product Categories](https://berrypress.com/product/woocommerce/automatic-product-categories/) — Available as a free version and Pro. Automatically assign products to categories based on custom rules, saving you time and keeping your store organized.
-- [Live Carts](https://berrypress.com/product/woocommerce/live-carts/) — Available as a free version and Pro. View and analyze live shopping carts in real time to understand user behavior and optimize conversions.
-- [Customer Address Change Notification for WooCommerce](https://wordpress.org/plugins/customer-address-change-notification-for-woocommerce/) — Get instant notifications when customers update their shipping or billing address, helping you stay on top of changes and prevent delivery issues.
+- [Inline Image Upload for BBPress](https://wordpress.org/plugins/image-upload-for-bbpress/) - Add a TinyMCE WYSIWYG editor to BBPress forums and enable inline image uploads, so users can easily attach and display images within their posts.
+- [PhotoBerry Studio](https://wordpress.org/plugins/photoberry-studio/) - Create beautiful, customizable product photo galleries directly in your WordPress dashboard.
+- [Automatic Product Categories](https://berrypress.com/product/woocommerce/automatic-product-categories/) - Available as a free version and Pro. Automatically assign products to categories based on custom rules, saving you time and keeping your store organized.
+- [Live Carts for WooCommerce](https://wordpress.org/plugins/live-carts-for-woocommerce/) - Free plugin to view and analyze live shopping carts in real time to understand user behavior and optimize conversions ([Pro version](https://berrypress.com/product/woocommerce/live-carts/) also available). **Integrates with Ninjalytics** to add 4 specialized cart reporting templates.
+- [Customer Address Change Notification for WooCommerce](https://wordpress.org/plugins/customer-address-change-notification-for-woocommerce/) - Get instant notifications when customers update their shipping or billing address, helping you stay on top of changes and prevent delivery issues.
+- [LoginBerry](https://wordpress.org/plugins/loginberry/) - Automatic email verification for WordPress accounts. Stops fake signups by requiring a 6-digit activation code before users can log in - zero configuration needed.
 To view BerryPress's premium WordPress plugins and themes, visit our [WordPress products catalog page](https://berrypress.com/shop/).
 
 Enjoy!
@@ -124,11 +189,32 @@ In some cases output may be affected by the limited precision of PHP's floating 
 
 = What’s the difference between Ninjalytics and Export Order Items? =
 
-Ninjalytics is for creating a report about all your products or a group of products for comparison and sales performance. [Export Order Items](https://wordpress.org/plugins/export-order-items-for-woocommerce/) generates a report with the items from an individual order, specific purchase, or specific customer for order fulfillment or accounting.
+**Important:** Ninjalytics now includes Order Export functionality that replaces [Export Order Items](https://wordpress.org/plugins/export-order-items-for-woocommerce/). We will be deprecating the standalone Export Order Items plugin in the future.
+
+**Two Reporting Modes:**
+- **Product Sales Reports** (default): Aggregate data by product - perfect for analyzing sales performance, comparing products, tracking inventory, and making purchasing decisions.
+- **Order Export Mode**: Export individual order line items with full order details - ideal for order fulfillment, accounting, and detailed order analysis.
+
+**Migration from Export Order Items:**
+If you're currently using Export Order Items, Ninjalytics can automatically import your saved settings. Simply install Ninjalytics and your previous report configurations will be available as presets. You'll find the "Order Export" template option when creating new reports, which provides the same functionality as Export Order Items.
+
 
 = What’s the difference between the free and pro version? =
 
-The free version is powerful and works well for 90% of store owners. If you need additional control the [pro version](https://berrypress.com/product/woocommerce/ninjalytics/?utm_campaign=upsell&source=ninjalytics-free-readme) includes the ability to export in Excel formats, send the report as an attachment, change the names of fields in the report, limit the report to orders with a matching custom meta field (e.g. delivery date), and include any custom field defined by WooCommerce or another plugin and associated with a product (note: custom fields associated with individual product variations are not supported at this time).
+The free version is powerful and works well for most store owners, providing access to all core reporting features including Order Export mode, pre-built templates, charts, and CSV export.
+
+The [pro version](https://berrypress.com/product/woocommerce/ninjalytics/?utm_campaign=upsell&source=ninjalytics-free-readme) adds advanced capabilities for power users:
+- **Multiple export formats** (XLSX/Excel, HTML, Enhanced HTML)
+- **Email reports** to any address with one click
+- **Alternative date filtering** (by Order Paid Date or Completed Date)
+- **Custom calculated fields** with your own formulas
+- **Rename fields** and include any custom product/order meta fields
+- **Advanced filtering** by product tags, user roles, and order meta fields
+- **Multiple custom segments** for complex data grouping
+- **Ninjalytics Mobile App** (iOS & Android beta)
+- **Premium support** with faster response times
+
+See the "Get Pro Features" section above for the complete list.
 
 = Can I schedule my reports to send automatically? =
 
@@ -152,7 +238,7 @@ You can also access specific topics directly, including [compatibility](https://
 For technical issues or custom configuration questions, please open a private support ticket here:
 [https://help.berrypress.com/open.php](https://help.berrypress.com/open.php)
 
-We recommend avoiding posting access details in public threads — use the private form above for secure communication.
+We recommend avoiding posting access details in public threads - use the private form above for secure communication.
 
 For general questions or community support, you can also open a ticket on the WordPress.org forum:
 [https://wordpress.org/support/plugin/product-sales-report-for-woocommerce/](https://wordpress.org/support/plugin/product-sales-report-for-woocommerce/)
@@ -162,6 +248,31 @@ For general questions or community support, you can also open a ticket on the Wo
 = Is Ninjalytics compatible with my theme or plugins? =
 
 Ninjalytics is built to work with most third-party plugins. If you encounter a conflict, please contact support with details.
+
+---
+
+= Does Ninjalytics work with Live Carts for WooCommerce? =
+
+Yes! When you have the free [Live Carts for WooCommerce](https://wordpress.org/plugins/live-carts-for-woocommerce/) plugin installed (Pro version also [available](https://berrypress.com/product/woocommerce/live-carts/)), Ninjalytics automatically adds 4 specialized report templates for cart analysis:
+- Live Carts Report - aggregate cart statistics
+- Live Carts Export - individual cart details
+- Carts by Status - segment by status (active, abandoned, converted)
+- Average Cart Value - monitor trends over time
+
+This integration helps you analyze cart abandonment, track cart values, and understand customer behavior before checkout.
+
+---
+
+= How do I use Ninjalytics with WPML (multilingual products)? =
+
+If you're using WPML or another multilingual plugin that creates separate product entries for each language, we recommend using the **"By products or variations (based on SKU)"** grouping option. This setting groups all language variations of the same product together based on their shared SKU, giving you accurate consolidated sales data across all languages.
+
+To enable this:
+1. Create your report
+2. In the report settings, look for the grouping options
+3. Select "By products or variations (based on SKU)"
+
+This ensures that a product sold in English, German, and French will appear as one combined entry in your report rather than three separate entries.
 
 ---
 
@@ -182,6 +293,13 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 2.0.13, 2026-03-27 =
+- Fix: Date range selector now correctly includes refund orders when calculating available year ranges
+- Fix: Import settings from Export Order Items plugin
+- Fix: PHP errors related to namespaces in some configurations
+- Fix: Shipping methods field filtering and ordering
+- Update: WooCommerce tested up to 10.6
 
 = 2.0.12, 2026-02-22 =
 - Add: field order count field
@@ -244,7 +362,7 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 = 2.0.2 =
 - Add addons tab
 - Change tooltip styling
--Fix: Resolved an issue where the report templates — Sales by US State, Sales by Payment Method, Sales by Currency, and Sales by Country — were not functioning correctly
+-Fix: Resolved an issue where the report templates - Sales by US State, Sales by Payment Method, Sales by Currency, and Sales by Country - were not functioning correctly
 
 = 2.0.1 =
 - Fix toggle issues

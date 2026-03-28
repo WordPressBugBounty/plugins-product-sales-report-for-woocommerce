@@ -118,9 +118,11 @@ class AdminPage extends BerryPressPage {
 	    return sprintf(
 		    '<div class="berrypress-top-bar"><h2>%s <a class="berrypress-link" href="%s">%s<i class="berrypress-icon-filled berrypress-icon-keyboard_double_arrow_right"></i></a></h2></div>',
 		    sprintf(
-				// translators: %1$s, %2$s = <a> tags
-				esc_html__( 'The free version of Ninjalytics gives you the essentials. Go Pro for next-level reports, custom fields, a %1$smobile app%2$s (for Android - iOS users, stay tuned), and premium features.', 'product-sales-report-for-woocommerce' ),
-				'<a href="https://play.google.com/store/apps/details?id=com.berrypress.ninjalytics" target="_blank">',
+				// translators: %1$s, %2$s, %3$s, %4$s = <a> tags
+				esc_html__( 'The free version of Ninjalytics gives you the essentials. Go Pro for next-level reports, custom fields, a mobile app for %1$sAndroid%2$s and %3$siOS%4$s, and premium features.', 'product-sales-report-for-woocommerce' ),
+				'<a class="berrypress-link berrypress-text-color" href="https://play.google.com/store/apps/details?id=com.berrypress.ninjalytics" target="_blank">',
+				'</a>',
+                '<a class="berrypress-link berrypress-text-color" href="https://apps.apple.com/se/app/ninjalytics/id6757487864?l=en-GB" target="_blank">',
 				'</a>'
 			),
 		    esc_url( $product_url ),
@@ -194,14 +196,16 @@ class AdminPage extends BerryPressPage {
 	 *
 	 * @param string $title Section title
 	 * @param bool   $hasAdvanced Whether to show "Advanced" checkbox
+	 * @param string $advancedName Optional form field name for saving advanced state (e.g. 'advanced_table_downloads')
+	 * @param array  $reportSettings Current report settings (used when $advancedName is set)
 	 */
-	private function renderSectionHeader( $title, $hasAdvanced = true ) {
+	private function renderSectionHeader( $title, $hasAdvanced = true, $advancedName = '', $reportSettings = array() ) {
 		?>
 		<div class="ninjalytics-section-title">
 			<h3><?php echo esc_html( $title ); ?></h3>
 			<?php if ( $hasAdvanced ) { ?>
 				<label>
-					<input type="checkbox" class="ninjalytics-no-update">
+					<input type="checkbox" class="ninjalytics-no-update"<?php echo $advancedName ? ' name="' . esc_attr( $advancedName ) . '" value="1"' . checked( ! empty( $reportSettings[ $advancedName ] ), true, false ) : ''; ?>>
 					<span><?php esc_html_e( 'Advanced', 'product-sales-report-for-woocommerce' ); ?></span>
 				</label>
 			<?php } ?>
@@ -293,7 +297,7 @@ class AdminPage extends BerryPressPage {
 	private function renderDisplaySection( $reportSettings, $orderBy ) {
 		?>
 		<div class="ninjalytics-settings-toggle">
-			<?php $this->renderSectionHeader( __( 'Table & Downloads', 'product-sales-report-for-woocommerce' ), true ); ?>
+			<?php $this->renderSectionHeader( __( 'Table & Downloads', 'product-sales-report-for-woocommerce' ), true, 'advanced_table_downloads', $reportSettings ); ?>
 			
 			<div class="ninjalytics-section-body">
                 <div class="ninjalytics-group-title">
@@ -509,7 +513,7 @@ class AdminPage extends BerryPressPage {
 	private function renderAdvancedSection( $reportSettings ) {
 		?>
 		<div class="ninjalytics-settings-toggle">
-			<?php $this->renderSectionHeader( __( 'Data & Display', 'product-sales-report-for-woocommerce' ), true ); ?>
+			<?php $this->renderSectionHeader( __( 'Data & Display', 'product-sales-report-for-woocommerce' ), true, 'advanced_data_display', $reportSettings ); ?>
 
 			<div class="ninjalytics-section-body">
 
@@ -626,6 +630,11 @@ class AdminPage extends BerryPressPage {
                     </label>
 				</div>
 
+				<div class="berrypress-field ninjalytics-setting-advanced ninjalytics-debug-sql-box berrypress-hidden" id="ninjalytics-debug-sql-box"  aria-hidden="true">
+					<label for="ninjalytics-debug-sql-content"><?php esc_html_e( 'Debug: MySQL queries', 'product-sales-report-for-woocommerce' ); ?></label>
+					<pre id="ninjalytics-debug-sql-content" class="ninjalytics-debug-sql-content"></pre>
+				</div>
+
 			</div> <!-- /ninjalytics-section-body -->
 		</div> <!-- /ninjalytics-settings-toggle (Data & Display) -->
 		<?php
@@ -712,7 +721,11 @@ class AdminPage extends BerryPressPage {
 								'order_item_meta_filter_1_on',
 								'order_item_meta_filter_2_on',
 								'remove_html',
-								'enable_custom_segments'
+								'enable_custom_segments',
+								'advanced_table_downloads',
+								'advanced_data_display',
+								'advanced_products',
+								'advanced_orders'
 							) as $checkboxField
 						) {
 							if ( ! isset( $_POST[ $checkboxField ] ) ) {
@@ -994,6 +1007,36 @@ class AdminPage extends BerryPressPage {
                                     </div>
                                 </div>
                             </div> <!-- /ninjalytics-date-range-dropdown-body -->
+							<?php if ( $reporter->supports( PlatformFeatures::ALT_DATES ) ) { ?>
+							<div class="ninjalytics-date-range-dropdown-alt-dates-wrapper">
+								<div class="ninjalytics-date-range-dropdown-alt-dates-toggle">
+									<span class="ninjalytics-alt-dates-label"><?php esc_html_e( 'Based on:', 'product-sales-report-for-woocommerce' ); ?> <strong><?php esc_html_e( 'Order Date', 'product-sales-report-for-woocommerce' ); ?></strong></span>
+									<button type="button" class="berrypress-link ninjalytics-alt-dates-toggle-btn"><?php esc_html_e( 'Change', 'product-sales-report-for-woocommerce' ); ?></button>
+								</div>
+								<div class="ninjalytics-date-range-dropdown-alt-dates berrypress-hidden">
+								<div class="berrypress-field">
+									<label for="ninjalytics_alt_order_date"><?php esc_html_e( 'Report date range based on:', 'product-sales-report-for-woocommerce' ); ?></label>
+									<select name="alt_order_date" id="ninjalytics_alt_order_date">
+										<option value="" selected><?php esc_attr_e( 'Order Date', 'product-sales-report-for-woocommerce' ); ?></option>
+										<option value="order_meta::_date_paid" disabled><?php printf( /* translators: %s = option name */ esc_html__( '%s [Pro]', 'product-sales-report-for-woocommerce'), esc_html__( 'Date Paid', 'product-sales-report-for-woocommerce' ) ); ?></option>
+										<option value="order_meta::_date_completed" disabled><?php printf( /* translators: %s = option name */ esc_html__( '%s [Pro]', 'product-sales-report-for-woocommerce'), esc_html__( 'Date Completed', 'product-sales-report-for-woocommerce' ) ); ?></option>
+										<optgroup label="<?php printf( /* translators: %s = option name */ esc_attr__( '%s [Pro]', 'product-sales-report-for-woocommerce'), esc_attr__( 'Order Meta', 'product-sales-report-for-woocommerce' ) ); ?>" class="hm-psr-select-other" data-hm-psr-other-field-prefix="order_meta::">
+											<?php
+											foreach ( $reporter->getOrderFieldNames(false) as $orderField ) {
+												if (str_starts_with($orderField, '_wc_order_attribution_') || str_starts_with($orderField, 'is_') || str_ends_with($orderField, '_hash') || str_ends_with($orderField, '_index') || str_ends_with($orderField, '_lock') || str_ends_with($orderField, '_value')) {
+													continue;
+												}
+												?>
+												<option value="order_meta::<?php echo esc_attr( $orderField ); ?>" disabled><?php echo esc_html( $orderField ); ?></option>
+												<?php
+											}
+											?>
+										</optgroup>
+									</select>
+								</div>
+								</div> <!-- /ninjalytics-date-range-dropdown-alt-dates -->
+							</div> <!-- /ninjalytics-date-range-dropdown-alt-dates-wrapper -->
+							<?php } ?>
                         </div> <!-- /ninjalytics-date-range-dropdown -->
                     </div> <!-- /ninjalytics-date-range -->
 
@@ -1065,7 +1108,7 @@ class AdminPage extends BerryPressPage {
                                     <div class="ninjalytics-section-title">
                                         <h3><?php esc_html_e( 'Products', 'product-sales-report-for-woocommerce' ) ?></h3>
                                         <label>
-                                            <input type="checkbox" class="ninjalytics-no-update">
+                                            <input type="checkbox" class="ninjalytics-no-update" name="advanced_products" value="1"<?php checked( ! empty( $reportSettings['advanced_products'] ) ); ?>>
                                             <span><?php esc_html_e( 'Advanced', 'product-sales-report-for-woocommerce' ) ?></span>
                                         </label>
                                         <button class="berrypress-btn-icon" type="button">
@@ -1130,32 +1173,6 @@ class AdminPage extends BerryPressPage {
 													<?php self::docsLink( 'report-configuration/products', 'only-products-tagged' ); ?>
                                                 </label>
                                             </div>
-                                            <div class="ninjalytics-field-child">
-                                                <div class="ninjalytics-product-tag-filter">
-                                                <label for="hm_psr_product_tag_filter"
-                                                       class="berrypress-visually-hidden"><?php esc_html_e( 'Tag', 'product-sales-report-for-woocommerce' ) ?>
-                                                    </label>
-                                                <div class="ninjalytics-field-conditional-logic">
-                                                    <input type="text" id="hm_psr_product_tag_filter"
-                                                           name="product_tag_filter"
-                                                           disabled/>
-
-                                                    <select id="ninjalytics_product_tag_filter_select" disabled>
-                                                        <option value=""><?php esc_html_e( 'Select tag', 'product-sales-report-for-woocommerce' ) ?>...</option>
-                                                        <?php
-                                                        $terms = get_terms( array(
-                                                            'taxonomy'   => $reporter->productTagTaxonomy,
-                                                            'hide_empty' => false,
-                                                            'fields'     => 'names',
-                                                        ) );
-
-                                                        foreach ( $terms as $term ) : ?>
-                                                            <option><?php echo esc_html( $term ); ?></option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            </div>
                                         </div>
 
                                         <div class="ninjalytics-field-switch-conditional ninjalytics-setting-advanced">
@@ -1167,24 +1184,6 @@ class AdminPage extends BerryPressPage {
                                                 <label for="ninjalytics-product-meta-filter-on"><?php esc_html_e( 'Only products with field', 'product-sales-report-for-woocommerce' ) ?>
                                                     <?php self::proBadge() ?>
                                                     <?php self::docsLink( 'report-configuration/products', 'only-products-with-field', true ) ?></label>
-                                            </div>
-                                            <div class="ninjalytics-field-child">
-                                                <div class="ninjalytics-field-conditional-logic">
-                                                    <select name="product_meta_filter_key" class="hm-psr-select-other" disabled>
-                                                    </select>
-                                                    <?php $this->renderComparisonOperators();?>
-                                                    <select class="hm-psr-value-preset"
-                                                            data-hm-psr-for="product_meta_filter_value" disabled>
-                                                        <option><?php esc_html_e( 'value', 'product-sales-report-for-woocommerce' ); ?></option>
-                                                        <option><?php esc_html_e( 'current user ID', 'product-sales-report-for-woocommerce' ); ?></option>
-                                                    </select>
-                                                    <input type="text" name="product_meta_filter_value"  disabled/>
-                                                    <span id="hm_psr_product_meta_filter_value_2" style="display: none;">
-                                                        <?php esc_html_e( 'and', 'product-sales-report-for-woocommerce' ); ?>
-                                                        <input type="text" name="product_meta_filter_value_2" disabled/>
-                                                    </span>
-                                                </div>
-
                                             </div>
                                         </div>
 
@@ -1265,7 +1264,7 @@ class AdminPage extends BerryPressPage {
                                 <div class="ninjalytics-section-title">
                                     <h3><?php echo( esc_html( $reporter->getPrimaryItemsName() ) ); ?></h3>
                                     <label>
-                                        <input type="checkbox" class="ninjalytics-no-update">
+                                        <input type="checkbox" class="ninjalytics-no-update" name="advanced_orders" value="1"<?php checked( ! empty( $reportSettings['advanced_orders'] ) ); ?>>
                                         <span><?php esc_html_e( 'Advanced', 'product-sales-report-for-woocommerce' ) ?> </span>
                                     </label>
 
@@ -1294,9 +1293,9 @@ class AdminPage extends BerryPressPage {
 										<div class="ninjalytics-group-title"><?php esc_html_e( 'Containing products', 'product-sales-report-for-woocommerce' ) ?>
 										</div>
                                         <?php $this->renderPrimaryProductsFilter($reporter, $reportSettings); ?>
-									<?php } ?>
+									<?php }
 
-									<?php if ( $reporter->supports( PlatformFeatures::META ) ) { ?>
+									if ( $reporter->supports( PlatformFeatures::META ) ) { ?>
                                         <div class="ninjalytics-field-switch-conditional ninjalytics-setting-advanced berrypress-mt-4">
 
                                             <div class="ninjalytics-group-title ninjalytics-pro-feature">
@@ -1316,98 +1315,6 @@ class AdminPage extends BerryPressPage {
                                                 </label>
                                             </div>
 
-                                            <div class="ninjalytics-field-child" data-toggle-panel="order_meta_filter_on">
-
-                                                <div class="ninjalytics-field-conditional-logic">
-
-                                                    <select name="order_meta_filter_key" class="hm-psr-select-other" disabled>
-                                                    </select>
-
-                                                    <select class="ags-psr-order-meta-filter-cast"
-                                                            name="order_meta_filter_cast" disabled>
-                                                        <option><?php esc_html_e( 'as text/number', 'product-sales-report-for-woocommerce' )?></option>
-                                                        <option><?php esc_html_e( 'as date/time with format:', 'product-sales-report-for-woocommerce' ); ?></option>
-                                                    </select>
-
-                                                    <input type="text" name="order_meta_filter_date_format"  disabled>
-
-                                                    <?php $this->renderComparisonOperators();?>
-                                                    <span class="hm_psr_filter_value_container">
-                                                        <input type="text" id="hm_psr_order_meta_filter_value" name="order_meta_filter_value"
-                                                               <?php disabled( ! empty( $reportSettings['order_meta_filter_value_dynamic'] ) ); ?> disabled />
-                                                        <span
-                                                           class="ninjalytics-date-dynamic-toggle ninjalytics-pro-feature"><?php echo empty( $reportSettings['order_meta_filter_value_dynamic'] ) ? esc_html__( 'dynamic date', 'product-sales-report-for-woocommerce' ) : esc_html__( 'fixed value', 'product-sales-report-for-woocommerce' ); ?></span>
-                                                    </span>
-                                                    <span id="hm_psr_order_meta_filter_value_2" style="display: none;">
-                                                        <?php esc_html_e( 'and', 'product-sales-report-for-woocommerce' ); ?>
-                                                        <span class="hm_psr_order_meta_filter_value_container">
-                                                            <input type="text" name="order_meta_filter_value_2" <?php disabled( ! empty( $reportSettings['order_meta_filter_value_2_dynamic'] ) ); ?> disabled />
-                                                            <input type="text"
-                                                                   class="hm-psr-date-dynamic-field hm-psr-date-dynamic-field-with-format<?php echo empty( $reportSettings['order_meta_filter_value_2_dynamic'] ) ? ' hidden' : ''; ?>"
-                                                                   name="order_meta_filter_value_2_dynamic"
-                                                                   placeholder="<?php esc_attr_e( 'e.g. -7 days', 'product-sales-report-for-woocommerce' ); ?>" disabled/>
-                                                            <span href="javascript:void(0);"
-                                                               class="ninjalytics-date-dynamic-toggle"><?php echo empty( $reportSettings['order_meta_filter_value_2_dynamic'] ) ? esc_html__( 'dynamic date', 'product-sales-report-for-woocommerce' ) : esc_html__( 'fixed value', 'product-sales-report-for-woocommerce' ); ?></span>
-                                                        </span>
-                                                    </span>
-                                                </div>
-
-                                                <div id="hm_psr_order_meta_filter_2_settings"
-                                                     class="ninjalytics-field-switch-conditional berrypress-mt-3">
-                                                    <div class="berrypress-field ninjalytics-pro-feature">
-                                                        <input type="checkbox"
-                                                               id="ninjalytics-order-meta-field-2-conditon"
-                                                               data-toggle-key="order_meta_filter_2_on"
-                                                               name="order_meta_filter_2_on"  disabled />
-                                                        <label for="ninjalytics-order-meta-field-2-conditon"><?php esc_html_e( 'Advanced', 'product-sales-report-for-woocommerce' ); ?></label>
-                                                    </div>
-
-                                                    <div class="ninjalytics-field-child berrypress-ms-0" data-toggle-panel="order_meta_filter_2_on">
-                                                        <fieldset class="ninjalytics-field-conditional-logic">
-                                                            <legend class="berrypress-visually-hidden"><?php esc_html_e( 'Filter orders by meta field', 'product-sales-report-for-woocommerce' ); ?></legend>
-                                                            <label for="ninjalytics-order_meta_filter_2_logic" class="berrypress-visually-hidden"><?php esc_html_e( 'And/Or', 'product-sales-report-for-woocommerce' ); ?></label>
-                                                            <select
-                                                                    name="order_meta_filter_2_logic" id="ninjalytics-order_meta_filter_2_logic" disabled>
-                                                                <option value="AND" ><?php esc_html_e( 'and', 'product-sales-report-for-woocommerce' ); ?></option>
-                                                                <option value="OR" </option>
-                                                            </select>
-                                                            <select name="order_meta_filter_2_key"
-                                                                    class="hm-psr-select-other" disabled >
-                                                            </select>
-
-                                                            <select class="ags-psr-order-meta-filter-cast"
-                                                                    name="order_meta_filter_2_cast" disabled>
-                                                                <option value=""<?php selected( empty( $reportSettings['order_meta_filter_2_cast'] ) ); ?>><?php esc_html_e( 'as text/number', 'product-sales-report-for-woocommerce' ); ?></option>
-                                                                <option value="date"<?php selected( ( $reportSettings['order_meta_filter_2_cast'] ?? null ), 'date' ); ?>><?php esc_html_e( 'as date/time with format:', 'product-sales-report-for-woocommerce' ); ?></option>
-                                                            </select>
-                                                            <input type="text" name="order_meta_filter_2_date_format" disabled/>
-
-                                                            <?php $this->renderComparisonOperators(); ?>
-                                                            <span class="hm_psr_filter_value_container">
-                                                                <input type="text" id="hm_psr_order_meta_filter_2_value"
-                                                                       name="order_meta_filter_2_value"
-                                                                       disabled />
-                                                                <span
-                                                                   class="ninjalytics-date-dynamic-toggle ninjalytics-pro-feature"><?php echo empty( $reportSettings['order_meta_filter_2_value_dynamic'] ) ? esc_html__( 'dynamic date', 'product-sales-report-for-woocommerce' ) : esc_html__( 'fixed value', 'product-sales-report-for-woocommerce' ); ?></span>
-                                                            </span>
-                                                            <span id="hm_psr_order_meta_filter_2_value_2"
-                                                                  style="display: none;">
-                                                                <?php esc_html_e( 'and', 'product-sales-report-for-woocommerce' ); ?>
-                                                                <span class="hm_psr_order_meta_filter_2_value_container">
-                                                                    <input type="text" name="order_meta_filter_2_value_2"
-                                                                              disabled/>
-                                                                    <input type="text"
-                                                                           class="hm-psr-date-dynamic-field hm-psr-date-dynamic-field-with-format<?php echo empty( $reportSettings['order_meta_filter_2_value_2_dynamic'] ) ? ' hidden' : ''; ?>"
-                                                                           name="order_meta_filter_2_value_2_dynamic"
-                                                                           placeholder="<?php esc_attr_e( 'e.g. -7 days', 'product-sales-report-for-woocommerce' ); ?>" disabled/>
-                                                                    <span class="ninjalytics-date-dynamic-toggle ninjalytics-pro-feature"><?php echo empty( $reportSettings['order_meta_filter_2_value_2_dynamic'] ) ? esc_html__( 'dynamic date', 'product-sales-report-for-woocommerce' ) : esc_html__( 'fixed value', 'product-sales-report-for-woocommerce' ); ?></span>
-                                                                </span>
-                                                            </span>
-                                                        </fieldset>
-                                                    </div>
-                                                </div>
-                                            </div>
-
                                         </div>
 										<?php
 									}
@@ -1425,84 +1332,6 @@ class AdminPage extends BerryPressPage {
                                                     <?php self::proBadge() ?>
 													<?php self::docsLink( 'report-configuration/orders', 'only-order-items-with-field', true ); ?>
                                                 </label>
-                                            </div>
-
-                                            <div class="ninjalytics-field-child" data-toggle-panel="order_item_meta_filter_1_on">
-
-                                                <div class="ninjalytics-field-conditional-logic">
-
-                                                    <select name="order_item_meta_filter_1_key"
-                                                            class="hm-psr-select-other" disabled>
-                                                            <option><?php esc_html_e( 'Choose a meta field (Pro)', 'product-sales-report-for-woocommerce') ?></option>
-                                                    </select>
-                                                    <?php $this->renderComparisonOperators(); ?>
-                                                    <span class="hm_psr_filter_value_container">
-                                                        <input type="text" style="width: auto;" id="hm_psr_order_item_meta_filter_1_value"
-                                                               placeholder="<?php esc_html_e( 'Value', 'product-sales-report-for-woocommerce') ?>"
-                                                               name="order_item_meta_filter_1_value"
-                                                               disabled/>
-                                                        <span
-                                                           class="ninjalytics-date-dynamic-toggle ninjalytics-pro-feature"><?php echo esc_html__( 'dynamic date', 'product-sales-report-for-woocommerce' ) ?></span>
-                                                    </span>
-                                                    <span id="hm_psr_order_item_meta_filter_1_value_2"
-                                                          style="display: none;">
-                                                        <?php esc_html_e( 'and', 'product-sales-report-for-woocommerce' ); ?>
-                                                        <span class="hm_psr_order_item_meta_filter_1_value_container">
-                                                            <input type="text" style="width: auto;" name="order_item_meta_filter_1_value_2"
-                                                                      disabled />
-                                                            <input type="text" style="width: auto;"
-                                                                   class="hm-psr-date-dynamic-field hm-psr-date-dynamic-field-with-format<?php echo empty( $reportSettings['order_item_meta_filter_1_value_2_dynamic'] ) ? ' hidden' : ''; ?>"
-                                                                   name="order_item_meta_filter_1_value_2_dynamic"
-                                                                   placeholder="<?php esc_attr_e( 'e.g. -7 days', 'product-sales-report-for-woocommerce' ); ?>" disabled/>
-                                                            <span  class="ninjalytics-date-dynamic-toggle ninjalytics-pro-feature"><?php echo esc_html__( 'dynamic date', 'product-sales-report-for-woocommerce' ) ?></span>
-                                                        </span>
-                                                    </span>
-                                                </div>
-
-
-                                                <div class="ninjalytics-field-switch-conditional berrypress-mt-3">
-                                                    <div class="berrypress-field ninjalytics-pro-feature">
-
-                                                        <input type="checkbox"
-                                                               id="ninjalytics-order-item-meta-field-2-conditon"
-                                                               name="order_item_meta_filter_2_on" disabled/>
-                                                        <label for="ninjalytics-order-item-meta-field-2-conditon"><?php esc_html_e( 'Advanced', 'product-sales-report-for-woocommerce' ); ?></label>
-                                                    </div>
-                                                    <div class="ninjalytics-field-child berrypress-ms-0" data-toggle-panel="order_item_meta_filter_2_on">
-                                                        <div class="ninjalytics-field-conditional-logic">
-                                                            <select style="width: auto;"
-                                                                    name="order_item_meta_filter_2_logic" disabled>
-                                                                <option><?php esc_html_e( 'and', 'product-sales-report-for-woocommerce' ); ?></option>
-                                                                <option><?php esc_html_e( 'or', 'product-sales-report-for-woocommerce' ); ?></option>
-                                                            </select>
-
-                                                            <select style="width: auto;"
-                                                                    name="order_item_meta_filter_2_key"
-                                                                    class="hm-psr-select-other" disabled>
-                                                            </select>
-                                                            <?php $this->renderComparisonOperators(); ?>
-                                                            <span class="hm_psr_filter_value_container">
-                                                                <input style="width: auto;" type="text" id="hm_psr_order_item_meta_filter_2_value"
-                                                                       name="order_item_meta_filter_2_value" disabled/>
-                                                                <span class="ninjalytics-date-dynamic-toggle ninjalytics-pro-feature"><?php echo esc_html__( 'dynamic date', 'product-sales-report-for-woocommerce' ) ?></span>
-                                                            </span>
-                                                            <span id="hm_psr_order_item_meta_filter_2_value_2"
-                                                                  style="display: none;">
-                                                                <?php esc_html_e( 'and', 'product-sales-report-for-woocommerce' ); ?>
-                                                                <span class="hm_psr_order_item_meta_filter_2_value_container">
-                                                                    <input style="width: auto;" type="text" name="order_item_meta_filter_2_value_2"
-                                                                           disabled/>
-                                                                    <input style="width: auto;" type="text"
-                                                                           class="hm-psr-date-dynamic-field hm-psr-date-dynamic-field-with-format"
-                                                                           name="order_item_meta_filter_2_value_2_dynamic"
-                                                                           placeholder="<?php esc_attr_e( 'e.g. -7 days', 'product-sales-report-for-woocommerce' ); ?>" disabled/>
-                                                                    <span class="ninjalytics-date-dynamic-toggle ninjalytics-pro-feature"><?php echo esc_html__( 'dynamic date', 'product-sales-report-for-woocommerce' ) ?></span>
-                                                                </span>
-                                                            </span>
-
-                                                        </div>
-                                                    </div>
-                                                </div>
                                             </div>
 
                                         </div>
@@ -1608,25 +1437,6 @@ class AdminPage extends BerryPressPage {
 													<?php esc_html_e( 'Only Orders from Customers With Field:', 'product-sales-report-for-woocommerce' ); ?>
 													<?php self::docsLink( 'report-configuration/orders', 'only-orders-from-customers-with-field' ); ?>
                                                 </label>
-                                            </div>
-                                            <div class="ninjalytics-field-child" data-toggle-panel="customer_meta_filter_on">
-
-                                                <div class="ninjalytics-field-conditional-logic">
-                                                    <label for="ninjalytics-customer-meta-filter-key" class="berrypress-visually-hidden"><?php esc_html_e( 'Only Orders from Customers With Field: Filter Key', 'product-sales-report-for-woocommerce' ); ?></label>
-                                                    <select id="ninjalytics-customer-meta-filter-key" name="customer_meta_filter_key" class="hm-psr-select-other"
-                                                     disabled>
-                                                    </select>
-                                                    <?php $this->renderComparisonOperators(); ?>
-                                                    <input type="text" id="hm_psr_customer_meta_filter_value"
-                                                           name="customer_meta_filter_value"
-                                                           disabled/>
-                                                    <span id="hm_psr_customer_meta_filter_value_2"
-                                                          style="display: none;">
-                                                        <?php esc_html_e( 'and', 'product-sales-report-for-woocommerce' ); ?>
-                                                        <input type="text" name="customer_meta_filter_value_2"
-                                                               disabled/>
-                                                    </span>
-                                                </div>
                                             </div>
                                         </div>
 										<?php
@@ -1929,17 +1739,7 @@ class AdminPage extends BerryPressPage {
                                                     aria-label="<?php esc_attr_e( 'Select field to add to report', 'product-sales-report-for-woocommerce' ); ?>">
                                                 <?php
                                                 foreach ( array_merge( array( 'Built-in Fields' => $fieldOptions ), $customFields ) as $fieldGroupName => $fields ) {
-                                                    switch ( $fieldGroupName ) {
-                                                        case 'Product Variation':
-                                                            $fieldGroupPrefix = 'variation::';
-                                                            break;
-                                                        case 'Order Item':
-                                                            $fieldGroupPrefix = $reportSettings['export_orders'] ? 'order_item_meta::' : 'order_item_total::';
-                                                            break;
-                                                        case 'Customer User':
-                                                            $fieldGroupPrefix = 'customer_user_meta::';
-                                                            break;
-                                                    }
+                                                    $fieldGroupPrefix = ninjalytics_get_field_group_prefix($fieldGroupName, $reportSettings);
 
                                                     $optgroupClasses = [];
                                                     if ( $fieldGroupName != 'Built-in Fields' && $fieldGroupName != 'Product Taxonomies' ) {
@@ -1950,7 +1750,7 @@ class AdminPage extends BerryPressPage {
                                                         $optgroupClasses[] = 'hm-psr-product-fields';
                                                     }
 
-                                                    echo '<optgroup label="' . esc_attr( $fieldGroupName ) . '"' . ( $optgroupClasses ? ' class="' . esc_attr(implode( ' ', $optgroupClasses )) . '"' : '' ) . ( isset( $fieldGroupPrefix ) ? ' data-hm-psr-other-field-prefix="' . esc_attr( $fieldGroupPrefix ) . '"' : '' ) . '>';
+                                                    echo '<optgroup label="' . esc_attr( $fieldGroupName == 'Built-in Fields' ? 'Built-in Fields' : sprintf( /* translators: %s = option name */ __( '%s [Pro]', 'product-sales-report-for-woocommerce'), __( $fieldGroupName, 'product-sales-report-for-woocommerce' ) ) ) . '"' . ( $optgroupClasses ? ' class="' . esc_attr(implode( ' ', $optgroupClasses )) . '"' : '' ) . ( isset( $fieldGroupPrefix ) ? ' data-hm-psr-other-field-prefix="' . esc_attr( $fieldGroupPrefix ) . '"' : '' ) . '>';
                                                     foreach ( $fields as $fieldId => $fieldDisplay ) {
                                                         $fieldClasses = '';
                                                         if ( in_array( $fieldId, array(
@@ -2192,10 +1992,14 @@ class AdminPage extends BerryPressPage {
                                         <li>
                                             <i class="berrypress-icon-filled berrypress-icon-check"></i>
 
-                                            <?php esc_html_e(
-                                                    'Access your reports on the go with the Ninjalytics app for Android (beta)',
-                                                    'product-sales-report-for-woocommerce'
-                                            ); ?>
+                                            <?php
+                                            printf(
+                                            /* translators: 1: Android link, 2: iOS link */
+                                                    esc_html__( 'Access your reports on the go with the Ninjalytics app for %1$s or %2$s (beta)', 'ninjalytics' ),
+                                                    '<a class="berrypress-link" href="' . esc_url( 'https://play.google.com/store/apps/details?id=com.berrypress.ninjalytics' ) . '" target="_blank">' . esc_html__( 'Android', 'ninjalytics' ) . '</a>',
+                                                    '<a class="berrypress-link" href="' . esc_url( 'https://apps.apple.com/se/app/ninjalytics/id6757487864?l=en-GB' ) . '" target="_blank">' . esc_html__( 'iOS', 'ninjalytics' ) . '</a>'
+                                            );
+                                            ?>
                                         </li>
                                         <li><i class="berrypress-icon-filled berrypress-icon-check"></i>
                                             <?php esc_html_e( 'And more!', 'product-sales-report-for-woocommerce' ); ?>

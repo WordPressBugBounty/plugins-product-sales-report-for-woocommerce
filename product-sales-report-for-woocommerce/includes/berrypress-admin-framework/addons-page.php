@@ -28,13 +28,16 @@ $plugin_url = plugin_dir_url(dirname(dirname(dirname(__FILE__))) . '/hm-product-
         <div class="berrypress-addon-item">
             <span class="berrypress-product-badge berrypress-product-badge-highlight">NEW!</span>
             <div class="berrypress-addon-icon">
-                <img src="<?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app.png'); ?>"
-                     srcset="<?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app.png'); ?> 1x, <?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app-2x.png'); ?> 2x"
-                     alt="<?php esc_attr_e('Mobile App Icon', 'product-sales-report-for-woocommerce'); ?>" />
+                <img src="<?php echo $plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app.png'; ?>"
+                     srcset="<?php echo $plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app.png'; ?> 1x, <?php echo $plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app-2x.png'; ?> 2x"
+                     alt="<?php esc_attr_e('Mobile App Icon', 'ninjalytics'); ?>" />
             </div>
-            <h3><?php esc_html_e('Ninjalytics App (Android)', 'product-sales-report-for-woocommerce'); ?></h3>
-            <p><?php esc_html_e('Access your reports on the go with the Ninjalytics app for Android (beta) (stay tuned for the iOS version)! Works with Ninjalytics Pro.', 'product-sales-report-for-woocommerce'); ?></p>
-            <a href="https://play.google.com/store/apps/details?id=com.berrypress.ninjalytics" class="berrypress-btn berrypress-btn-primary" target="_blank"><?php esc_html_e('Install for Free', 'product-sales-report-for-woocommerce'); ?></a>
+            <h3><?php esc_html_e('Ninjalytics App', 'ninjalytics'); ?></h3>
+            <p><?php esc_html_e('Access your reports on the go with the Ninjalytics app (beta)! Works with Ninjalytics Pro.', 'ninjalytics'); ?></p>
+            <div class="berrypress-addon-item-buttons">
+                <a href="https://play.google.com/store/apps/details?id=com.berrypress.ninjalytics" class="berrypress-btn berrypress-btn-primary berrypress-mb-2" target="_blank"><?php esc_html_e('Install on Android', 'ninjalytics'); ?></a>
+                <a href="https://apps.apple.com/se/app/ninjalytics/id6757487864?l=en-GB" class="berrypress-btn berrypress-btn-primary" target="_blank"><?php esc_html_e('Install on iOS', 'ninjalytics'); ?></a>
+            </div>
         </div>
 
         <div class="berrypress-addon-item">
@@ -167,6 +170,18 @@ $plugin_url = plugin_dir_url(dirname(dirname(dirname(__FILE__))) . '/hm-product-
             <h3><?php esc_html_e('REST API Explorer', 'product-sales-report-for-woocommerce'); ?></h3>
             <p><?php esc_html_e('Browse and test WordPress REST API endpoints directly from your dashboard.', 'product-sales-report-for-woocommerce'); ?></p>
             <a href="https://wordpress.org/plugins/rest-api-explorer/" class="berrypress-btn berrypress-btn-primary" target="_blank"><?php esc_html_e('View Product', 'product-sales-report-for-woocommerce'); ?></a>
+        </div>
+        
+        <div class="berrypress-addon-item">
+            <span class="berrypress-product-badge">Free</span>
+            <div class="berrypress-addon-icon">
+                <img src="<?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/loginberry.png'); ?>" 
+                     srcset="<?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/loginberry.png'); ?> 1x, <?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/loginberry-2x.png'); ?> 2x"
+                     alt="<?php esc_attr_e('LoginBerry', 'product-sales-report-for-woocommerce'); ?>" />
+            </div>
+            <h3><?php esc_html_e('LoginBerry', 'product-sales-report-for-woocommerce'); ?></h3>
+            <p><?php esc_html_e('Automatic email verification for WordPress accounts. Stops fake signups with a 6-digit activation code.', 'product-sales-report-for-woocommerce'); ?></p>
+            <a href="https://wordpress.org/plugins/loginberry/" class="berrypress-btn berrypress-btn-primary" target="_blank"><?php esc_html_e('View Product', 'product-sales-report-for-woocommerce'); ?></a>
         </div>
     </div>
     

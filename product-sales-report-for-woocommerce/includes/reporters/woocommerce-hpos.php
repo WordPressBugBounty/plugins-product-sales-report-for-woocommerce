@@ -27,6 +27,17 @@ class Hpos extends Base {
 		$this->orderCustomerFieldKey = 'customer_id';
 	}
 	
+	function getBuiltInFields($exportOrders) {
+		$fields = parent::getBuiltInFields($exportOrders);
+		if ($exportOrders) {
+			$fields['builtin::order_paid_date_only'] = sprintf( /* translators: %s = option name */ __( '%s [Pro]', 'product-sales-report-for-woocommerce'), __( 'Order Paid Date', 'product-sales-report-for-woocommerce' ) );
+			$fields['builtin::order_paid_date'] = sprintf( /* translators: %s = option name */ __( '%s [Pro]', 'product-sales-report-for-woocommerce'), __( 'Order Paid Date/Time', 'product-sales-report-for-woocommerce' ) );
+			$fields['builtin::order_completed_date_only'] = sprintf( /* translators: %s = option name */ __( '%s [Pro]', 'product-sales-report-for-woocommerce'), __( 'Order Completed Date', 'product-sales-report-for-woocommerce' ) );
+			$fields['builtin::order_completed_date'] = sprintf( /* translators: %s = option name */ __( '%s [Pro]', 'product-sales-report-for-woocommerce'), __( 'Order Completed Date/Time', 'product-sales-report-for-woocommerce' ) );
+		}
+		return $fields;
+	}
+	
 	public function getVirtualOrderMeta() {
 		global $wpdb;
 		$virtualMeta = parent::getVirtualOrderMeta();

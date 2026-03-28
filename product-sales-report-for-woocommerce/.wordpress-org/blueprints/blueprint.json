@@ -1,0 +1,61 @@
+{
+    "landingPage": "\/wp-admin\/admin.php?page=ninjalytics&preset=_all_sales",
+    "preferredVersions": {
+        "php": "8.1",
+        "wp": "latest"
+    },
+    "phpExtensionBundles": [
+        "kitchen-sink"
+    ],
+    "steps": [
+        {
+            "step": "login",
+            "username": "admin",
+            "password": "password"
+        },
+        {
+            "step": "installPlugin",
+            "pluginData": {
+                "resource": "wordpress.org\/plugins",
+                "slug": "woocommerce"
+            },
+            "options": {
+                "activate": true
+            }
+        },
+        {
+            "step": "installPlugin",
+            "pluginData": {
+                "resource": "wordpress.org\/plugins",
+                "slug": "product-sales-report-for-woocommerce"
+            },
+            "options": {
+                "activate": true
+            }
+        },
+        {
+            "step": "installPlugin",
+            "pluginData": {
+                "resource": "url",
+                "url": "https:\/\/github-proxy.com\/proxy\/?repo=woocommerce%2Fwc-smooth-generator&release=1.2.2&asset=wc-smooth-generator.zip"
+            },
+            "options": {
+                "activate": true
+            }
+        },
+        {
+            "step": "setSiteOptions",
+            "options": {
+               "woocommerce_onboarding_profile": {"skipped": true}
+            }
+        },
+        {
+            "step": "wp-cli",
+            "command": "wp wc generate products 5"
+        },
+        {
+            "step": "wp-cli",
+            "command": "wp wc generate orders 15"
+        }
+    ]
+}

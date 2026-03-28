@@ -77,17 +77,46 @@ class EDD extends OrdersBase {
 		$maxOrder = edd_get_payments([
 			'number' => 1,
 			'order' => 'ASC',
-			'orderby' => 'date'
+			'orderby' => 'date',
+			'type' => $this->orderType
 		]);
-		return $maxOrder ? (int) strstr(current($maxOrder)->date, '-', true) : null;
+		$maxOrderYear = $maxOrder ? (int) strstr(current($maxOrder)->date, '-', true) : null;
+		$maxRefund = edd_get_payments([
+			'number' => 1,
+			'order' => 'ASC',
+			'orderby' => 'date',
+			'type' => $this->refundOrderType
+		]);
+		$maxRefundYear = $maxOrder ? (int) strstr(current($maxOrder)->date, '-', true) : null;
+		if ($maxOrderYear == null) {
+			return $maxRefundYear;
+		}
+		if ($maxRefundYear == null) {
+			return $maxOrderYear;
+		}
+		return min($maxOrderYear, $maxRefundYear);
 	}
 	
 	public function getNewestOrderYear() {
 		$maxOrder = edd_get_payments([
 			'number' => 1,
-			'orderby' => 'date'
+			'orderby' => 'date',
+			'type' => $this->orderType
 		]);
-		return $maxOrder ? (int) strstr(current($maxOrder)->date, '-', true) : null;
+		$maxOrderYear = $maxOrder ? (int) strstr(current($maxOrder)->date, '-', true) : null;
+		$maxRefund = edd_get_payments([
+			'number' => 1,
+			'orderby' => 'date',
+			'type' => $this->refundOrderType
+		]);
+		$maxRefundYear = $maxOrder ? (int) strstr(current($maxOrder)->date, '-', true) : null;
+		if ($maxOrderYear == null) {
+			return $maxRefundYear;
+		}
+		if ($maxRefundYear == null) {
+			return $maxOrderYear;
+		}
+		return max($maxOrderYear, $maxRefundYear);
 	}
 	
 	public function getVirtualOrderMeta() {

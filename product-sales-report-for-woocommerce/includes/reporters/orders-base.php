@@ -72,15 +72,13 @@ abstract class OrdersBase extends Base {
 	}
 	
 		
-	function getOrderFieldNames()
+	function getOrderFieldNames($includeVirtual=true)
 	{
 		global $wpdb;
 		if (!isset($this->orderFieldNames)) {
-			$this->orderFieldNames = array_merge(
-				array_keys($this->getVirtualOrderMeta()),
 				// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- using table and field name vars
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-				$wpdb->get_col(
+			$this->orderFieldNames = $wpdb->get_col(
 					$wpdb->prepare('
 							SELECT DISTINCT meta_key FROM (
 								SELECT meta_key
@@ -93,13 +91,12 @@ abstract class OrdersBase extends Base {
 							$this->orderType
 					),
 					0
-				)
-			);
+				);
 			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		}
-		return $this->orderFieldNames;
+		return $includeVirtual ? array_merge(array_keys($this->getVirtualOrderMeta()), $this->orderFieldNames) : $this->orderFieldNames;
 	}
-	
+		
 	function getCustomFields($exportOrders, $includeDisplay = false, $productFieldsOnly = false)
 	{
 		global $wpdb;
@@ -149,15 +146,22 @@ abstract class OrdersBase extends Base {
 					$this->$var['Product Variation']['variation::'.$variationField] = 'Variation '.$variationField;
 			}
 			
-			$this->$var['Order Item'] = [];
 			$orderItemFields = \NinjalyticsFree\ninjalytics_get_order_item_fields($this, false, true);
 			if ($exportOrders) {
-				/*
+				$this->$var['Order'] = [];
+				foreach ($this->getOrderFieldNames() as $orderField) {
+					$this->$var['Order']['order_meta::'.$orderField] = $orderField;
+				}
+				$this->$var['Order Item'] = [];
 				foreach ($orderItemFields as $orderItemField) {
 					$this->$var['Order Item']['order_item_meta::'.$orderItemField] = $orderItemField;
 				}
-				*/
+				$this->$var['Customer User'] = [];
+				foreach (\NinjalyticsFree\ninjalytics_getCustomerFieldNames() as $customerField) {
+					$this->$var['Customer User']['customer_user_meta::'.$customerField] = $customerField;
+				}
 			} else {
+				$this->$var['Order Item'] = [];
 				$skipOrderItemFields = array('_qty', '_line_subtotal', '_line_total', '_line_tax', '_line_tax_data', '_tax_class', '_refunded_item_id');
 				foreach ($orderItemFields as $orderItemField) {
 					if (!in_array($orderItemField, $skipOrderItemFields) && !empty($orderItemField)) {
@@ -166,12 +170,6 @@ abstract class OrdersBase extends Base {
 				}
 			}
 			
-			if ($exportOrders) {
-				foreach (\NinjalyticsFree\ninjalytics_getCustomerFieldNames() as $customerField) {
-					$this->$var['Customer User']['customer_user_meta::'.$customerField] = $customerField;
-				}
-				
-			}
 		}
 		return $this->$var;
 	}
@@ -193,17 +191,28 @@ abstract class OrdersBase extends Base {
 				'builtin::product_categories' => 'Product Categories',
 				'builtin::product_price' => 'Current Product Price [Pro]',
 				'builtin::product_price_with_tax' => 'Current Product Price (Incl. Tax) [Pro]',
-				'builtin::product_stock' => 'Current Stock Quantity',
-				'builtin::quantity_sold' => 'Quantity Sold',
-				'builtin::gross_sales' => 'Gross Sales',
-				'builtin::gross_after_discount' => 'Gross Sales (After Discounts)',
-				'builtin::discount' => 'Total Discount Amount',
-				'builtin::taxes' => 'Taxes'
+				'builtin::product_stock' => 'Current Stock Quantity'
 			]
+			+ ($exportOrders
+				? [
+					'builtin::quantity' => 'Line Item Quantity',
+					'builtin::line_subtotal' => 'Line Item Gross',
+					'builtin::line_total' => 'Line Item Gross After Discounts',
+					'builtin::line_tax' => 'Line Item Tax [Pro]',
+				]
+				: [
+					'builtin::quantity_sold' => 'Quantity Sold',
+					'builtin::gross_sales' => 'Gross Sales',
+					'builtin::gross_after_discount' => 'Gross Sales (After Discounts)',
+					'builtin::discount' => 'Total Discount Amount [Pro]',
+					'builtin::taxes' => 'Taxes [Pro]'
+				]
+			)
 			+ ($this->supports(PlatformFeatures::COGS) ? [
 				'builtin::cogs' => 'Cost of Goods Sold',
 				'builtin::profit' => 'Profit',
 				'builtin::margin' => 'Gross Margin',
+				'builtin::refund_cogs' => 'Refund Cost of Goods Sold [Pro]',
 				'builtin::item_cogs' => 'Current COGS per Item',
 			] : []);
 			
@@ -213,24 +222,72 @@ abstract class OrdersBase extends Base {
 			
 			$this->$fieldsKey = array_merge(
 				$this->$fieldsKey,
-				[
-					'builtin::total_with_tax' => 'Total Sales Including Tax',]
+				($exportOrders
+				? [
+					'builtin::line_total_with_tax' => 'Line Item Total With Tax',
+				]
+				: [
+					'builtin::total_with_tax' => 'Total Sales Including Tax',
+				])
 				+ ($this->supports(PlatformFeatures::SHIPPING) ? [
-					'builtin::order_shipping_methods' => 'Order Shipping Methods [Pro]'
+					'builtin::order_shipping_methods' => 'Order Shipping Methods'
 				] : [])
+				+ ($exportOrders
+					? []
+					: [
+						'builtin::refund_quantity' => 'Quantity Refunded [Pro]',
+						'builtin::refund_gross' => 'Gross Amount Refunded (Excl. Tax) [Pro]',
+						'builtin::refund_with_tax' => 'Gross Amount Refunded (Incl. Tax) [Pro]',
+						'builtin::refund_taxes' => 'Tax Refunded [Pro]',
+						'builtin::order_count' => 'Order Count',
+						'builtin::line_item_count' => 'Line Item Count',
+						'builtin::unique_item_count' => 'Unique Item Count [Pro]',
+						'builtin::avg_order_total' => 'Average Order Total',
+					])
 				+ [
-					'builtin::refund_quantity' => 'Quantity Refunded [Pro]',
-					'builtin::refund_gross' => 'Gross Amount Refunded (Excl. Tax) [Pro]',
-					'builtin::refund_with_tax' => 'Gross Amount Refunded (Incl. Tax) [Pro]',
-					'builtin::refund_taxes' => 'Tax Refunded [Pro]',
 					'builtin::publish_time' => 'Product Publish Date/Time',
-					'builtin::line_item_count' => 'Line Item Count',
-					'builtin::order_count' => 'Order Count',
 					'builtin::product_desc' => 'Product Description',
 					'builtin::product_excerpt' => 'Product Description Excerpt',
 					'builtin::product_menu_order' => 'Product Menu Order',
-					'builtin::avg_order_total' => 'Average Order Total',
 				]
+				+ (
+					$exportOrders
+						? [
+							'builtin::order_id' => 'Order ID',
+							'builtin::order_status' => 'Order Status',
+							'builtin::order_total' => 'Order Total',
+							'builtin::order_date' => 'Order Date/Time',
+							'builtin::order_date_only' => 'Order Date',
+							'builtin::order_parent' => 'Parent Order',
+							'builtin::order_item_type' => 'Order Item Type',
+							'builtin::order_item_name' => 'Line Item Name',
+							'builtin::billing_name' => 'Billing Name',
+							'builtin::billing_phone' => 'Billing Phone',
+							'builtin::billing_email' => 'Billing Email',
+							'builtin::billing_address' => 'Billing Address',
+							'builtin::billing_state' => 'Billing State',
+							'builtin::shipping_name' => 'Shipping Name',
+							'builtin::shipping_phone' => 'Shipping Phone',
+							'builtin::shipping_email' => 'Shipping Email',
+							'builtin::shipping_address' => 'Shipping Address',
+							'builtin::shipping_state' => 'Shipping State [Pro]',
+							'builtin::customer_order_note' => 'Customer Order Note [Pro]',
+							'builtin::order_note_most_recent' => 'Order Note - Most Recent [Pro]',
+							'builtin::order_notes_user' => 'User Order Notes [Pro]',
+							'builtin::order_shipping_methods' => 'Order Shipping Methods',
+							'builtin::order_shipping_cost' => 'Order Shipping Cost [Pro]',
+							'builtin::order_shipping_tax' => 'Order Shipping Tax [Pro]',
+							'builtin::order_shipping_cost_with_tax' => 'Order Shipping Cost With Tax [Pro]',
+							'builtin::order_total_qty' => 'Order Total Item Quantity',
+							'builtin::order_total_fees' => 'Total Order Fees [Pro]',
+							'builtin::order_total_fees_with_tax' => 'Total Order Fees With Tax [Pro]',
+							'builtin::customer_roles' => 'Customer User Roles [Pro]',
+							'builtin::creator_roles' => 'Order Creator User Roles [Pro]',
+							'builtin::order_item_id' => 'Order Item ID',
+							'builtin::order_product_total' => 'Order Product Total'
+						]
+						: []
+				)
 			);
 		}
 		return $this->$fieldsKey;
@@ -439,16 +496,31 @@ abstract class OrdersBase extends Base {
 		)
 	);
 	
-	if ($exportOrders || in_array('builtin::order_count', $baseFields)) {
+	
+	if ( !$exportOrders ) {
+		// Add shipping methods virtual meta field when needed
+		if (in_array('builtin::order_shipping_methods', $baseFields)) {
+			$dataParams['_order_shipping_method'] = [
+				'type' => 'meta',
+				'function' => 'GROUP_CONCAT',
+				'join_type' => 'LEFT',
+				'name' => 'order_shipping_methods'
+			];
+		}
+		if (in_array('builtin::order_count', $baseFields)) {
+		   $dataParams[ $standardFields['order_id'][1] ] = array(
+				'type' => $standardFields['order_id'][0],
+				'name' => 'order_id',
+				'function' => 'GROUP_CONCAT'
+			);
+		}
+	} else {
        $dataParams[ $standardFields['order_id'][1] ] = array(
             'type' => $standardFields['order_id'][0],
+            'function' => '',
             'name' => 'order_id',
-			'function' => empty($_POST['export_orders']) ?  'GROUP_CONCAT' : '',
+            //'join_type' => 'LEFT'
         );
-	}
-	
-	if ( $exportOrders ) {
-		
         $dataParams[ $standardFields['order_item_id'][1] ] = array(
             'type' => $standardFields['order_item_id'][0],
             'function' => '',
@@ -701,16 +773,6 @@ abstract class OrdersBase extends Base {
 		);
 	}
 
-	// Add shipping methods virtual meta field when needed
-	if (in_array('builtin::order_shipping_methods', $baseFields)) {
-		$dataParams['_order_shipping_method'] = [
-			'type' => 'meta',
-			'function' => empty($exportOrders) ?  'GROUP_CONCAT' : '',
-			'join_type' => 'LEFT',
-			'name' => 'order_shipping_methods'
-		];
-	}
-
 	if (in_array('builtin::line_item_count', $baseFields) || \NinjalyticsFree\ninjalytics_hasTaxBreakoutField($baseFields)) {
 		$dataParams[$this->orderItemsIdColumn] = array(
 			'type' => 'order_item',
@@ -730,22 +792,9 @@ abstract class OrdersBase extends Base {
 		);
 	}
 	foreach ($baseFields as $field) {
-		if (substr($field, 0, 18) == 'order_item_total::') {
-			$fieldNameRaw = substr($field, 18);
-			$fieldName = esc_sql($fieldNameRaw);
+		if (!empty($_POST['enable_custom_segments']) && $field == 'builtin::groupby_field' ) {
 			
-			$dataParams[$fieldName] = array(
-				'type' => 'order_item_meta',
-				'order_item_type' => 'line_item',
-				'function' => ($exportOrders ? '' :  'SUM'),
-				'join_type' => 'LEFT',
-				'name' => \NinjalyticsFree\ninjalytics_fixSanitizeKey(sanitize_key('order_item_total__'.$fieldNameRaw))
-			);
-		} else if (!empty($_POST['enable_custom_segments']) && ($field == 'builtin::groupby_field' || $field == 'builtin::groupby_field2' || $field == 'builtin::groupby_field3' || $field == 'builtin::groupby_field4' || $field == 'builtin::groupby_field5') ) {
-			
-			$groupbyFieldNum = $field == 'builtin::groupby_field' ? '' : $field[22];
-			
-			$groupByField = sanitize_text_field(wp_unslash($_POST['groupby'.$groupbyFieldNum] ?? ''));
+			$groupByField = sanitize_text_field(wp_unslash($_POST['groupby'] ?? ''));
 			if ( !empty($groupByField) && $groupByField != 'i_builtin::item_price' ) {
 				if (in_array($groupByField, array('o_builtin::order_month', 'o_builtin::order_quarter', 'o_builtin::order_year', 'o_builtin::order_date', 'o_builtin::order_day'))) {
 					switch ($groupByField) {
@@ -769,7 +818,7 @@ abstract class OrdersBase extends Base {
 						'order_item_type' => 'line_item',
 						'function' => $sqlFunction,
 						'join_type' => 'LEFT',
-						'name' => 'groupby_field'.$groupbyFieldNum
+						'name' => 'groupby_field'
 					);
 				} else if ($this->supports(PlatformFeatures::ORDER_SOURCE) && $groupByField == 'o_builtin::order_source') {
 					// Replicated in shipping data function below
@@ -777,13 +826,13 @@ abstract class OrdersBase extends Base {
 						'type' => 'meta',
 						'join_type' => 'LEFT',
 						'function' => '',
-						'name' => 'groupby_field'.$groupbyFieldNum
+						'name' => 'groupby_field'
 					];
 					$dataParams['_wc_order_attribution_utm_source'] = [
 						'type' => 'meta',
 						'join_type' => 'LEFT',
 						'function' => '',
-						'name' => 'groupby_field'.$groupbyFieldNum.'b'
+						'name' => 'groupby_fieldb'
 					];
 				} else if ($groupByField[0] != 'p') {
 					$fieldName = esc_sql(substr($groupByField, 2));
@@ -793,7 +842,7 @@ abstract class OrdersBase extends Base {
 						'order_item_type' => 'line_item',
 						'function' => '',
 						'join_type' => 'LEFT',
-						'name' => 'groupby_field'.$groupbyFieldNum
+						'name' => 'groupby_field'
 					);
 					
 				}

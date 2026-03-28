@@ -8,6 +8,16 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
  * Source code: https://github.com/BerryPress/scss-framework
  * License: https://github.com/BerryPress/scss-framework/blob/main/LICENSE
  */
+.berrypress-page .berrypress-text-color {
+  color: #131523 !important;
+}
+.berrypress-page .berrypress-primary-color {
+  color: #0070F0 !important;
+}
+.berrypress-page .bg-primary-color {
+  background-color: #0070F0 !important;
+}
+
 .berrypress-page #ninjalytics-form .berrypress-multiple-dropdown-container input.select2-search__field[type=text] {
   border: 0;
 }
@@ -193,6 +203,7 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
 #ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body .ninjalytics-date-range-dropdown-tab-content {
   display: none;
   padding: 15px;
+  box-sizing: border-box;
 }
 #ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body .ninjalytics-date-range-dropdown-tab-content > * {
   margin-bottom: 10px;
@@ -203,6 +214,14 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
 #ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body .ninjalytics-date-range-dropdown-tab-content > * p {
   margin-top: 5px;
   color: #5A607F;
+}
+#ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body .ninjalytics-date-range-dropdown-tab-content#ninjalytics-date-range-dynamic .ninjalytics-date-range-dropdown-inner {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 10px;
+}
+#ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body .ninjalytics-date-range-dropdown-tab-content#ninjalytics-date-range-dynamic .ninjalytics-date-range-dropdown-inner input {
+  width: 100%;
 }
 #ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body .ninjalytics-date-range-dropdown-tab-content#ninjalytics-date-range-preset > div {
   display: flex;
@@ -351,6 +370,49 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
 .berrypress-field select[name=orderdir] {
   min-width: 110px;
   max-width: 180px;
+}
+
+#ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body .ninjalytics-date-range-dropdown-tab-content {
+  padding-bottom: 0;
+}
+
+.ninjalytics-date-range-dropdown-alt-dates-wrapper {
+  padding: 0 25px 10px;
+}
+.ninjalytics-date-range-dropdown-alt-dates-wrapper .ninjalytics-date-range-dropdown-alt-dates-toggle {
+  border-top: 1px solid #F3F5F9;
+  padding-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+.ninjalytics-date-range-dropdown-alt-dates-wrapper .ninjalytics-date-range-dropdown-alt-dates-toggle .ninjalytics-alt-dates-label {
+  color: #5A607F;
+}
+.ninjalytics-date-range-dropdown-alt-dates-wrapper .ninjalytics-date-range-dropdown-alt-dates-toggle .berrypress-link {
+  font-size: 13px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-right: -10px;
+}
+.ninjalytics-date-range-dropdown-alt-dates-wrapper .ninjalytics-date-range-dropdown-alt-dates-toggle .berrypress-link:hover {
+  color: #0070F0;
+}
+.ninjalytics-date-range-dropdown-alt-dates-wrapper .ninjalytics-date-range-dropdown-alt-dates {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 10px 16px;
+  align-items: center;
+}
+.ninjalytics-date-range-dropdown-alt-dates-wrapper .ninjalytics-date-range-dropdown-alt-dates .berrypress-field {
+  display: contents;
+}
+.ninjalytics-date-range-dropdown-alt-dates-wrapper .ninjalytics-date-range-dropdown-alt-dates .berrypress-field label {
+  display: contents;
+  font-size: 13px;
 }
 
 .berrypress-modal.ninjalytics-modal-templates.berrypress-active {
@@ -1239,6 +1301,12 @@ i.berrypress-icon-drag-indicator::before {
   gap: 0.2rem;
   margin-bottom: 0.3rem;
 }
+.berrypress-page .ninjalytics-add-report-field:has(.hm-psr-select-other-selected) {
+  flex-wrap: wrap;
+}
+.berrypress-page .ninjalytics-add-report-field .hm-psr-select-other-field {
+  flex-grow: 1;
+}
 .berrypress-page .ninjalytics-add-report-field select {
   padding: 2px 12px;
   height: 34px;
@@ -1629,6 +1697,11 @@ i.berrypress-icon-drag-indicator::before {
   margin: 30px 0;
 }
 
+@media (max-width: 780px) {
+  .berrypress-addons-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
 .berrypress-addon-item {
   margin: 0;
   padding: 2rem 1rem;
@@ -1641,6 +1714,14 @@ i.berrypress-icon-drag-indicator::before {
   border-radius: 10px;
   border: 1px solid #e6e9f4;
   transition: transform 0.4s ease;
+}
+
+.berrypress-addon-item .berrypress-addon-item-buttons {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
 }
 
 .berrypress-addon-item:hover {
@@ -2014,6 +2095,9 @@ i.berrypress-icon-drag-indicator::before {
   padding-left: 25px;
   position: relative;
   margin-bottom: 0;
+}
+.berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option.loading-results, .berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option.select2-results__message {
+  padding-left: 12px;
 }
 .berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option[data-selected=true][aria-selected=true]::before {
   color: #fff;
