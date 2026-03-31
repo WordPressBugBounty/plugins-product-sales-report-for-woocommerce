@@ -2,7 +2,7 @@
 This file is part of Ninjalytics. For licensing and copyright notices, please see ../license.txt.
 */
 jQuery(document).ready(function($) {
-	var hm_psr_table_search = null, hm_psr_chart, hm_psr_table;
+	var hm_psr_table_search = null, hm_psr_chart, hm_psr_table, hm_psr_freeze_field_order = false;
 
 	var $productSelect = $('#ninjalytics-product-ids');
 	if ($productSelect.length && typeof $productSelect.selectWoo === 'function') {
@@ -217,14 +217,17 @@ jQuery(document).ready(function($) {
 		}
 		if (hm_psr_table) {
 			hm_psr_table_search = hm_psr_table.search();
+			hm_psr_freeze_field_order = true;
 			hm_psr_table.destroy(true);
-			// $('#ninjalytics_output_container h2').remove();
+			hm_psr_freeze_field_order = false;
+			 $('#ninjalytics_output_container h2').remove();
 		} else {
 			hm_psr_table_search = null;
 		}
 		var mode = $('.ninjalytics-display-options button[aria-pressed="true"]').data('display-mode');
 		$('#ninjalytics-chart-no-fields').addClass('berrypress-hidden');
 		$('#ninjalytics_output_container').removeClass('ninjalytics-output-chart ninjalytics-output-table').addClass('ninjalytics-output-loading ninjalytics-output-' + mode).show();
+		$('#hm_sbp_field_orderby, #ninjalytics-orderdir,.hm_psr_field_name').toggleClass('ninjalytics-no-update', mode == 'table');
 		hm_psr_get_chart_data( mode == 'chart' ? hm_psr_build_chart : hm_psr_build_table );
 	}
 
@@ -396,11 +399,45 @@ jQuery(document).ready(function($) {
 		}
 	});
 	$('.hm_psr_variations_fld:checked').change();
+
+	var preSortColumnOrder;
+	$('#hm_psr_report_fields').sortable({
+		start: function() {
+			preSortColumnOrder = [];
+			$('#hm_psr_report_fields input[name="fields[]"]').each(function() {
+				preSortColumnOrder.push(this.value);
+			});
+		},
+		update: function() {
+			hm_psr_update_sort_options();
+
+			var newOrder = [];
+			$('#hm_psr_report_fields input[name="fields[]"]').each(function() {
+				newOrder.push(preSortColumnOrder.indexOf(this.value));
+			});
+
+			if (hm_psr_table) {
+				hm_psr_freeze_field_order = true;
+				try {
+					hm_psr_table.colReorder.order(newOrder);
+				} catch (x) {}
+				hm_psr_freeze_field_order = false;
+			}
+
+			if ($('.ninjalytics-display-options button[aria-pressed="true"]').data('display-mode') == 'chart') {
+				ninjalytics_update_chart();
+			}
+		}
+	}).on('input', '.hm_psr_field_name', function() {
+		$(hm_psr_table.table().header()).find('.dt-column-title').eq( $(this).closest('.ninjalytics-report-field').index() ).text(this.value);
+		hm_psr_update_sort_options();
+	});
+
 	$('#hm_psr_field_groupby').change(function() {
 		var $field = $(this);
-		
-		jQuery('#hm_psr_report_fields .hm_psr_groupby_field').remove();
-		
+
+		jQuery('#hm_psr_report_fields .hm_psr_groupby_field' + fieldNum).remove();
+
 		if ($field.val() == '') {
 			hm_psr_update_sort_options();
 		} else {
@@ -513,6 +550,7 @@ jQuery(document).ready(function($) {
 	function hm_psr_get_chart_data(callback) {
 		var thisDataSeq = ++dataSeq;
 		var request = $('#ninjalytics-form').serializeArray();
+		var sortOrder = [0, 'asc'];
 		var chartSeriesName, chartType, fields = [], allFieldNames = {}, mode = $('.ninjalytics-display-options button[aria-pressed="true"]').data('display-mode'), showHeader = false, showTotals = false;
 		request = request.map(function(field) {
 			if (field.name.substring(0, 12) == 'field_names[' && field.name[field.name.length - 1] == ']') {
@@ -555,9 +593,23 @@ jQuery(document).ready(function($) {
 				case 'email_to':
 				case 'format':
 					return {};
+				case 'orderby':
+					sortOrder[0] = field.value;
+					return field.value;
+				case 'orderdir':
+					sortOrder[1] = field.value;
+					return field.value;
 			}
 			return field;
 		});
+
+		if (sortOrder[0]) {
+			sortOrder[0] = fields.indexOf(sortOrder[0]);
+		}
+
+		if (!sortOrder[0] || sortOrder[0] == -1) {
+			sortOrder[0] = 0;
+		}
 
 		if (!fields.length) {
 			$('#ninjalytics_output_container').removeClass('ninjalytics-output-loading');
@@ -663,7 +715,7 @@ jQuery(document).ready(function($) {
 							buildData(batchStart + batchSize, Math.min(runsRemaining, Math.max(1, Math.floor(targetRequestLength / requestDuration))));
 						} else {
 							$loader.val(99);
-							callback(data, fieldNames, showHeader, showTotals, reportTitle);
+							callback(data, fieldNames, showHeader, showTotals, reportTitle, sortOrder);
 						}
 					}
 				},
@@ -708,7 +760,7 @@ jQuery(document).ready(function($) {
 		}
 	});
 
-	function hm_psr_build_table(data, fieldNames, showHeader, showTotals, reportTitle) {
+	function hm_psr_build_table(data, fieldNames, showHeader, showTotals, reportTitle, reportSort) {
 		// // Destroy existing table instance if it exists
 		// if (hm_psr_table) {
 		// 	hm_psr_table_search = hm_psr_table.search();
@@ -720,7 +772,7 @@ jQuery(document).ready(function($) {
 			$('<thead>').append(
 				$('<tr>').append(
 					fieldNames.map(function(fieldName) {
-						return $('<th>').text(showHeader ? fieldName : '');
+						return $('<th>').attr('data-order-sequence', '["asc","desc"]').text(showHeader ? fieldName : '');
 					})
 				)
 			),
@@ -733,7 +785,23 @@ jQuery(document).ready(function($) {
 					);
 				})
 			)
-		);
+		).on('order.dt', function(a, b, order) {
+			if (order.length) {
+				$('#hm_sbp_field_orderby').val( $('#hm_sbp_field_orderby > :eq(' + order[0].col + ')').val() );
+				$('#ninjalytics-orderdir').val( order[0].dir );
+			}
+		}).on('column-reorder.dt', function(a, b, order) {
+			if (hm_psr_freeze_field_order) {
+				return;
+			}
+			var $c = $('#hm_psr_report_fields').children();
+			var $move = order.from.map( function(i) { return $c.eq(i); } );
+			if (order.to > order.from[0]) {
+				$c.eq(order.to).after($move);
+			} else if (order.to < $c.length) {
+				$c.eq(order.to).before($move);
+			}
+		});
 
 		if (showTotals && data.length) {
 			$table.append(
@@ -752,10 +820,10 @@ jQuery(document).ready(function($) {
 			.append(reportTitle ? $('<h2>').text(reportTitle) : '', $table)
 			.removeClass('ninjalytics-output-loading')
 			.find('.ninjalytics-loading progress').val('');
-
+		
 		hm_psr_table = $table.DataTable({
 			pageLength:25,
-			order:[],
+			order:[reportSort],
 			colReorder:true,
 			responsive:true,
 			select:true,
@@ -774,6 +842,8 @@ jQuery(document).ready(function($) {
 			hm_psr_table.search(hm_psr_table_search);
 			hm_psr_table.draw();
 		}
+
+		
 	}
 
 	function hm_psr_is_empty_chart(data) {
@@ -785,7 +855,7 @@ jQuery(document).ready(function($) {
 		return true;
 	}
 
-	function hm_psr_build_chart(data, fieldNames, showHeader, showTotals, reportTitle) {
+	function hm_psr_build_chart(data, fieldNames, showHeader, showTotals, reportTitle, reportSort) {
 		var $chart = $('#hm_psr_chart');
 		$chart.next('.ninjalytics-chart-empty').remove();
 		if (hm_psr_is_empty_chart(data)) {
@@ -931,6 +1001,19 @@ jQuery(document).ready(function($) {
 				});
 			}
 		}, 0);
+	});
+
+	$('#hm_sbp_field_orderby, #ninjalytics-orderdir').on('change', function() {
+		if (hm_psr_table) {
+			try {
+				hm_psr_table.order([
+					$('#hm_sbp_field_orderby > :selected').index(),
+					$('#ninjalytics-orderdir').val()
+				]);
+				hm_psr_table.draw();
+			} catch (x) {}
+			
+		}
 	});
 });
 

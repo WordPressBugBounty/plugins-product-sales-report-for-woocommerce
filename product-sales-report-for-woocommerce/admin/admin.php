@@ -1670,7 +1670,7 @@ class AdminPage extends BerryPressPage {
                                                 <label for="field_name_<?php echo esc_attr( $fieldId ); ?>" class="berrypress-visually-hidden">
                                                     <?php /* translators: %s: field name */ echo esc_html( sprintf( __( 'Field label for %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>
                                                 </label>
-<!--                                                <i class="berrypress-icon-drag-indicator"></i>-->
+                                                <i class="berrypress-icon-drag-indicator"></i>
                                                 <input type="text"
                                                        id="field_name_<?php echo esc_attr( $fieldId ); ?>"
                                                        class="hm_psr_field_name"
@@ -1750,7 +1750,7 @@ class AdminPage extends BerryPressPage {
                                                         $optgroupClasses[] = 'hm-psr-product-fields';
                                                     }
 
-                                                    echo '<optgroup label="' . esc_attr( $fieldGroupName == 'Built-in Fields' ? 'Built-in Fields' : sprintf( /* translators: %s = option name */ __( '%s [Pro]', 'product-sales-report-for-woocommerce'), __( $fieldGroupName, 'product-sales-report-for-woocommerce' ) ) ) . '"' . ( $optgroupClasses ? ' class="' . esc_attr(implode( ' ', $optgroupClasses )) . '"' : '' ) . ( isset( $fieldGroupPrefix ) ? ' data-hm-psr-other-field-prefix="' . esc_attr( $fieldGroupPrefix ) . '"' : '' ) . '>';
+                                                    echo '<optgroup label="' . esc_attr( $fieldGroupName == 'Built-in Fields' ? 'Built-in Fields' : sprintf( /* translators: %s = option name */ __( '%s [Pro]', 'product-sales-report-for-woocommerce'),  $fieldGroupName ) ) . '"' . ( $optgroupClasses ? ' class="' . esc_attr(implode( ' ', $optgroupClasses )) . '"' : '' ) . ( isset( $fieldGroupPrefix ) ? ' data-hm-psr-other-field-prefix="' . esc_attr( $fieldGroupPrefix ) . '"' : '' ) . '>';
                                                     foreach ( $fields as $fieldId => $fieldDisplay ) {
                                                         $fieldClasses = '';
                                                         if ( in_array( $fieldId, array(

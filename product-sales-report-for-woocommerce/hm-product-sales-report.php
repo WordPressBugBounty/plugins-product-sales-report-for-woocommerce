@@ -3,7 +3,7 @@
  * Plugin Name:          Ninjalytics Free (formerly Product Sales Report)
  * Description:          Generates a report on individual WooCommerce products sold during a specified time period.
  * Plugin URI:           https://berrypress.com/product/woocommerce/ninjalytics/?utm_campaign=wordpressorg&source=ninjalytics-free-plugin
- * Version:              2.0.13
+ * Version:              2.0.14
  * WC tested up to:      10.6
  * WC requires at least: 2.2
  * Requires PHP:         8.1
@@ -47,11 +47,11 @@
 
 namespace NinjalyticsFree;
 
-use NinjalyticsFree\Reporters\PlatformFeatures;
-
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define('NINJALYTICS_FREE_VERSION', '2.0.13');
+use NinjalyticsFree\Reporters\PlatformFeatures;
+
+define('NINJALYTICS_FREE_VERSION', '2.0.14');
 
 add_filter('default_option_ninjalytics_settings', __NAMESPACE__.'\\ninjalytics_psr_import');
 function ninjalytics_psr_import($default) {
@@ -1971,6 +1971,7 @@ function ninjalytics_admin_enqueue_scripts()
 		wp_enqueue_style('berrypress-nj-admin-page-free', plugins_url('includes/berrypress-admin-framework/assets/css/global-admin-page.css', __FILE__), ['berrypress-nj-global-admin-free'], NINJALYTICS_FREE_VERSION);
 
 		wp_enqueue_style('ninjalytics_admin_style-free', plugins_url('css/ninjalytics.css', __FILE__), array(), NINJALYTICS_FREE_VERSION);
+		wp_enqueue_script('jquery-ui-sortable');
 		wp_enqueue_script('ags-psr-datatables-free', plugins_url('js/datatables/datatables.min.js', __FILE__), [], NINJALYTICS_FREE_VERSION, true);
 		wp_enqueue_style('ags-psr-datatables-free', plugins_url('js/datatables/datatables.min.css', __FILE__), [], NINJALYTICS_FREE_VERSION);
 		

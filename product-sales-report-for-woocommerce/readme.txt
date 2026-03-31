@@ -1,10 +1,10 @@
 === Ninjalytics: Sales Reports & Order Export for WooCommerce and EDD ===
 Contributors:      berrypress, kurowskanna, berrypressjonhall
-Tags:              woocommerce, sales report, order export, reporting, analytics, product sales
+Tags:              woocommerce, sales report, order export, reporting, product sales analytics
 Requires at least: 6.2
 Requires PHP:      8.1
 Tested up to:      6.9
-Stable tag:        2.0.13
+Stable tag:        2.0.14
 License:           GPLv3 or later
 License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -106,6 +106,8 @@ When you have the free [Live Carts for WooCommerce](https://wordpress.org/plugin
 - Product details for each line item
 - And more...
 
+You can rename any field in your reports and reposition it.
+
 *Note: The Pro version adds additional advanced fields including product prices, detailed taxes, refund data, customer notes, order notes, custom meta fields, and more. See "Get Pro Features" section for details.*
 
 ### Get Pro Features
@@ -117,7 +119,7 @@ If you are a power user needing advanced options for fine-tuning reports, [upgra
 - **Pie charts** - create pie charts for visual data representation (free version includes line and bar charts)
 - **Alternative date ranges** - filter orders by paid date, completed date, or custom date fields (e.g., delivery date from other plugins) instead of order date
 - **Custom calculated fields** - create your own formulas using arithmetic operators and built-in functions (Concatenate, Get Post Title, Get Permalink, Timestamp to Date/Time, and more) to calculate custom metrics
-- **Advanced field customization** - rename any field in your reports and include custom product/order meta fields
+- **Advanced field customization** - include custom product/order meta fields
 - **Expanded product filtering** - filter by product tags, custom fields, and product variation-specific attributes
 - **Multiple custom segments** - use several custom segmentation fields at the same time for complex data grouping
 - **User role filtering** - generate reports filtered by customer user roles (both default and custom roles)
@@ -176,6 +178,7 @@ Looking to automate your reports, share them on the frontend of your site, or ex
 - [Live Carts for WooCommerce](https://wordpress.org/plugins/live-carts-for-woocommerce/) - Free plugin to view and analyze live shopping carts in real time to understand user behavior and optimize conversions ([Pro version](https://berrypress.com/product/woocommerce/live-carts/) also available). **Integrates with Ninjalytics** to add 4 specialized cart reporting templates.
 - [Customer Address Change Notification for WooCommerce](https://wordpress.org/plugins/customer-address-change-notification-for-woocommerce/) - Get instant notifications when customers update their shipping or billing address, helping you stay on top of changes and prevent delivery issues.
 - [LoginBerry](https://wordpress.org/plugins/loginberry/) - Automatic email verification for WordPress accounts. Stops fake signups by requiring a 6-digit activation code before users can log in - zero configuration needed.
+
 To view BerryPress's premium WordPress plugins and themes, visit our [WordPress products catalog page](https://berrypress.com/shop/).
 
 Enjoy!
@@ -208,7 +211,7 @@ The [pro version](https://berrypress.com/product/woocommerce/ninjalytics/?utm_ca
 - **Email reports** to any address with one click
 - **Alternative date filtering** (by Order Paid Date or Completed Date)
 - **Custom calculated fields** with your own formulas
-- **Rename fields** and include any custom product/order meta fields
+- Include any **custom product/order meta fields**
 - **Advanced filtering** by product tags, user roles, and order meta fields
 - **Multiple custom segments** for complex data grouping
 - **Ninjalytics Mobile App** (iOS & Android beta)
@@ -293,6 +296,13 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 2.0.14, 2026-03-29 =
+- Re-ordering fields in the list automatically changes table column order without ajax refresh
+- Change the sort order field or direction settings automatically re-orders the table without an ajax refresh
+- Changing a field name renames the column without an ajax refresh
+- Clicking a table column heading to sort the table automatically updates the sort order and/or direction dropdown
+- Dragging columns in the table to change order automatically updates the order of the fields list
 
 = 2.0.13, 2026-03-27 =
 - Fix: Date range selector now correctly includes refund orders when calculating available year ranges
