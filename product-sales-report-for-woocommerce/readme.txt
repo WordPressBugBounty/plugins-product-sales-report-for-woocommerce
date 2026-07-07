@@ -3,8 +3,8 @@ Contributors:      berrypress, kurowskanna, berrypressjonhall
 Tags:              woocommerce, sales report, order export, reporting, product sales analytics
 Requires at least: 6.2
 Requires PHP:      8.1
-Tested up to:      6.9
-Stable tag:        2.0.14
+Tested up to:      7.0
+Stable tag:        2.0.15
 License:           GPLv3 or later
 License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -296,6 +296,13 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 2. Sample output (simulated)
 
 == Changelog ==
+
+= 2.0.15, 2026-07-06 =
+- Fix: Display mode doesn't save
+- Fix: running a chart overwrites the date
+- Fix: for live carts report, show only carts type
+- Fix: in export mode, set display mode to table
+- Fix: sorting issues
 
 = 2.0.14, 2026-03-29 =
 - Re-ordering fields in the list automatically changes table column order without ajax refresh

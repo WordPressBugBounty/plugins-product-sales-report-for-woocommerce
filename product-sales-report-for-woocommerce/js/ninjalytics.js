@@ -595,10 +595,10 @@ jQuery(document).ready(function($) {
 					return {};
 				case 'orderby':
 					sortOrder[0] = field.value;
-					return field.value;
+					return field;
 				case 'orderdir':
 					sortOrder[1] = field.value;
-					return field.value;
+					return field;
 			}
 			return field;
 		});
@@ -630,6 +630,10 @@ jQuery(document).ready(function($) {
 			fields.unshift(chartSeriesName);
 
 			request.push({name: '_chart', value: 1});
+		}
+
+		if ($('#ninjalytyics-display-mode').length) {
+			request.push({name: 'display_mode', value: mode});
 		}
 
 		var fieldNames = fields.map(function(field) {

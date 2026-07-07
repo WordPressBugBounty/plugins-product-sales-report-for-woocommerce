@@ -1,10 +1,10 @@
 <?php
 /**
- * Plugin Name:          Ninjalytics Free (formerly Product Sales Report)
+ * Plugin Name:          Ninjalytics: Sales Reports & Order Export for WooCommerce and EDD
  * Description:          Generates a report on individual WooCommerce products sold during a specified time period.
  * Plugin URI:           https://berrypress.com/product/woocommerce/ninjalytics/?utm_campaign=wordpressorg&source=ninjalytics-free-plugin
- * Version:              2.0.14
- * WC tested up to:      10.6
+ * Version:              2.0.15
+ * WC tested up to:      10.9
  * WC requires at least: 2.2
  * Requires PHP:         8.1
  * Author:               BerryPress
@@ -51,7 +51,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use NinjalyticsFree\Reporters\PlatformFeatures;
 
-define('NINJALYTICS_FREE_VERSION', '2.0.14');
+define('NINJALYTICS_FREE_VERSION', '2.0.15');
 
 add_filter('default_option_ninjalytics_settings', __NAMESPACE__.'\\ninjalytics_psr_import');
 function ninjalytics_psr_import($default) {
@@ -251,7 +251,7 @@ function ninjalytics_maybe_run_report()
 				// Run report from $_POST
 				$_POST = stripslashes_deep($_POST);
 				
-				if ((int) $_POST['preset']) {
+				if (!defined('PSR_CHART_SUBSEQUENT_RUN') && !empty( $_POST['preset'] )) {
 					update_option(
 						'ninjalytics_report_dates_'.((int) $_POST['preset']),
 						wp_json_encode(array_intersect_key(
@@ -862,7 +862,7 @@ function ninjalytics_export_body($reporter, $dest, $start_date, $end_date)
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- int cast
 	$disableProductGrouping = !empty($_POST['export_orders']) || ((int) ( $_POST['disable_product_grouping'] ?? 0 )) > 0;
 	
-	 if ($disableProductGrouping) {
+	 if (empty($_POST['export_orders']) && $disableProductGrouping) {
 		// Force some settings to be disabled
 		unset($_POST['include_nil']);
 		unset($_POST['refunds']);
@@ -1001,7 +1001,7 @@ function ninjalytics_export_body($reporter, $dest, $start_date, $end_date)
 		
 		// Get report data
 		$sold_products = ninjalytics_getReportData($reporter, $baseFields, ($productsFiltered ? $product_ids : null), $start_date, $end_date);
-		if (!empty($_POST['refunds'])) {
+		if (empty($_POST['export_orders']) && !empty($_POST['refunds'])) {
 			$refunded_products = ninjalytics_getReportData($reporter, $baseFields, ($productsFiltered ? $product_ids : null), $start_date, $end_date, true);
 			$sold_products = ninjalytics_process_refunds($sold_products, $refunded_products, array_merge(array(
 				'quantity',
@@ -2617,7 +2617,19 @@ function ninjalytics_getReportData($reporter, $baseFields, $product_ids, $startD
 		}
 	}
 	
-	$orderTypeKey = $refundOrders ? 'refundOrderType' : 'orderType';
+	if (isset($reporter->orderType)) {
+		if (empty($_POST['export_orders'])) {
+			$orderTypeKey = $refundOrders ? 'refundOrderType' : 'orderType';
+			$orderTypes = isset($reporter->$orderTypeKey) ? array($reporter->$orderTypeKey) : false;
+		} else if (empty($_POST['refunds'])) {
+			$orderTypes = [$reporter->orderType];
+		} else {
+			$orderTypes = [$reporter->orderType, $reporter->refundOrderType];
+
+		}
+	} else {
+		$orderTypes = false;
+	}
 	
 	$reportOptions = array(
 		'data' => $dataParams,
@@ -2625,7 +2637,7 @@ function ninjalytics_getReportData($reporter, $baseFields, $product_ids, $startD
 		'query_type' => 'get_results',
 		'group_by' => implode(',', $groupBy),
 		'filter_range' => false,
-		'order_types' => isset($reporter->$orderTypeKey) ? array($reporter->$orderTypeKey) : null,
+		'order_types' => $orderTypes,
 		/*'order_status' => $orderStatuses,*/ // Order status filtering is set via filter
 		'where_meta' => $where_meta
 	);
@@ -2647,10 +2659,23 @@ function ninjalytics_getReportData($reporter, $baseFields, $product_ids, $startD
 		$statusesStr .= ($i ? ',\'' : '\'').esc_sql(sanitize_text_field(wp_unslash($orderStatus))).'\'';
 	}
 	
-	$hm_wc_report_extra_sql['where'] = (isset($hm_wc_report_extra_sql['where']) ? $hm_wc_report_extra_sql['where'] : '').' AND posts.'.$reporter->ordersStatusColumn.
-		($refundOrders ? '=\''.esc_sql($reporter->completedOrderStatus).'\' AND EXISTS(SELECT 1 FROM '.$reporter->ordersTable.' WHERE '.$reporter->ordersIdColumn.'=posts.'.
-	$reporter->ordersParentIdColumn.' AND '.$reporter->ordersStatusColumn.' IN('.$statusesStr.'))' :
-		' IN('.$statusesStr.')');
+	$orderStatusSql = 'posts.'.$reporter->ordersStatusColumn.' IN('.$statusesStr.')';
+	
+	if ($refundOrders || (!empty($_POST['export_orders']) && !empty($_POST['refunds']))) {
+		$refundStatusSql = 'posts.'.$reporter->ordersStatusColumn.'=\''.esc_sql($reporter->completedOrderStatus).'\' AND EXISTS(
+								SELECT 1 FROM '.$reporter->ordersTable.'
+								WHERE '.$reporter->ordersIdColumn.'=posts.'.$reporter->ordersParentIdColumn.' AND '.$reporter->ordersStatusColumn.' IN('.$statusesStr.')
+						)';
+	}
+	
+	$hm_wc_report_extra_sql['where'] = (isset($hm_wc_report_extra_sql['where']) ? $hm_wc_report_extra_sql['where'] : '').' AND ';
+	if (!empty($_POST['export_orders']) && !empty($_POST['refunds'])) {
+		$hm_wc_report_extra_sql['where'] .= 'IF(posts.'.$reporter->ordersTypeColumn.'=\''.$reporter->refundOrderType.'\','.$refundStatusSql.','.$orderStatusSql.')';
+	} else if ($refundOrders) {
+		$hm_wc_report_extra_sql['where'] .= $refundStatusSql;
+	} else {
+		$hm_wc_report_extra_sql['where'] .= $orderStatusSql;
+	}
 	
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	@$wpdb->query('SET SESSION sort_buffer_size=512000');

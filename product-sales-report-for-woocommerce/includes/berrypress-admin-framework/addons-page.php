@@ -30,13 +30,13 @@ $plugin_url = plugin_dir_url(dirname(dirname(dirname(__FILE__))) . '/hm-product-
             <div class="berrypress-addon-icon">
                 <img src="<?php echo $plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app.png'; ?>"
                      srcset="<?php echo $plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app.png'; ?> 1x, <?php echo $plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app-2x.png'; ?> 2x"
-                     alt="<?php esc_attr_e('Mobile App Icon', 'ninjalytics'); ?>" />
+                     alt="<?php esc_attr_e('Mobile App Icon', 'product-sales-report-for-woocommerce'); ?>" />
             </div>
-            <h3><?php esc_html_e('Ninjalytics App', 'ninjalytics'); ?></h3>
-            <p><?php esc_html_e('Access your reports on the go with the Ninjalytics app (beta)! Works with Ninjalytics Pro.', 'ninjalytics'); ?></p>
+            <h3><?php esc_html_e('Ninjalytics App', 'product-sales-report-for-woocommerce'); ?></h3>
+            <p><?php esc_html_e('Access your reports on the go with the Ninjalytics app (beta)! Works with Ninjalytics Pro.', 'product-sales-report-for-woocommerce'); ?></p>
             <div class="berrypress-addon-item-buttons">
-                <a href="https://play.google.com/store/apps/details?id=com.berrypress.ninjalytics" class="berrypress-btn berrypress-btn-primary berrypress-mb-2" target="_blank"><?php esc_html_e('Install on Android', 'ninjalytics'); ?></a>
-                <a href="https://apps.apple.com/se/app/ninjalytics/id6757487864?l=en-GB" class="berrypress-btn berrypress-btn-primary" target="_blank"><?php esc_html_e('Install on iOS', 'ninjalytics'); ?></a>
+                <a href="https://play.google.com/store/apps/details?id=com.berrypress.ninjalytics" class="berrypress-btn berrypress-btn-primary berrypress-mb-2" target="_blank"><?php esc_html_e('Install on Android', 'product-sales-report-for-woocommerce'); ?></a>
+                <a href="https://apps.apple.com/se/app/ninjalytics/id6757487864?l=en-GB" class="berrypress-btn berrypress-btn-primary" target="_blank"><?php esc_html_e('Install on iOS', 'product-sales-report-for-woocommerce'); ?></a>
             </div>
         </div>
 

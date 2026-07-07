@@ -489,16 +489,29 @@ class LiveCarts extends \NinjalyticsFree\Reporters\Base {
 	public function getOldestOrderYear() {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$maxOrder = $wpdb->get_var('SELECT MIN(created) FROM '.$wpdb->prefix.'phplugins_carts');
+		$maxOrder = $wpdb->get_var('SELECT MIN(created) FROM '.$wpdb->prefix.'phplugins_carts WHERE type="cart"');
 		return $maxOrder ? get_date_from_gmt($maxOrder, 'Y') : null;
 	}
 	
 	public function getNewestOrderYear() {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$maxOrder = $wpdb->get_var('SELECT MAX(created) FROM '.$wpdb->prefix.'phplugins_carts');
+		$maxOrder = $wpdb->get_var('SELECT MAX(created) FROM '.$wpdb->prefix.'phplugins_carts WHERE type="cart"');
 		return $maxOrder ? get_date_from_gmt($maxOrder, 'Y') : null;
 	}
 	
+	public function get_order_report_data( $args = array() ) {
+		if (!isset($args['where'])) {
+			$args['where'] = [];
+		}
+		
+		$args['where'][] = [
+			'key' => 'posts.type',
+			'value' => 'cart',
+			'operator' => '='
+		];
+		
+		return parent::get_order_report_data($args);
+	}
 }
 	

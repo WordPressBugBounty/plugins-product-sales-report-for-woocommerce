@@ -818,7 +818,7 @@ class AdminPage extends BerryPressPage {
 
                             <button type="button"
                                     class="berrypress-btn berrypress-btn-icon"
-                                    aria-pressed="<?php echo $reportSettings['display_mode'] === 'table' ? 'true' : 'false'; ?>"
+                                    aria-pressed="<?php echo (($reportSettings['display_mode'] === 'table' || $reportSettings['export_orders']) ? 'true' : 'false'); ?>"
                                     data-display-mode="table"
                                     data-bp-tooltip="<?php esc_attr_e( 'Display Table', 'product-sales-report-for-woocommerce' ); ?>">
                                 <i class="berrypress-icon-table" aria-hidden="true"></i>
@@ -1995,9 +1995,9 @@ class AdminPage extends BerryPressPage {
                                             <?php
                                             printf(
                                             /* translators: 1: Android link, 2: iOS link */
-                                                    esc_html__( 'Access your reports on the go with the Ninjalytics app for %1$s or %2$s (beta)', 'ninjalytics' ),
-                                                    '<a class="berrypress-link" href="' . esc_url( 'https://play.google.com/store/apps/details?id=com.berrypress.ninjalytics' ) . '" target="_blank">' . esc_html__( 'Android', 'ninjalytics' ) . '</a>',
-                                                    '<a class="berrypress-link" href="' . esc_url( 'https://apps.apple.com/se/app/ninjalytics/id6757487864?l=en-GB' ) . '" target="_blank">' . esc_html__( 'iOS', 'ninjalytics' ) . '</a>'
+                                                    esc_html__( 'Access your reports on the go with the Ninjalytics app for %1$s or %2$s (beta)', 'product-sales-report-for-woocommerce' ),
+                                                    '<a class="berrypress-link" href="' . esc_url( 'https://play.google.com/store/apps/details?id=com.berrypress.ninjalytics' ) . '" target="_blank">' . esc_html__( 'Android', 'product-sales-report-for-woocommerce' ) . '</a>',
+                                                    '<a class="berrypress-link" href="' . esc_url( 'https://apps.apple.com/se/app/ninjalytics/id6757487864?l=en-GB' ) . '" target="_blank">' . esc_html__( 'iOS', 'product-sales-report-for-woocommerce' ) . '</a>'
                                             );
                                             ?>
                                         </li>
