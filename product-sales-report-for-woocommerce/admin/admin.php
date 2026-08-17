@@ -19,12 +19,6 @@ class AdminPage extends BerryPressPage {
 	protected $table, $cartData, $docsUrl = 'https://berrypress.com/docs/ninjalytics/', $supportUrl = 'https://wordpress.org/support/plugin/product-sales-report-for-woocommerce/', $reviewUrl = 'https://wordpress.org/support/plugin/product-sales-report-for-woocommerce/reviews/#new-post';
 
 	function __construct() {
-		/*
-		add_action( get_plugin_page_hookname( 'ninjalytics', 'woocommerce' ), function () {
-			$this->render();
-		} );
-		*/
-
 		add_filter( 'berrypress_admin_page_display_sidebar', function () {
 			return false;
 		} );
@@ -38,6 +32,10 @@ class AdminPage extends BerryPressPage {
     public static function proBadge() {
         echo '<span class="ninjalytics-pro-badge">' . esc_html__( 'Pro', 'product-sales-report-for-woocommerce' ) . '</span>';
     }
+	
+    public static function proBadgeSelectOption($optionName) {
+		printf( /* translators: %s = option name */ esc_html__( '%s [Pro]', 'product-sales-report-for-woocommerce' ), esc_html($optionName) );
+	}
 
 	public static function
 	docsLink(
@@ -198,11 +196,17 @@ class AdminPage extends BerryPressPage {
 	 * @param bool   $hasAdvanced Whether to show "Advanced" checkbox
 	 * @param string $advancedName Optional form field name for saving advanced state (e.g. 'advanced_table_downloads')
 	 * @param array  $reportSettings Current report settings (used when $advancedName is set)
+	 * @param string $icon         Optional Material icon suffix (e.g. 'chart' → berrypress-icon-chart)
 	 */
-	private function renderSectionHeader( $title, $hasAdvanced = true, $advancedName = '', $reportSettings = array() ) {
+	private function renderSectionHeader( $title, $hasAdvanced = true, $advancedName = '', $reportSettings = array(), $icon = '' ) {
 		?>
 		<div class="ninjalytics-section-title">
-			<h3><?php echo esc_html( $title ); ?></h3>
+			<h3>
+                <?php if ( $icon !== '' ) {
+                    echo '<i class="berrypress-icon-' . esc_attr($icon) . '"></i>';
+                }
+                echo esc_html( $title ); ?>
+            </h3>
 			<?php if ( $hasAdvanced ) { ?>
 				<label>
 					<input type="checkbox" class="ninjalytics-no-update"<?php echo $advancedName ? ' name="' . esc_attr( $advancedName ) . '" value="1"' . checked( ! empty( $reportSettings[ $advancedName ] ), true, false ) : ''; ?>>
@@ -292,12 +296,11 @@ class AdminPage extends BerryPressPage {
 	 *
 	 * @param array  $reportSettings Current report settings
 	 * @param string $orderBy Order by field value
-	 * @param bool   $canEditReportCSS Whether user can edit report CSS
 	 */
 	private function renderDisplaySection( $reportSettings, $orderBy ) {
 		?>
 		<div class="ninjalytics-settings-toggle">
-			<?php $this->renderSectionHeader( __( 'Table & Downloads', 'product-sales-report-for-woocommerce' ), true, 'advanced_table_downloads', $reportSettings ); ?>
+			<?php $this->renderSectionHeader( __( 'Table & Downloads', 'product-sales-report-for-woocommerce' ), true, 'advanced_table_downloads', $reportSettings,  'table' ); ?>
 			
 			<div class="ninjalytics-section-body">
                 <div class="ninjalytics-group-title">
@@ -356,6 +359,50 @@ class AdminPage extends BerryPressPage {
 					 <?php self::docsLink( 'report-configuration/table-and-downloads', 'totals' ); ?></label>
                 </div>
 
+                <div class="berrypress-field">
+                    <input type="checkbox" id="ninjalytics-preview-cells-multiline"
+                           name="preview_cells_multiline"
+                           value="1"<?php checked( ! empty( $reportSettings['preview_cells_multiline'] ) ); ?> />
+                    <label for="ninjalytics-preview-cells-multiline">
+						<?php esc_html_e( 'Allow multiple lines inside preview table cells', 'product-sales-report-for-woocommerce' ); ?>
+                    </label>
+                </div>
+
+				<?php if ( $reportSettings['export_orders'] ) { ?>
+                <div class="berrypress-field">
+                    <input type="checkbox" id="hm_psr_field_totals_by_type"
+                           name="totals_by_type"
+                           value="1"<?php checked( ! empty( $reportSettings['totals_by_type'] ) ); ?> />
+                     <label for="hm_psr_field_totals_by_type"><?php esc_html_e( 'Calculate separate totals by line item type', 'product-sales-report-for-woocommerce' ); ?></label>
+                </div>
+				
+                <div class="berrypress-field">
+                    <input type="checkbox" id="hm_psr_field_order_total_once"
+                           name="order_total_once"
+                           value="1"<?php checked( ! empty( $reportSettings['order_total_once'] ) ); ?> />
+                     <label for="hm_psr_field_order_total_once"><?php esc_html_e( 'Only total the order total field once per individual order', 'product-sales-report-for-woocommerce' ); ?></label>
+                </div>
+
+                <div class="berrypress-field">
+                    <input type="checkbox" id="hm_psr_field_order_shipping_total_once"
+                           disabled />
+                     <label for="hm_psr_field_order_shipping_total_once"><?php esc_html_e( 'Only total order shipping fields once per individual order', 'product-sales-report-for-woocommerce' ); ?></label>
+                </div>
+
+                <div class="berrypress-field">
+                    <input type="checkbox" id="hm_psr_field_order_fields_once"
+                           name="order_fields_once"
+                           value="1"<?php checked( ! empty( $reportSettings['order_fields_once'] ) ); ?> />
+                     <label for="hm_psr_field_order_fields_once"><?php esc_html_e( 'Only show order-related fields on the first row of a group of rows belonging to the same order', 'product-sales-report-for-woocommerce' ); ?></label>
+                </div>
+
+                <div class="berrypress-field">
+                    <input type="checkbox" id="hm_psr_field_order_group_empty_row"
+                           name="order_group_empty_row"
+                           value="1"<?php checked( ! empty( $reportSettings['order_group_empty_row'] ) ); ?> />
+                     <label for="hm_psr_field_order_group_empty_row"><?php esc_html_e( 'Add an empty row after each group of rows belonging to the same order', 'product-sales-report-for-woocommerce' ); ?></label>
+                </div>
+				<?php } ?>
 
                 <div class="ninjalytics-field-switch-conditional">
                     <div class="berrypress-field">
@@ -393,10 +440,11 @@ class AdminPage extends BerryPressPage {
                 <div class="ninjalytics-field-formats berrypress-field berrypress-field-flex berrypress-field-align-center">
                     <label for="hm_psr_field_format"><?php esc_html_e( 'Download format', 'product-sales-report-for-woocommerce' ); ?></label>
                     <select name="format" id="hm_psr_field_format">
-                        <option value="csv" selected>CSV</option>
-                        <option disabled><?php esc_html_e( 'XLSX', 'product-sales-report-for-woocommerce' ); ?> <?php self::proBadge() ?></option>
-                        <option disabled><?php esc_html_e( 'HTML', 'product-sales-report-for-woocommerce' ); ?> <?php self::proBadge() ?></option>
-                        <option disabled><?php esc_html_e( 'HTML (enhanced)', 'product-sales-report-for-woocommerce' ); ?> <?php self::proBadge() ?></option>
+                        <option value="csv" selected><?php esc_html_e( 'CSV', 'product-sales-report-for-woocommerce' ); ?></option>
+                        <option disabled><?php self::proBadgeSelectOption(__( 'CSV-ASCII', 'product-sales-report-for-woocommerce' )); ?></option>
+                        <option disabled><?php self::proBadgeSelectOption(__( 'XLSX', 'product-sales-report-for-woocommerce' )); ?></option>
+                        <option disabled><?php self::proBadgeSelectOption(__( 'HTML', 'product-sales-report-for-woocommerce' )); ?></option>
+                        <option disabled><?php self::proBadgeSelectOption(__( 'HTML (enhanced)', 'product-sales-report-for-woocommerce' )); ?></option>
                     </select>
 	                <?php self::docsLink( 'report-configuration/table-and-downloads', 'download-format' ); ?>
                     <div id="ninjalytics-format_options_csv" class="ninjalytics-format_options">
@@ -448,7 +496,7 @@ class AdminPage extends BerryPressPage {
 		?>
 
 		<div class="ninjalytics-settings-toggle">
-			<?php $this->renderSectionHeader( __( 'Chart', 'product-sales-report-for-woocommerce' ), false ); ?>
+			<?php $this->renderSectionHeader( __( 'Chart', 'product-sales-report-for-woocommerce' ), false,  'chart', $reportSettings, 'chart' ); ?>
 			<div class="ninjalytics-section-body">
 
                 <div class="ninjalytics-group-title">
@@ -513,7 +561,7 @@ class AdminPage extends BerryPressPage {
 	private function renderAdvancedSection( $reportSettings ) {
 		?>
 		<div class="ninjalytics-settings-toggle">
-			<?php $this->renderSectionHeader( __( 'Data & Display', 'product-sales-report-for-woocommerce' ), true, 'advanced_data_display', $reportSettings ); ?>
+			<?php $this->renderSectionHeader( __( 'Data & Display', 'product-sales-report-for-woocommerce' ), true, 'advanced_data_display', $reportSettings, 'database' ); ?>
 
 			<div class="ninjalytics-section-body">
 
@@ -602,7 +650,7 @@ class AdminPage extends BerryPressPage {
                 </div>
 
                 <div class="berrypress-field ninjalytics-setting-advanced ninjalytics-pro-feature">
-                    <input type="checkbox" id="hm_psr_use_wp_date" name="use_wp_date"  disabled/>
+                    <input type="checkbox" id="hm_psr_use_wp_date" disabled/>
                     <label for="hm_psr_use_wp_date">
                         <?php esc_html_e( 'Use WordPress date formatting functionality for dynamic date values', 'product-sales-report-for-woocommerce' ); ?>
                         <?php self::proBadge() ?>
@@ -621,23 +669,18 @@ class AdminPage extends BerryPressPage {
 					</div>
 				<?php } ?>
 
-                <div class="berrypress-field ninjalytics-setting-advanced">
-                    <input type="checkbox" id="ninjalytics-enable-debug" name="hm_psr_debug"
-                           value="1"<?php checked( ! empty( $reportSettings['hm_psr_debug'] ) ); ?> />
-                    <label for="ninjalytics-enable-debug">
-                        <?php esc_html_e( 'Enable debug mode', 'product-sales-report-for-woocommerce' ); ?>
-                        <?php self::docsLink( 'report-configuration/data-and-display', 'debug' ); ?>
-                    </label>
-				</div>
-
-				<div class="berrypress-field ninjalytics-setting-advanced ninjalytics-debug-sql-box berrypress-hidden" id="ninjalytics-debug-sql-box"  aria-hidden="true">
-					<label for="ninjalytics-debug-sql-content"><?php esc_html_e( 'Debug: MySQL queries', 'product-sales-report-for-woocommerce' ); ?></label>
-					<pre id="ninjalytics-debug-sql-content" class="ninjalytics-debug-sql-content"></pre>
-				</div>
-
 			</div> <!-- /ninjalytics-section-body -->
 		</div> <!-- /ninjalytics-settings-toggle (Data & Display) -->
 		<?php
+	}
+
+	/**
+	 * Renders the Debug sidebar tab (query diagnostics).
+	 *
+	 * @param array $reportSettings Current report settings
+	 */
+	private function renderDebugSection( $reportSettings ) {
+		include __DIR__ . '/views/report-sidebar-debug.php';
 	}
 
 	private function renderReportsPage() {
@@ -649,7 +692,9 @@ class AdminPage extends BerryPressPage {
 		} catch ( \Exception $ex ) {
 			?>
             <div class="ags-psr-notification ags-psr-notification-error">
-                <p><?php esc_html_e( 'This plugin requires that WooCommerce or Easy Digital Downloads is installed and activated.', 'product-sales-report-for-woocommerce' ); ?></p>
+                <p><?php isset($_REQUEST['_reporter'])
+						? esc_html_e( 'The requested reporting integration is unavailable. Please check that the corresponding source plugin (for example, WooCommerce or Easy Digital Downloads) is installed and activated.', 'product-sales-report-for-woocommerce' )
+						: esc_html_e( 'This plugin requires that WooCommerce or Easy Digital Downloads is installed and activated.', 'product-sales-report-for-woocommerce' ); ?></p>
             </div>
 			<?php
 			return;
@@ -676,6 +721,19 @@ class AdminPage extends BerryPressPage {
 		}
 
 		if ( isset( $_REQUEST['preset'] ) ) {
+			
+			if ( !empty( $savedReportSettings[$_REQUEST['preset']]['_reporter'] ) && $savedReportSettings[$_REQUEST['preset']]['_reporter'] != $reporterId ) {
+				if ( ($savedReportSettings[$_REQUEST['preset']]['_reporter'] == 'woocommerce-legacy' && $reporterId == 'woocommerce') || ($savedReportSettings[$_REQUEST['preset']]['_reporter'] == 'woocommerce' && $reporterId == 'woocommerce-legacy') ) {
+					$savedReportSettings[$_REQUEST['preset']]['_reporter'] = $reporterId;
+				} else {
+					?>
+					<div class="ags-psr-notification ags-psr-notification-error">
+						<p><?php esc_html_e( 'Preset and active reporter do not match.', 'product-sales-report-for-woocommerce' ); ?></p>
+					</div>
+					<?php
+					return;
+				}
+			}
 
 			if ( isset( $_REQUEST['ninjalytics_action_free'] ) ) {
 				if ( $_REQUEST['ninjalytics_action_free'] == 'preset-save' ) {
@@ -702,58 +760,69 @@ class AdminPage extends BerryPressPage {
 								'include_unpublished',
 								'include_header',
 								'include_totals',
+								'preview_cells_multiline',
 								'format_amounts',
 								'exclude_free',
-								'order_meta_filter_on',
-								'order_meta_filter_2_on',
-								'customer_meta_filter_on',
-								'product_tag_filter_on',
-								'product_meta_filter_on',
+								'exclude_unmanaged_stock',
 								'refunds',
 								'adjustments',
 								'report_title_on',
 								'report_unfiltered',
 								'hm_psr_debug',
 								'object_caching_disable',
-								'use_wp_date',
 								'disable_product_grouping',
 								'intermediate_rounding',
-								'order_item_meta_filter_1_on',
-								'order_item_meta_filter_2_on',
 								'remove_html',
 								'enable_custom_segments',
 								'advanced_table_downloads',
 								'advanced_data_display',
 								'advanced_products',
-								'advanced_orders'
+								'advanced_orders',
+								'exclude_free_after_discount',
+								'one_line_per_order',
+								'totals_by_type',
+								'order_total_once',
+								'order_fields_once',
+								'order_group_empty_row'
 							) as $checkboxField
 						) {
 							if ( ! isset( $_POST[ $checkboxField ] ) ) {
 								$_POST[ $checkboxField ] = 0;
 							}
 						}
+						
+						$settingsToSave = array_diff_key($_POST, ninjalytics_date_field_keys());
 
-						if (isset($savedReportSettings[$_REQUEST['preset']]['key'])) {
-							$_POST['key'] = $savedReportSettings[(int) $_REQUEST['preset']]['key'];
+						if ( isset( $savedReportSettings[ $_REQUEST['preset'] ]['key'] ) ) {
+							$settingsToSave['key'] = $savedReportSettings[ (int) $_REQUEST['preset'] ]['key'];
 						}
 
-						if ($isNew) {
-							$savedReportSettings[] = $_POST;
+						if ( $isNew ) {
+							$newPresetId = ninjalytics_next_preset_id( $savedReportSettings );
+							$savedReportSettings[ $newPresetId ] = $settingsToSave;
+
+							update_option(
+								'ninjalytics_report_dates_'.$newPresetId,
+								wp_json_encode(array_intersect_key(
+									$_POST,
+									ninjalytics_date_field_keys()
+								)),
+								false
+							);
 						} else {
-							$savedReportSettings[(int) $_REQUEST['preset']] = $_POST;
+							$savedReportSettings[ (int) $_REQUEST['preset'] ] = $settingsToSave;
 						}
-						update_option('ninjalytics_settings', array_values($savedReportSettings), false);
+						update_option('ninjalytics_settings', $savedReportSettings, false);
+					}
 
-							
-						if ($isNew) {
-							echo('<script type="text/javascript">location.href = atob(\''.esc_html(base64_encode(add_query_arg('preset', count($savedReportSettings) - 1, remove_query_arg('preset')))).'\');</script>');
-						}
+					if ($isNew) {
+						echo('<script type="text/javascript">location.href = atob(\''.esc_html(base64_encode(add_query_arg('preset', $newPresetId, remove_query_arg('preset')))).'\');</script>');
 					}
 				} else if ($_REQUEST['ninjalytics_action_free'] == 'preset-del' && !empty((int) $_GET['preset']) && isset($savedReportSettings[(int) $_GET['preset']])) {
 					check_admin_referer('hm-psr-run');
 					
 					unset($savedReportSettings[(int) $_GET['preset']]);
-					update_option('ninjalytics_settings', array_values($savedReportSettings), false);
+					update_option('ninjalytics_settings', $savedReportSettings, false);
 					delete_option('ninjalytics_report_dates_'.((int) $_GET['preset']));
 					unset($_GET['preset']);
 					echo('<script type="text/javascript">location.href = \'?page=ninjalytics-free\';</script>');
@@ -788,259 +857,44 @@ class AdminPage extends BerryPressPage {
 				'gross_after_discount'
 			) ) ? 'builtin::' . $reportSettings['orderby'] : $reportSettings['orderby'] );
 
+			$reportDateMode = $reportSettings['report_time_mode'] ?? 'basic';
+
 
 			?>
-            <ol id="ninjalytics-breadcrumbs">
-                <li>
-                    <a href="?page=ninjalytics-free"><?php esc_html_e( 'Reports', 'product-sales-report-for-woocommerce' ); ?></a>
-                </li>
-                <li>
-                    <a href="?page=ninjalytics-free&preset=<?php echo (int) $openPreset; ?>"><?php echo esc_html( $reportSettings['preset_name'] ?? __( 'Untitled Report', 'product-sales-report-for-woocommerce' ) ); ?></a>
-                </li>
-            </ol>
             <form action="" method="post" id="ninjalytics-form">
                 <input type="hidden" name="preset" value="<?php echo (int) $openPreset; ?>">
-				<?php if ( isset( $_REQUEST['ninjalytics_reporter'] ) ) { ?>
+				<?php if ( isset( $_REQUEST['_reporter'] ) ) { ?>
                     <input type="hidden" name="_reporter"
-                           value="<?php echo esc_attr( sanitize_text_field(wp_unslash($_REQUEST['ninjalytics_reporter'])) ); ?>">
+                           value="<?php echo esc_attr( $_REQUEST['_reporter'] ); ?>">
 				<?php } ?>
 
-
-                <div id="ninjalytics-display-toolbar">
-
-                    <div id="ninjalytyics-display-mode">
-
-                        <span><?php esc_html_e( 'View:', 'product-sales-report-for-woocommerce' ); ?></span>
-
-                        <div class="ninjalytics-display-options ninjalytics-buttons-switch"
-                             role="group"
-                             aria-label="<?php esc_attr_e( 'Display mode', 'product-sales-report-for-woocommerce' ); ?>">
-
-                            <button type="button"
-                                    class="berrypress-btn berrypress-btn-icon"
-                                    aria-pressed="<?php echo (($reportSettings['display_mode'] === 'table' || $reportSettings['export_orders']) ? 'true' : 'false'); ?>"
-                                    data-display-mode="table"
-                                    data-bp-tooltip="<?php esc_attr_e( 'Display Table', 'product-sales-report-for-woocommerce' ); ?>">
-                                <i class="berrypress-icon-table" aria-hidden="true"></i>
-                                <span class="berrypress-visually-hidden"><?php esc_html_e( 'Display Table', 'product-sales-report-for-woocommerce' ); ?></span>
-                            </button>
-
-							<?php if ( ! $reportSettings['export_orders'] ) { ?>
-                                <button type="button"
-                                        class="berrypress-btn berrypress-btn-icon"
-                                        aria-pressed="<?php echo $reportSettings['display_mode'] === 'chart' ? 'true' : 'false'; ?>"
-                                        data-display-mode="chart"
-                                        data-bp-tooltip="<?php esc_attr_e( 'Display Chart', 'product-sales-report-for-woocommerce' ); ?>">
-                                    <i class="berrypress-icon-chart" aria-hidden="true"></i>
-                                    <span class="berrypress-visually-hidden"><?php esc_html_e( 'Display Chart', 'product-sales-report-for-woocommerce' ); ?></span>
-                                </button>
-							<?php } ?>
-
-                        </div> <!-- /ninjalytics-display-options -->
-                    </div> <!-- /ninjalytyics-display-mode -->
-
-                    <div id="ninjalytics-date-range">
-                        <div class="ninjalytics-date-field">
-                            <i class="berrypress-icon-access_time" aria-hidden="true"></i>
-                            <!--                        <input type="text" id="ninjalytics-dates-desc" readonly>-->
-                            <output id="ninjalytics-dates-desc" tabindex="0"></output>
-                        </div>
-
-                        <div id="ninjalytics-date-range-dropdown" class="berrypress-hidden">
-                            <div class="ninjalytics-date-range-tabs">
-								<?php foreach (
-									[
-										'preset'    => 'Quick',
-										'basic'    => 'Relative',
-										'absolute' => 'Absolute',
-										'dynamic'  => 'Expression'
-									] as $mode => $label
-								) { ?>
-                                    <input type="radio" id="report_time_mode_<?php echo( esc_attr( $mode ) ); ?>"
-                                           name="report_time_mode"
-                                           value="<?php echo( esc_attr( $mode ) ); ?>"<?php checked( $mode, $reportSettings['report_time_mode'] ); ?>>
-                                    <label for="report_time_mode_<?php echo(esc_attr($mode)); ?>"><?php echo(esc_html($label).($mode == 'dynamic' ? ' <span class="ninjalytics-pro-badge">Pro</span>' : '')); ?></label>
-								<?php } ?>
-                            </div>
-
-                            <div id="ninjalytics-date-range-dropdown-body">
-                                <div class="ninjalytics-date-range-dropdown-tab-content"
-                                     id="ninjalytics-date-range-preset">
-                                    <div>
-                                        <label for="ninjalytics-date-range-preset-select"><?php esc_html_e( 'Report Dates', 'product-sales-report-for-woocommerce' ) ?>:</label>
-                                        <div>
-                                            <select id="ninjalytics-date-range-preset-select" name="report_time_preset">
-												<?php foreach( ninjalytics_get_report_dates_presets() as $datePresetId => $datePreset) { ?>
-                                                <option value="<?php echo(esc_attr($datePresetId)); ?>"<?php selected( $datePresetId, $reportSettings['report_time_preset'] ); ?>>
-													<?php echo(esc_html( $datePreset['label'] )); ?>
-                                                </option>
-												<?php } ?>
-                                            </select>
-                                        </div>
-                                        <p></p>
-                                    </div>
-                                </div>
-                                <div class="ninjalytics-date-range-dropdown-tab-content"
-                                     id="ninjalytics-date-range-basic">
-                                    <div>
-                                        <label for="ninjalytics-date-range-basic-from"><?php esc_html_e( 'From', 'product-sales-report-for-woocommerce' ) ?>
-                                            :</label>
-                                        <div>
-                                            <input type="number" id="ninjalytics-date-range-basic-from"
-                                                   name="report_time_basic_from">
-                                            <select name="report_time_basic_from_unit">
-                                                <option value="max"<?php checked( 'max', $reportSettings['report_time_basic_from_unit'] ); ?>>
-													<?php esc_html_e( 'Forever', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                                <option value="now"<?php checked( 'now', $reportSettings['report_time_basic_from_unit'] ); ?>>
-													<?php esc_html_e( 'Now', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                                <option value="-d"<?php checked( '-d', $reportSettings['report_time_basic_from_unit'] ); ?>>
-													<?php esc_html_e( 'Day(s) ago', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                                <option value="-cm"<?php checked( '-cm', $reportSettings['report_time_basic_from_unit'] ); ?>>
-													<?php esc_html_e( 'Month(s) ago', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                            </select>
-                                            <select name="report_time_basic_from_round">
-                                                <option value="d"<?php checked( 'd', $reportSettings['report_time_basic_from_round'] ); ?>>
-													<?php esc_html_e( 'rounded to start of day', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                                <option value="m"<?php checked( 'm', $reportSettings['report_time_basic_from_round'] ); ?>>
-													<?php esc_html_e( 'rounded to start of month', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                                <option value=""<?php checked( ! $reportSettings['report_time_basic_from_round'] ); ?>>
-													<?php esc_html_e( 'without rounding', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                            </select>
-                                        </div>
-                                        <p></p>
-                                    </div>
-                                    <div>
-                                        <label for="ninjalytics-date-range-basic-to"><?php esc_html_e( 'To', 'product-sales-report-for-woocommerce' ) ?>
-                                            :</label>
-                                        <div>
-                                            <input type="number" id="ninjalytics-date-range-basic-to"
-                                                   name="report_time_basic_to">
-                                            <select name="report_time_basic_to_unit">
-                                                <option value="max"<?php checked( 'max', $reportSettings['report_time_basic_to_unit'] ); ?>>
-													<?php esc_html_e( 'Forever', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                                <option value="now"<?php checked( 'now', $reportSettings['report_time_basic_to_unit'] ); ?>>
-													<?php esc_html_e( 'Now', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                                <option value="-d"<?php checked( '-d', $reportSettings['report_time_basic_to_unit'] ); ?>>
-													<?php esc_html_e( 'Day(s) ago', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                                <option value="-cm"<?php checked( '-cm', $reportSettings['report_time_basic_to_unit'] ); ?>>
-													<?php esc_html_e( 'Month(s) ago', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                                <option value="d"<?php checked( 'd', $reportSettings['report_time_basic_to_unit'] ); ?>>
-													<?php esc_html_e( 'Day(s) in future', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                                <option value="cm"<?php checked( 'cm', $reportSettings['report_time_basic_to_unit'] ); ?>>
-													<?php esc_html_e( 'Month(s) in future', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                            </select>
-                                            <select name="report_time_basic_to_round">
-                                                <option value="d"<?php checked( 'd', $reportSettings['report_time_basic_to_round'] ); ?>>
-													<?php esc_html_e( 'rounded to end of day', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                                <option value="m"<?php checked( 'm', $reportSettings['report_time_basic_to_round'] ); ?>>
-													<?php esc_html_e( 'rounded to end of month', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                                <option value=""<?php checked( ! $reportSettings['report_time_basic_to_round'] ); ?>>
-													<?php esc_html_e( 'without rounding', 'product-sales-report-for-woocommerce' ) ?>
-                                                </option>
-                                            </select>
-                                        </div>
-                                        <p></p>
-                                    </div>
-                                </div>
-
-                                <div class="ninjalytics-date-range-dropdown-tab-content"
-                                     id="ninjalytics-date-range-absolute">
-                                    <div>
-                                        <label for="ninjalytics-date-range-absolute-from"><?php esc_html_e( 'From', 'product-sales-report-for-woocommerce' ) ?>
-                                            :</label>
-                                        <div>
-                                            <input type="date" id="ninjalytics-date-range-absolute-from"
-                                                   name="report_time_absolute_from_date"
-                                                   value="<?php echo( esc_attr( $reportSettings['report_time_absolute_from_date'] ) ); ?>">
-                                            <input type="time" step="1" name="report_time_absolute_from_time"
-                                                   value="<?php echo( esc_attr( $reportSettings['report_time_absolute_from_time'] ) ); ?>">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label for="ninjalytics-date-range-absolute-to"><?php esc_html_e( 'To', 'product-sales-report-for-woocommerce' ) ?>
-                                            :</label>
-                                        <div>
-                                            <input type="date" id="ninjalytics-date-range-absolute-to"
-                                                   name="report_time_absolute_to_date"
-                                                   value="<?php echo( esc_attr( $reportSettings['report_time_absolute_to_date'] ) ); ?>">
-                                            <input type="time" step="1" name="report_time_absolute_to_time"
-                                                   value="<?php echo( esc_attr( $reportSettings['report_time_absolute_to_time'] ) ); ?>">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="ninjalytics-date-range-dropdown-tab-content ninjalytics-pro-feature"
-                                     id="ninjalytics-date-range-dynamic">
-                                    <div>
-                                        <label for="ninjalytics-date-range-dynamic-from"><?php esc_html_e( 'From', 'product-sales-report-for-woocommerce' ) ?>
-                                            :</label>
-                                        <div>
-                                            <input disabled type="text" id="ninjalytics-date-range-dynamic-from"
-                                                   name="report_time_dynamic_from" placeholder="example: -1 month">
-                                            <p></p>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label for="ninjalytics-date-range-dynamic-to"><?php esc_html_e( 'To', 'product-sales-report-for-woocommerce' ) ?>
-                                            :</label>
-                                        <div>
-                                            <input disabled type="text" id="ninjalytics-date-range-dynamic-to"
-                                                   name="report_time_dynamic_to"
-                                                   placeholder="example: yesterday midnight">
-                                            <p></p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> <!-- /ninjalytics-date-range-dropdown-body -->
-							<?php if ( $reporter->supports( PlatformFeatures::ALT_DATES ) ) { ?>
-							<div class="ninjalytics-date-range-dropdown-alt-dates-wrapper">
-								<div class="ninjalytics-date-range-dropdown-alt-dates-toggle">
-									<span class="ninjalytics-alt-dates-label"><?php esc_html_e( 'Based on:', 'product-sales-report-for-woocommerce' ); ?> <strong><?php esc_html_e( 'Order Date', 'product-sales-report-for-woocommerce' ); ?></strong></span>
-									<button type="button" class="berrypress-link ninjalytics-alt-dates-toggle-btn"><?php esc_html_e( 'Change', 'product-sales-report-for-woocommerce' ); ?></button>
-								</div>
-								<div class="ninjalytics-date-range-dropdown-alt-dates berrypress-hidden">
-								<div class="berrypress-field">
-									<label for="ninjalytics_alt_order_date"><?php esc_html_e( 'Report date range based on:', 'product-sales-report-for-woocommerce' ); ?></label>
-									<select name="alt_order_date" id="ninjalytics_alt_order_date">
-										<option value="" selected><?php esc_attr_e( 'Order Date', 'product-sales-report-for-woocommerce' ); ?></option>
-										<option value="order_meta::_date_paid" disabled><?php printf( /* translators: %s = option name */ esc_html__( '%s [Pro]', 'product-sales-report-for-woocommerce'), esc_html__( 'Date Paid', 'product-sales-report-for-woocommerce' ) ); ?></option>
-										<option value="order_meta::_date_completed" disabled><?php printf( /* translators: %s = option name */ esc_html__( '%s [Pro]', 'product-sales-report-for-woocommerce'), esc_html__( 'Date Completed', 'product-sales-report-for-woocommerce' ) ); ?></option>
-										<optgroup label="<?php printf( /* translators: %s = option name */ esc_attr__( '%s [Pro]', 'product-sales-report-for-woocommerce'), esc_attr__( 'Order Meta', 'product-sales-report-for-woocommerce' ) ); ?>" class="hm-psr-select-other" data-hm-psr-other-field-prefix="order_meta::">
-											<?php
-											foreach ( $reporter->getOrderFieldNames(false) as $orderField ) {
-												if (str_starts_with($orderField, '_wc_order_attribution_') || str_starts_with($orderField, 'is_') || str_ends_with($orderField, '_hash') || str_ends_with($orderField, '_index') || str_ends_with($orderField, '_lock') || str_ends_with($orderField, '_value')) {
-													continue;
-												}
-												?>
-												<option value="order_meta::<?php echo esc_attr( $orderField ); ?>" disabled><?php echo esc_html( $orderField ); ?></option>
-												<?php
-											}
-											?>
-										</optgroup>
-									</select>
-								</div>
-								</div> <!-- /ninjalytics-date-range-dropdown-alt-dates -->
-							</div> <!-- /ninjalytics-date-range-dropdown-alt-dates-wrapper -->
-							<?php } ?>
-                        </div> <!-- /ninjalytics-date-range-dropdown -->
-                    </div> <!-- /ninjalytics-date-range -->
+                <div id="ninjalytics-display-primary-toolbar">
+                    <ol id="ninjalytics-breadcrumbs">
+                        <li>
+                            <a href="?page=ninjalytics-free"><?php esc_html_e( 'Reports', 'product-sales-report-for-woocommerce' ); ?></a>
+                        </li>
+                        <li>
+                            <span id="ninjalytics-breadcrumb-report-name"
+                                  class="ninjalytics-breadcrumb-editable"
+                                  contenteditable="false"
+                                  spellcheck="false"
+                                  role="textbox"
+                                  data-bp-tooltip="<?php esc_attr_e( 'Click to rename report', 'product-sales-report-for-woocommerce' ); ?>"
+                                  tabindex="0"
+                                  data-placeholder="<?php esc_attr_e( 'Untitled Report', 'product-sales-report-for-woocommerce' ); ?>"
+                                  aria-label="<?php esc_attr_e( 'Rename report', 'product-sales-report-for-woocommerce' ); ?>"><?php echo esc_html( $reportSettings['preset_name'] ?? '' ); ?></span>
+                        </li>
+                    </ol>
 
                     <div class="ninjalytics-toolbar-buttons">
+                        <button id="ninjalytics-refresh-report-button"
+                                type="button"
+                                class="berrypress-btn berrypress-btn-icon"
+                                data-bp-tooltip="<?php esc_attr_e( 'Refresh report data', 'product-sales-report-for-woocommerce' ); ?>"
+                                aria-label="<?php esc_attr_e( 'Refresh report data', 'product-sales-report-for-woocommerce' ); ?>">
+                            <i class="berrypress-icon-reset" aria-hidden="true"></i>
+                            <span class="berrypress-visually-hidden"><?php esc_html_e( 'Refresh report data', 'product-sales-report-for-woocommerce' ); ?></span>
+                        </button>
                         <button id="ninjalytics-download-button" class="berrypress-btn berrypress-btn-secondary"
                                 type="submit"
                                 name="ninjalytics_action_free" value="run"
@@ -1070,9 +924,203 @@ class AdminPage extends BerryPressPage {
 							<?php esc_html_e( 'Save', 'product-sales-report-for-woocommerce' ) ?>
                         </button>
                     </div> <!-- /ninjalytics-toolbar-buttons -->
-                </div> <!-- /ninjalytics-display-toolbar -->
+                </div>
+
                 <div id="ninjalytics-settings-settings" class="ninjalytics-settings-active">
+                    <div class="ninjalytics-settings-split">
+
                     <div class="ninjalytics-settings-data">
+
+                        <div id="ninjalytics-display-toolbar">
+
+                            <div id="ninjalytyics-display-mode">
+
+                                <span><?php esc_html_e( 'View:', 'product-sales-report-for-woocommerce' ); ?></span>
+
+                                <div class="ninjalytics-display-options ninjalytics-buttons-switch"
+                                     role="group"
+                                     aria-label="<?php esc_attr_e( 'Display mode', 'product-sales-report-for-woocommerce' ); ?>">
+
+                                    <button type="button"
+                                            class="berrypress-btn berrypress-btn-icon"
+                                            aria-pressed="<?php echo (($reportSettings['display_mode'] === 'table' || $reportSettings['export_orders']) ? 'true' : 'false'); ?>"
+                                            data-display-mode="table"
+                                            data-bp-tooltip="<?php esc_attr_e( 'Display Table', 'product-sales-report-for-woocommerce' ); ?>">
+                                        <i class="berrypress-icon-table" aria-hidden="true"></i>
+                                        <span class="berrypress-visually-hidden"><?php esc_html_e( 'Display Table', 'product-sales-report-for-woocommerce' ); ?></span>
+                                    </button>
+
+                                    <?php if ( ! $reportSettings['export_orders'] ) { ?>
+                                        <button type="button"
+                                                class="berrypress-btn berrypress-btn-icon"
+                                                aria-pressed="<?php echo $reportSettings['display_mode'] === 'chart' ? 'true' : 'false'; ?>"
+                                                data-display-mode="chart"
+                                                data-bp-tooltip="<?php esc_attr_e( 'Display Chart', 'product-sales-report-for-woocommerce' ); ?>">
+                                            <i class="berrypress-icon-chart" aria-hidden="true"></i>
+                                            <span class="berrypress-visually-hidden"><?php esc_html_e( 'Display Chart', 'product-sales-report-for-woocommerce' ); ?></span>
+                                        </button>
+                                    <?php } ?>
+
+                                </div> <!-- /ninjalytics-display-options -->
+                            </div> <!-- /ninjalytyics-display-mode -->
+
+                            <div id="ninjalytics-date-range">
+                                <div class="ninjalytics-date-field">
+                                    <i class="berrypress-icon-access_time" aria-hidden="true"></i>
+                                    <!--                        <input type="text" id="ninjalytics-dates-desc" readonly>-->
+                                    <output id="ninjalytics-dates-desc" tabindex="0"></output>
+                                </div>
+
+                                <div id="ninjalytics-date-range-dropdown" class="berrypress-hidden">
+
+                                    <div class="ninjalytics-date-range-tabs">
+                                        <?php foreach (
+                                                [
+                                                        'preset'    => 'Quick',
+                                                        'basic'    => 'Relative',
+                                                        'absolute' => 'Absolute',
+                                                        'dynamic'  => 'Expression'
+                                                ] as $mode => $label
+                                        ) { ?>
+                                            <input type="radio" id="report_time_mode_<?php echo( esc_attr( $mode ) ); ?>"
+                                                   name="report_time_mode"
+                                                   value="<?php echo( esc_attr( $mode ) ); ?>"<?php checked( $mode, $reportDateMode ); ?><?php disabled( $mode === 'dynamic' ); ?>>
+                                            <label for="report_time_mode_<?php echo( esc_attr( $mode ) ); ?>"><?php
+                                                echo esc_html( $label );
+                                                if ( $mode === 'dynamic' ) {
+                                                    self::proBadge();
+                                                }
+                                            ?></label>
+                                        <?php } ?>
+                                    </div>
+
+                                    <div id="ninjalytics-date-range-dropdown-body">
+                                        <div class="ninjalytics-date-range-dropdown-tab-content"
+                                             id="ninjalytics-date-range-preset">
+                                            <div>
+                                                <label for="ninjalytics-date-range-preset-select"><?php esc_html_e( 'Report Dates', 'product-sales-report-for-woocommerce' ) ?>:</label>
+                                                <div>
+                                                    <select id="ninjalytics-date-range-preset-select" name="report_time_preset">
+                                                        <?php foreach( ninjalytics_get_report_dates_presets() as $datePresetId => $datePreset) { ?>
+                                                            <option value="<?php echo(esc_attr($datePresetId)); ?>"<?php selected( $datePresetId, $reportSettings['report_time_preset'] ); ?>>
+                                                                <?php echo(esc_html( $datePreset['label'] )); ?>
+                                                            </option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ninjalytics-date-range-dropdown-tab-content"
+                                             id="ninjalytics-date-range-basic">
+											<?php for ($to = 0; $to < 2; ++$to) { ?>
+                                            <div>
+                                                <label for="ninjalytics-date-range-basic-<?php echo($to ? 'to' : 'from'); ?>"><?php $to ? esc_html_e( 'To', 'product-sales-report-for-woocommerce' ) : esc_html_e( 'From', 'product-sales-report-for-woocommerce' ) ?>
+                                                    :</label>
+                                                <div>
+                                                    <input type="number" id="ninjalytics-date-range-basic-<?php echo($to ? 'to' : 'from'); ?>"
+                                                           name="report_time_basic_<?php echo($to ? 'to' : 'from'); ?>"
+														   value="<?php echo( (int) $reportSettings['report_time_basic_'.($to ? 'to' : 'from')] ); ?>">
+                                                    <select name="report_time_basic_<?php echo($to ? 'to' : 'from'); ?>_unit">
+														<?php
+														$options = [
+															'max' => __( 'Forever', 'product-sales-report-for-woocommerce' ),
+															'now' => __( 'Now', 'product-sales-report-for-woocommerce' ),
+															'-d' => __( 'Day(s) ago', 'product-sales-report-for-woocommerce' ),
+															'-cm' => __( 'Month(s) ago', 'product-sales-report-for-woocommerce' ),
+															'd' => __( 'Day(s) in future', 'product-sales-report-for-woocommerce' ),
+															'cm' => __( 'Month(s) in future', 'product-sales-report-for-woocommerce' )
+														];
+														
+														foreach ($options as $optionVal => $optionLabel) {
+														?>
+                                                        <option value="<?php echo(esc_attr($optionVal)); ?>"<?php selected( $optionVal, $reportSettings['report_time_basic_'.($to ? 'to' : 'from').'_unit'] ); ?>>
+                                                            <?php echo(esc_html($optionLabel)); ?>
+                                                        </option>
+														<?php } ?>
+                                                    </select>
+                                                    <select name="report_time_basic_<?php echo($to ? 'to' : 'from'); ?>_round">
+														<?php
+														$options = [
+															'd' => $to ? __( 'rounded to end of day', 'product-sales-report-for-woocommerce' ) : __( 'rounded to start of day', 'product-sales-report-for-woocommerce' ),
+															'm' => $to ? __( 'rounded to end of month', 'product-sales-report-for-woocommerce' ) : __( 'rounded to start of month', 'product-sales-report-for-woocommerce' ),
+															'0' => __( 'without rounding', 'product-sales-report-for-woocommerce' )
+														];
+														
+														foreach ($options as $optionVal => $optionLabel) {
+														?>
+                                                        <option value="<?php echo(esc_attr($optionVal)); ?>"<?php selected( $optionVal == '0' ? false : $optionVal, $reportSettings['report_time_basic_'.($to ? 'to' : 'from').'_round'] ); ?>>
+                                                            <?php echo(esc_html($optionLabel)); ?>
+                                                        </option>
+														<?php } ?>
+                                                    </select>
+                                                </div>
+                                                <p></p>
+                                            </div>
+											<?php } ?>
+                                        </div>
+
+                                        <div class="ninjalytics-date-range-dropdown-tab-content"
+                                             id="ninjalytics-date-range-absolute">
+                                            <div>
+                                                <label for="ninjalytics-date-range-absolute-from"><?php esc_html_e( 'From', 'product-sales-report-for-woocommerce' ) ?>
+                                                    :</label>
+                                                <div>
+                                                    <input type="date" id="ninjalytics-date-range-absolute-from"
+                                                           name="report_time_absolute_from_date"
+                                                           value="<?php echo( esc_attr( $reportSettings['report_time_absolute_from_date'] ) ); ?>">
+                                                    <input type="time" step="1" name="report_time_absolute_from_time"
+                                                           value="<?php echo( esc_attr( $reportSettings['report_time_absolute_from_time'] ) ); ?>">
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="ninjalytics-date-range-absolute-to"><?php esc_html_e( 'To', 'product-sales-report-for-woocommerce' ) ?>
+                                                    :</label>
+                                                <div>
+                                                    <input type="date" id="ninjalytics-date-range-absolute-to"
+                                                           name="report_time_absolute_to_date"
+                                                           value="<?php echo( esc_attr( $reportSettings['report_time_absolute_to_date'] ) ); ?>">
+                                                    <input type="time" step="1" name="report_time_absolute_to_time"
+                                                           value="<?php echo( esc_attr( $reportSettings['report_time_absolute_to_time'] ) ); ?>">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div> <!-- /ninjalytics-date-range-dropdown-body -->
+                                    <?php if ( $reporter->supports( PlatformFeatures::ALT_DATES ) ) { ?>
+                                        <div class="ninjalytics-date-range-dropdown-alt-dates-wrapper">
+                                            <div class="ninjalytics-date-range-dropdown-alt-dates-toggle">
+                                                <span class="ninjalytics-alt-dates-label"><?php esc_html_e( 'Based on:', 'product-sales-report-for-woocommerce' ); ?> <strong><?php esc_html_e( 'Order Date', 'product-sales-report-for-woocommerce' ); ?></strong></span>
+                                                <button type="button" class="berrypress-link ninjalytics-alt-dates-toggle-btn"><?php esc_html_e( 'Change', 'product-sales-report-for-woocommerce' ); ?></button>
+                                            </div>
+                                            <div class="ninjalytics-date-range-dropdown-alt-dates berrypress-hidden">
+                                                <div class="berrypress-field">
+                                                    <label for="ninjalytics_alt_order_date"><?php esc_html_e( 'Report date range based on:', 'product-sales-report-for-woocommerce' ); ?></label>
+                                                    <select name="alt_order_date" id="ninjalytics_alt_order_date">
+                                                        <option value="" selected><?php esc_attr_e( 'Order Date', 'product-sales-report-for-woocommerce' ); ?></option>
+                                                        <option value="order_meta::_date_paid" disabled><?php self::proBadgeSelectOption(__( 'Date Paid', 'product-sales-report-for-woocommerce' )); ?></option>
+                                                        <option value="order_meta::_date_completed" disabled><?php self::proBadgeSelectOption(__( 'Date Completed', 'product-sales-report-for-woocommerce' )); ?></option>
+                                                        <optgroup label="<?php printf( /* translators: %s = option name */ esc_attr__( '%s [Pro]', 'product-sales-report-for-woocommerce' ), esc_attr__( 'Order Meta', 'product-sales-report-for-woocommerce' ) ); ?>">
+                                                            <?php
+                                                            foreach ( $reporter->getOrderFieldNames(false) as $orderField ) {
+                                                                if (str_starts_with($orderField, '_wc_order_attribution_') || str_starts_with($orderField, 'is_') || str_ends_with($orderField, '_hash') || str_ends_with($orderField, '_index') || str_ends_with($orderField, '_lock') || str_ends_with($orderField, '_value')) {
+                                                                    continue;
+                                                                }
+                                                                ?>
+                                                                <option disabled><?php echo esc_html( $orderField ); ?></option>
+                                                                <?php
+                                                            }
+                                                            ?>
+                                                        </optgroup>
+                                                    </select>
+                                                </div>
+                                            </div> <!-- /ninjalytics-date-range-dropdown-alt-dates -->
+                                        </div> <!-- /ninjalytics-date-range-dropdown-alt-dates-wrapper -->
+                                    <?php } ?>
+                                </div> <!-- /ninjalytics-date-range-dropdown -->
+                            </div> <!-- /ninjalytics-date-range -->
+
+                        </div> <!-- /ninjalytics-display-toolbar -->
+
                         <div id="ninjalytics_output_container">
                             <div class="ninjalytics-loading">
                                 <label><?php esc_html_e( 'Loading', 'product-sales-report-for-woocommerce' ) ?>...
@@ -1090,495 +1138,574 @@ class AdminPage extends BerryPressPage {
                             </p>
                         </div> <!-- /ninjalytics_output_container -->
                     </div> <!-- /ninjalytics-settings-data -->
+
+                    <div class="ninjalytics-settings-sidebar">
                     <div class="ninjalytics-settings-panel">
-                        <div id="ags-psr-report-meta">
-                            <label>
-                                <span><?php esc_html_e( 'Report Name', 'product-sales-report-for-woocommerce' ) ?>:</span>
-                                <input type="text" name="preset_name"
-                                       value="<?php echo( esc_attr( $reportSettings['preset_name'] ?? '' ) ); ?>"/>
-                            </label>
-                            <input type="hidden" name="export_orders"
-                                   value="<?php echo( ( $reportSettings['export_orders'] ?? 0 ) ? 1 : 0 ); ?>"/>
-                        </div>
+                        <div id="ninjalytics-report-sidebar">
+                            <div id="ninjalytics-report-sidebar-settings"
+                                 role="tabpanel"
+                                 aria-labelledby="ninjalytics-report-sidebar-tab-settings"
+                                 tabindex="0">
 
-                        <div id="ninjalytics-settings">
+                                <div id="ags-psr-report-meta">
+                                    <input type="hidden" name="preset_name" class="ninjalytics-no-update"
+                                           value="<?php echo( esc_attr( $reportSettings['preset_name'] ?? '' ) ); ?>"/>
+                                    <input type="hidden" name="export_orders"
+                                           value="<?php echo( ( $reportSettings['export_orders'] ?? 0 ) ? 1 : 0 ); ?>"/>
+                                </div>
 
-							<?php if ( $reporter->supports( PlatformFeatures::CHILD_ITEMS ) ) { ?>
-                                <div class="ninjalytics-settings-toggle">
-                                    <div class="ninjalytics-section-title">
-                                        <h3><?php esc_html_e( 'Products', 'product-sales-report-for-woocommerce' ) ?></h3>
-                                        <label>
-                                            <input type="checkbox" class="ninjalytics-no-update" name="advanced_products" value="1"<?php checked( ! empty( $reportSettings['advanced_products'] ) ); ?>>
-                                            <span><?php esc_html_e( 'Advanced', 'product-sales-report-for-woocommerce' ) ?></span>
-                                        </label>
-                                        <button class="berrypress-btn-icon" type="button">
-                                            <i class="berrypress-icon-expand_more"></i>
-                                        </button>
+                                <header class="ninjalytics-sidebar-header ninjalytics-sidebar-header-no-border">
+                                    <div class="ninjalytics-sidebar-header-text">
+                                        <h2 class="ninjalytics-sidebar-title"><?php esc_html_e( 'Report Settings', 'product-sales-report-for-woocommerce' ); ?></h2>
+                                        <p class="ninjalytics-sidebar-subtitle"><?php esc_html_e( 'Set up fields, filters, grouping, and how this report is displayed.', 'product-sales-report-for-woocommerce' ); ?></p>
                                     </div>
+                                </header>
 
-                                    <div id="hm_psr_tab_products_panel" class="ninjalytics-section-body">
-
-                                        <div class="ninjalytics-group-title"><?php esc_html_e( 'Products to include', 'product-sales-report-for-woocommerce' ) ?>
-                                        </div>
-                                        <?php $this->renderPrimaryProductsFilter($reporter, $reportSettings); ?>
-
-										<?php if ( ! $reportSettings['export_orders'] ) { ?>
-                                        <div class="ninjalytics-group-title berrypress-mt-4"><?php esc_html_e( 'Product filtering', 'product-sales-report-for-woocommerce' ) ?>
-                                        </div>
-
-                                            <div class="berrypress-field">
-                                                <input type="checkbox" id="ninjalytics-product-include-nil"
-                                                       name="include_nil"
-                                                       value="1"<?php checked( ! empty( $reportSettings['include_nil'] ) ); ?> />
-                                                <label for="ninjalytics-product-include-nil">
-													<?php esc_html_e( 'Include products with no sales matching the filtering criteria', 'product-sales-report-for-woocommerce' ); ?>
-													<?php self::docsLink( 'report-configuration/products', 'products-no-sales' ); ?>
-                                                </label>
-                                            </div>
-
-                                            <div class="berrypress-field">
-                                                <input type="checkbox" id="ninjalytics-include-unpublished"
-                                                       name="include_unpublished"
-                                                       value="1"<?php checked( ! empty( $reportSettings['include_unpublished'] ) ); ?> />
-                                                <label for="ninjalytics-include-unpublished">
-													<?php esc_html_e( 'Include unpublished products', 'product-sales-report-for-woocommerce' ); ?>
-													<?php self::docsLink( 'report-configuration/products', 'products-unpublished' ); ?>
-                                                </label>
-                                            </div>
-
-                                            <div class="berrypress-field">
-                                                <input type="checkbox" id="ninjalytics-product-exclude-free"
-                                                       name="exclude_free"
-                                                       value="1"<?php checked( ! empty( $reportSettings['exclude_free'] ) ); ?> />
-                                                <label for="ninjalytics-product-exclude-free">
-													<?php esc_html_e( 'Exclude free products', 'product-sales-report-for-woocommerce' ); ?>
-													<?php self::docsLink( 'report-configuration/products', 'exclude-free', true ); ?>
-                                                </label>
-                                            </div>
-										<?php } ?>
-
-                                        <div class="ninjalytics-group-title berrypress-mt-4 ninjalytics-setting-advanced"><?php esc_html_e( 'Advanced filtering', 'product-sales-report-for-woocommerce' ) ?>
+                                <?php if ( $reporter->supports( PlatformFeatures::CHILD_ITEMS ) ) { ?>
+                                    <div class="ninjalytics-settings-toggle">
+                                        <div class="ninjalytics-section-title">
+                                            <h3><i class="berrypress-icon-package"></i><?php esc_html_e( 'Products', 'product-sales-report-for-woocommerce' ) ?></h3>
+                                            <label>
+                                                <input type="checkbox" class="ninjalytics-no-update" name="advanced_products" value="1"<?php checked( ! empty( $reportSettings['advanced_products'] ) ); ?>>
+                                                <span><?php esc_html_e( 'Advanced', 'product-sales-report-for-woocommerce' ) ?></span>
+                                            </label>
+                                            <button class="berrypress-btn-icon" type="button">
+                                                <i class="berrypress-icon-expand_more"></i>
+                                            </button>
                                         </div>
 
-                                        <div class="ninjalytics-field-switch-conditional ninjalytics-setting-advanced">
-                                            <div class="berrypress-field berrypress-switch ninjalytics-pro-feature">
-                                                <input
-                                                        type="checkbox"
-                                                        name="product_tag_filter_on"
-                                                        id="ninjalytics-product-tag-filter-on"
-                                                        disabled
-                                                />
-                                                <label for="ninjalytics-product-tag-filter-on"><?php esc_html_e( 'Only products tagged', 'product-sales-report-for-woocommerce' ) ?>
-                                                    <?php self::proBadge() ?>
-													<?php self::docsLink( 'report-configuration/products', 'only-products-tagged' ); ?>
-                                                </label>
+                                        <div id="hm_psr_tab_products_panel" class="ninjalytics-section-body">
+
+                                            <div class="ninjalytics-group-title"><?php esc_html_e( 'Products to include', 'product-sales-report-for-woocommerce' ) ?>
                                             </div>
-                                        </div>
+                                            <?php $this->renderPrimaryProductsFilter($reporter, $reportSettings); ?>
 
-                                        <div class="ninjalytics-field-switch-conditional ninjalytics-setting-advanced">
-                                            <div id="hm_psr_product_meta_filter_settings"
-                                                 class="berrypress-field berrypress-switch ninjalytics-pro-feature">
-                                                <input id="ninjalytics-product-meta-filter-on" type="checkbox"
-                                                       name="product_meta_filter_on"
-                                                       disabled/>
-                                                <label for="ninjalytics-product-meta-filter-on"><?php esc_html_e( 'Only products with field', 'product-sales-report-for-woocommerce' ) ?>
-                                                    <?php self::proBadge() ?>
-                                                    <?php self::docsLink( 'report-configuration/products', 'only-products-with-field', true ) ?></label>
-                                            </div>
-                                        </div>
+                                            <?php if ( $reportSettings['export_orders'] ) { ?>
 
-
-										<?php
-
-										if ( ! $reportSettings['export_orders'] ) {
-
-											$hasVariationSupport = $reporter->supports( PlatformFeatures::VARIATIONS );
-											if ( $hasVariationSupport ) {
-												?>
-                                                <div class="ninjalytics-group-title berrypress-mt-4">
-													<?php esc_html_e( 'Product variations', 'product-sales-report-for-woocommerce' ); ?>
-													<?php self::docsLink( 'report-configuration/products', 'product-variations' ); ?>
+                                                <div class="ninjalytics-group-title berrypress-mt-4"><?php esc_html_e( 'Order item settings', 'product-sales-report-for-woocommerce' ) ?>
                                                 </div>
-
                                                 <div class="berrypress-field">
-                                                    <input type="radio" id="ninjalytics-variations-together"
-                                                           name="variations"
-                                                           value="0"<?php checked( empty( $reportSettings['variations'] ) ); ?>
-                                                           class="hm_psr_variations_fld"/>
-                                                    <label for="ninjalytics-variations-together"><?php esc_html_e( 'Group product variations together', 'product-sales-report-for-woocommerce' ); ?></label>
-                                                </div>
-
-                                                <div class="berrypress-field">
-                                                    <input type="radio" id="ninjalytics-variations-seperately"
-                                                           name="variations"
-                                                           value="1"<?php checked( ! empty( $reportSettings['variations'] ) ); ?>
-                                                           class="hm_psr_variations_fld"/>
-                                                    <label for="ninjalytics-variations-seperately"><?php esc_html_e( 'Report on each variation separately', 'product-sales-report-for-woocommerce' ); ?></label>
-                                                </div>
-												<?php
-											}
-
-
-											?>
-                                            <div class="ninjalytics-group-title berrypress-mt-4"><?php esc_html_e( 'Additional report items', 'product-sales-report-for-woocommerce' ) ?> </div>
-
-											<?php if ( $reporter->supports( PlatformFeatures::SHIPPING ) ) { ?>
-                                                <div class="berrypress-field">
-                                                    <input type="checkbox" id="ninjalytics-product-include-shipping"
-                                                           name="include_shipping"
-                                                           value="1"<?php checked( ! empty( $reportSettings['include_shipping'] ) ); ?> />
-                                                    <label for="ninjalytics-product-include-shipping">
-														<?php esc_html_e( 'Display shipping as report items', 'product-sales-report-for-woocommerce' ); ?>
-														<?php self::docsLink( 'report-configuration/products', 'shipping' ); ?>
+                                                    <input type="checkbox" id="ninjalytics-one-line-per-order"
+                                                           name="one_line_per_order"
+                                                           value="1"<?php checked( ! empty( $reportSettings['one_line_per_order'] ) ); ?> />
+                                                    <label for="ninjalytics-one-line-per-order">
+                                                        <?php esc_html_e( 'Only include one line per order', 'product-sales-report-for-woocommerce' ); ?>
                                                     </label>
                                                 </div>
-											<?php } ?>
+                                            <?php } else { ?>
 
-
-                                            <div class="ninjalytics-group-title berrypress-mt-4"><?php esc_html_e( 'Sales Adjustments', 'product-sales-report-for-woocommerce' ) ?> </div>
-
-											<?php
-											if ( $reporter->supports( PlatformFeatures::LINE_ITEM_ADJUSTMENTS ) ) { ?>
-                                                <div class="berrypress-field">
-                                                    <input type="checkbox" id="ninjalytics-product-adjustments"
-                                                           name="adjustments"
-                                                           value="1" <?php echo( empty( $reportSettings['adjustments'] ) ? '' : ' checked="checked"' ) ?> />
-                                                    <label for="ninjalytics-product-adjustments"><?php esc_html_e( 'Include line-item adjustments', 'product-sales-report-for-woocommerce' );
-														self::docsLink( 'report-configuration/products', 'adjustments', true ) ?> </label>
+                                                <div class="ninjalytics-group-title berrypress-mt-4"><?php esc_html_e( 'Product filtering', 'product-sales-report-for-woocommerce' ) ?>
                                                 </div>
-											<?php } ?>
+
+                                                <div class="berrypress-field">
+                                                    <input type="checkbox" id="ninjalytics-product-include-nil"
+                                                           name="include_nil"
+                                                           value="1"<?php checked( ! empty( $reportSettings['include_nil'] ) ); ?> />
+                                                    <label for="ninjalytics-product-include-nil">
+                                                        <?php esc_html_e( 'Include products with no sales matching the filtering criteria', 'product-sales-report-for-woocommerce' ); ?>
+                                                        <?php self::docsLink( 'report-configuration/products', 'products-no-sales' ); ?>
+                                                    </label>
+                                                </div>
+
+                                                <div class="berrypress-field">
+                                                    <input type="checkbox" id="ninjalytics-include-unpublished"
+                                                           name="include_unpublished"
+                                                           value="1"<?php checked( ! empty( $reportSettings['include_unpublished'] ) ); ?> />
+                                                    <label for="ninjalytics-include-unpublished">
+                                                        <?php esc_html_e( 'Include unpublished products', 'product-sales-report-for-woocommerce' ); ?>
+                                                        <?php self::docsLink( 'report-configuration/products', 'products-unpublished' ); ?>
+                                                    </label>
+                                                </div>
+
+                                            <?php } ?>
+                                            <div class="ninjalytics-field-switch-conditional">
+                                                <div class="berrypress-field ninjalytics-product-exclude-free-field">
+                                                    <input type="checkbox" id="ninjalytics-product-exclude-free"
+                                                           name="exclude_free"
+                                                           data-toggle-key="ninjalytics-product-exclude-free"
+                                                           value="1"<?php checked( ! empty( $reportSettings['exclude_free'] ) ); ?> />
+                                                    <label for="ninjalytics-product-exclude-free">
+                                                        <?php esc_html_e( 'Exclude items with a gross amount of zero', 'product-sales-report-for-woocommerce' ); ?>
+                                                        <?php self::docsLink( 'report-configuration/products', 'exclude-free', true ); ?>
+                                                    </label>
+                                                </div>
+
+                                                <div class="ninjalytics-field-child"  data-toggle-panel="ninjalytics-product-exclude-free">
+                                                    <select id="ninjalytics-product-exclude-free" name="exclude_free_after_discount">
+                                                        <option value="0"<?php selected($reportSettings['exclude_free_after_discount'] == 0); ?>><?php esc_html_e( 'before discount(s)', 'product-sales-report-for-woocommerce' ); ?></option>
+                                                        <option value="1"<?php selected($reportSettings['exclude_free_after_discount'] == 1); ?>><?php esc_html_e( 'after discount(s)', 'product-sales-report-for-woocommerce' ); ?></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <?php if ( is_a( $reporter, \NinjalyticsFree\Reporters\WooCommerce\Base::class ) ) { ?>
+                                                <div class="berrypress-field">
+                                                    <input type="checkbox" id="ninjalytics-exclude-unmanaged-stock"
+                                                           name="exclude_unmanaged_stock"
+                                                           value="1"<?php checked( ! empty( $reportSettings['exclude_unmanaged_stock'] ) ); ?> />
+                                                    <label for="ninjalytics-exclude-unmanaged-stock">
+                                                        <?php esc_html_e( 'Exclude products without WooCommerce stock management', 'product-sales-report-for-woocommerce' ); ?>
+                                                    </label>
+                                                </div>
+                                            <?php } ?>
+
+                                            <div class="ninjalytics-group-title berrypress-mt-4 ninjalytics-setting-advanced"><?php esc_html_e( 'Advanced filtering', 'product-sales-report-for-woocommerce' ) ?>
+                                            </div>
+
+                                            <div class="ninjalytics-field-switch-conditional ninjalytics-setting-advanced">
+                                                <div class="berrypress-field berrypress-switch ninjalytics-pro-feature">
+                                                    <input
+                                                            type="checkbox"
+                                                            id="ninjalytics-product-tag-filter-on"
+                                                            disabled
+                                                    />
+                                                    <label for="ninjalytics-product-tag-filter-on"><?php esc_html_e( 'Only products tagged', 'product-sales-report-for-woocommerce' ) ?>
+                                                        <?php self::proBadge() ?>
+                                                        <?php self::docsLink( 'report-configuration/products', 'only-products-tagged' ); ?>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div class="ninjalytics-field-switch-conditional ninjalytics-setting-advanced">
+                                                <div id="hm_psr_product_meta_filter_settings"
+                                                     class="berrypress-field berrypress-switch ninjalytics-pro-feature">
+                                                    <input id="ninjalytics-product-meta-filter-on" type="checkbox"
+                                                           disabled/>
+                                                    <label for="ninjalytics-product-meta-filter-on"><?php esc_html_e( 'Only products with field', 'product-sales-report-for-woocommerce' ) ?>
+                                                        <?php self::proBadge() ?>
+                                                        <?php echo self::docsLink( 'report-configuration/products', 'only-products-with-field', true ) ?></label>
+                                                </div>
+                                            </div>
+
+
+                                            <?php if ( $reportSettings['export_orders'] ) { ?>
+                                                <?php if ( $reporter->supports(PlatformFeatures::CHILD_ITEMS) ) {
+                                                        $orderItemTypes = $reporter->getOrderItemTypes();
+                                                        if (count($orderItemTypes) > 1) {
+                                                    ?>
+                                                    <div class="ninjalytics-group-title berrypress-mt-4">
+                                                        <?php esc_html_e( 'Custom Order Item Types', 'product-sales-report-for-woocommerce' ); ?>:
+                                                        <?php self::proBadge() ?>
+                                                    </div>
+
+                                                    <div class="berrypress-mb-3">
+                                                    <?php
+                                                        foreach ($orderItemTypes as $orderItemType) {
+                                                            if ($orderItemType == 'shipping')
+                                                                continue;
+                                                    ?>
+                                                        <label class="berrypress-field">
+                                                            <input type="checkbox"
+                                                                   disabled<?php checked( $orderItemType, 'line_item' ); ?> />
+                                                            <span class="label"><?php echo esc_html( $orderItemType ); ?></span>
+                                                        </label>
+                                                    <?php } ?>
+                                                    </div>
+
+                                                        <?php } }
+                                                } else {
+
+                                                $hasVariationSupport = $reporter->supports( PlatformFeatures::VARIATIONS );
+                                                if ( $hasVariationSupport ) {
+                                                    ?>
+                                                    <div class="ninjalytics-group-title berrypress-mt-4">
+                                                        <?php esc_html_e( 'Product variations', 'product-sales-report-for-woocommerce' ); ?>
+                                                        <?php self::docsLink( 'report-configuration/products', 'product-variations' ); ?>
+                                                    </div>
+
+                                                    <div class="berrypress-field">
+                                                        <input type="radio" id="ninjalytics-variations-together"
+                                                               name="variations"
+                                                               value="0"<?php checked( empty( $reportSettings['variations'] ) ); ?>
+                                                               class="hm_psr_variations_fld"/>
+                                                        <label for="ninjalytics-variations-together"><?php esc_html_e( 'Group product variations together', 'product-sales-report-for-woocommerce' ); ?></label>
+                                                    </div>
+
+                                                    <div class="berrypress-field">
+                                                        <input type="radio" id="ninjalytics-variations-seperately"
+                                                               name="variations"
+                                                               value="1"<?php checked( ! empty( $reportSettings['variations'] ) ); ?>
+                                                               class="hm_psr_variations_fld"/>
+                                                        <label for="ninjalytics-variations-seperately"><?php esc_html_e( 'Report on each variation separately', 'product-sales-report-for-woocommerce' ); ?></label>
+                                                    </div>
+                                                    <?php
+                                                }
+
+                                                }
+
+
+                                                ?>
+                                                <div class="ninjalytics-group-title berrypress-mt-4"><?php esc_html_e( 'Additional report items', 'product-sales-report-for-woocommerce' ) ?> </div>
+                                                <?php if ( $reporter->supports( PlatformFeatures::SHIPPING ) ) { ?>
+                                                <div class="ninjalytics-field-switch-conditional">
+                                                    <div class="berrypress-field">
+                                                        <input type="checkbox" id="ninjalytics-product-include-shipping"
+                                                               name="include_shipping"
+                                                               data-toggle-key="ninjalytics-product-include-shipping"
+                                                               value="1"<?php checked( ! empty( $reportSettings['include_shipping'] ) ); ?> />
+                                                        <label for="ninjalytics-product-include-shipping">
+                                                            <?php esc_html_e( 'Display shipping as report items', 'product-sales-report-for-woocommerce' ); ?>
+                                                            <?php self::docsLink( 'report-configuration/products', 'shipping' ); ?>
+                                                        </label>
+                                                    </div>
+
+
+                                                    <?php if ( $reportSettings['export_orders'] ) { ?>
+                                                    <div class="ninjalytics-field-child" data-toggle-panel="ninjalytics-product-include-shipping">
+                                                        <div class="berrypress-field berrypress-field-flex berrypress-field-align-center">
+                                                            <label for="hm_psr_field_shipping_product_name"><?php esc_html_e( 'Shipping product name template', 'product-sales-report-for-woocommerce' ); ?></label>
+                                                            <input type="text" name="shipping_product_name" id="hm_psr_field_shipping_product_name"
+                                                                   class="ninjalytics-select-fw"
+                                                                   value="<?php echo esc_attr( $reportSettings['shipping_product_name'] ); ?>"/>
+                                                        </div>
+                                                    </div>
+                                                    <?php } ?>
+
+                                                </div>
+                                                <?php } ?>
+
+                                                <div class="ninjalytics-group-title berrypress-mt-4"><?php esc_html_e( 'Sales Adjustments', 'product-sales-report-for-woocommerce' ) ?> </div>
+                                                <?php if ( !$reportSettings['export_orders'] ) { ?>
+
+                                                <?php
+                                                if ( $reporter->supports( PlatformFeatures::LINE_ITEM_ADJUSTMENTS ) ) { ?>
+                                                    <div class="berrypress-field">
+                                                        <input type="checkbox" id="ninjalytics-product-adjustments"
+                                                               name="adjustments"
+                                                               value="1" <?php echo( empty( $reportSettings['adjustments'] ) ? '' : ' checked="checked"' ) ?> />
+                                                        <label for="ninjalytics-product-adjustments"><?php esc_html_e( 'Include line-item adjustments', 'product-sales-report-for-woocommerce' );
+                                                            self::docsLink( 'report-configuration/products', 'adjustments', true ) ?> </label>
+                                                    </div>
+                                                <?php } ?>
+
+                                            <?php } ?>
 
                                             <div class="berrypress-field">
                                                 <input type="checkbox" id="ninjalytics-product-refunds" name="refunds"
                                                        value="1" <?php echo( empty( $reportSettings['refunds'] ) ? '' : ' checked="checked"' ) ?> />
                                                 <label for="ninjalytics-product-refunds"><?php esc_html_e( 'Include line-item refunds', 'product-sales-report-for-woocommerce' );
-													self::docsLink( 'report-configuration/products', 'refunds', true ) ?> </label>
-                                            </div>
-										<?php } ?>
-
-                                    </div> <!-- /hm_psr_tab_products_panel -->
-                                </div> <!-- /ninjalytics-settings-toggle (Products) -->
-							<?php } ?>
-
-                            <div class="ninjalytics-settings-toggle">
-                                <div class="ninjalytics-section-title">
-                                    <h3><?php echo( esc_html( $reporter->getPrimaryItemsName() ) ); ?></h3>
-                                    <label>
-                                        <input type="checkbox" class="ninjalytics-no-update" name="advanced_orders" value="1"<?php checked( ! empty( $reportSettings['advanced_orders'] ) ); ?>>
-                                        <span><?php esc_html_e( 'Advanced', 'product-sales-report-for-woocommerce' ) ?> </span>
-                                    </label>
-
-                                    <button class="berrypress-btn-icon" type="button">
-                                        <i class="berrypress-icon-expand_more"></i>
-                                    </button>
-                                </div>
-                                <div class="ninjalytics-section-body">
-                                    <div class="ninjalytics-group-title">
-										<?php esc_html_e( 'Status', 'product-sales-report-for-woocommerce' ); ?>:
-										<?php self::docsLink( 'report-configuration/orders', 'order-status' ); ?>
-                                    </div>
-                                    <div class="berrypress-mb-3">
-									<?php foreach ( $reporter->getOrderStatuses() as $status => $statusName ) { ?>
-                                        <label class="berrypress-field">
-                                            <input type="checkbox"
-                                                   name="order_statuses[]"<?php checked( in_array( $status, $reportSettings['order_statuses'] ) ); ?>
-                                                   value="<?php echo esc_attr( $status ); ?>"/>
-                                            <span class="label"><?php echo esc_html( $statusName ); ?></span>
-                                        </label>
-									<?php } ?>
-                                    </div>
-									
-									
-									<?php if ( $reporter->supports( PlatformFeatures::CHILD_ITEMS_FILTER ) ) { ?>
-										<div class="ninjalytics-group-title"><?php esc_html_e( 'Containing products', 'product-sales-report-for-woocommerce' ) ?>
-										</div>
-                                        <?php $this->renderPrimaryProductsFilter($reporter, $reportSettings); ?>
-									<?php }
-
-									if ( $reporter->supports( PlatformFeatures::META ) ) { ?>
-                                        <div class="ninjalytics-field-switch-conditional ninjalytics-setting-advanced berrypress-mt-4">
-
-                                            <div class="ninjalytics-group-title ninjalytics-pro-feature">
-												<?php esc_html_e( 'Order filtering', 'product-sales-report-for-woocommerce' ); ?>:
-                                                <?php self::proBadge() ?>
+                                                    self::docsLink( 'report-configuration/products', 'refunds', true ) ?> </label>
                                             </div>
 
-                                            <div class="berrypress-field ninjalytics-pro-feature">
-                                                <input type="checkbox" id="ninjalytics-order-field-1"
-                                                       name="order_meta_filter_on"
-                                                       data-toggle-key="order_meta_filter_on"
-                                                       disabled/>
-                                                <label for="ninjalytics-order-field-1">
-													<?php esc_html_e( 'Only orders with field', 'product-sales-report-for-woocommerce' ); ?>:
-                                                    <?php self::proBadge() ?>
-													<?php self::docsLink( 'report-configuration/orders', 'only-orders-with-field', true ); ?>
-                                                </label>
-                                            </div>
+                                        </div> <!-- /hm_psr_tab_products_panel -->
+                                    </div> <!-- /ninjalytics-settings-toggle (Products) -->
+                                <?php } ?>
 
-                                        </div>
-										<?php
-									}
-									if ( $reporter->supports( PlatformFeatures::CHILD_ITEMS_META ) ) {
-										?>
-                                        <div class="ninjalytics-field-switch-conditional ninjalytics-setting-advanced berrypress-mt-2">
-
-                                            <div class="berrypress-field ninjalytics-pro-feature">
-                                                <input type="checkbox" id="ninjalytics-order-field-2"
-                                                       name="order_item_meta_filter_1_on"
-                                                       data-toggle-key="order_item_meta_filter_1_on"
-                                                       disabled/>
-                                                <label for="ninjalytics-order-field-2">
-													<?php esc_html_e( 'Only order items with field', 'product-sales-report-for-woocommerce' ); ?>:
-                                                    <?php self::proBadge() ?>
-													<?php self::docsLink( 'report-configuration/orders', 'only-order-items-with-field', true ); ?>
-                                                </label>
-                                            </div>
-
-                                        </div>
-
-										<?php
-
-									}
-
-									if ( $reporter->supports( PlatformFeatures::SHIPPING ) ) {
-										?>
-                                        <div class="ninjalytics-group-title ninjalytics-pro-feature berrypress-mt-4">
-											<?php esc_html_e( 'Include orders by shipping method', 'product-sales-report-for-woocommerce' ); ?>:
-                                            <?php self::proBadge() ?>
-											<?php self::docsLink( 'report-configuration/orders', 'include-orders-by-shipping-method', true ); ?>
-                                        </div>
-                                    <div class="ninjalytics-checkboxes-container berrypress-mb-3">
-										<?php
-										foreach ( \NinjalyticsFree\ninjalytics_get_order_shipping_filter_options() as $shippingMethodId => $shippingMethod ) {
-											?>
-                                            <label class="berrypress-field ninjalytics-pro-feature">
-                                                <input type="checkbox"
-                                                       name="order_shipping_filter[]"<?php checked( in_array( $shippingMethodId, $reportSettings['order_shipping_filter'] ?? [] ) ); ?>
-                                                       disabled>
-                                                <span class="label"><?php echo esc_html( $shippingMethod ); ?></span>
-                                            </label>
-											<?php } ?>
-                                    </div> <!-- /ninjalytics-checkboxes-container-->
-                                        <?php
-									}
-
-									if ( $reporter->supports( PlatformFeatures::CUSTOMER_USERS ) ) {
-										?>
-                                        <div class="ninjalytics-group-title ninjalytics-pro-feature berrypress-mt-4 ninjalytics-setting-advanced">
-											<?php esc_html_e( 'Filter Orders by Customer Role', 'product-sales-report-for-woocommerce' ); ?>:
-                                            <?php self::proBadge() ?>
-											<?php self::docsLink( 'report-configuration/orders', 'filter-orders-by-customer-role' ); ?>
-                                        </div>
-										<?php
-
-										$customerRoles = [ '-1' => __( '(Guest Customers)', 'product-sales-report-for-woocommerce' ) ];
-										foreach ( $wp_roles->roles as $roleId => $role ) {
-											$customerRoles[ $roleId ] = $role['name'];
-										}
-
-										?>
-										<?php foreach (
-											[
-												'customer_role'         => __( 'Include Only', 'product-sales-report-for-woocommerce' ),
-												'customer_role_exclude' => __( 'Exclude', 'product-sales-report-for-woocommerce' )
-											] as $settingKey => $label
-										) { ?>
-                                            <div class="berrypress-mb-3">
-                                                <div class="ninjalytics-group-subtitle ninjalytics-pro-feature berrypress-mb-2 berrypress-fw-medium"><?php echo esc_html( $label ); ?>:
-                                                </div>
-
-                                                <div class="ninjalytics-checkboxes-container">
-												<?php foreach ( $customerRoles as $roleId => $roleName ) { ?>
-                                                    <label class="berrypress-field ninjalytics-pro-feature">
-                                                        <input type="checkbox"
-                                                               name="<?php echo esc_attr( $settingKey ); ?>[]" disabled >
-                                                        <span class="label"><?php echo esc_html( $roleName ); ?></span>
-                                                    </label>
-												<?php } ?>
-                                                </div>
-
-                                            </div>
-
-										<?php } ?>
-										<?php
-
-										$wcMemberships = ninjalytics_get_wc_membership_plans();
-										if ( $wcMemberships ) {
-											?>
-                                            <div class="berrypress-field berrypress-field-flex berrypress-field-align-center ninjalytics-setting-advanced">
-                                                <label for="ninjalytics-wc-membership">
-                                                       <?php esc_html_e( 'Include Orders by Customer Membership:', 'product-sales-report-for-woocommerce' ); ?>
-                                                </label>
-
-	                                            <?php self::docsLink( 'report-configuration/orders', 'include-orders-by-customer-membership' ); ?>
-                                                <select id="ninjalytics-wc-membership" name="wc_membership">
-                                                    <option value="0"><?php esc_html_e( '(All Customers)', 'product-sales-report-for-woocommerce' ); ?></option>
-                                                    <option value="-1"><?php esc_html_e( '(Customers Without Membership)', 'product-sales-report-for-woocommerce' ); ?></option>
-                                                    <option value="-2"><?php esc_html_e( '(Customers With Any Membership)', 'product-sales-report-for-woocommerce' ); ?></option>
-                                                    <?php foreach ( $wcMemberships as $membershipId => $membershipName ) { ?>
-                                                        <option value="<?php echo (int) $membershipId; ?>"><?php echo esc_html( $membershipName ); ?></option>
-                                                    <?php } ?>
-                                                </select>
-                                            </div>
-
-											<?php
-
-										}
-										?>
-                                        <div class="ninjalytics-field-switch-conditional berrypress-mt-4 ninjalytics-setting-advanced">
-                                            <div class="ninjalytics-group-title ninjalytics-pro-feature"><?php esc_html_e( 'Advanced Filtering', 'product-sales-report-for-woocommerce' ); ?>
-                                            <?php self::proBadge() ?>
-                                            </div>
-                                            <div class="berrypress-field ninjalytics-pro-feature">
-                                                <input type="checkbox" id="ninjalytics-order-customer-meta-filter"
-                                                       name="customer_meta_filter_on"
-                                                       disabled/>
-                                                <label for="ninjalytics-order-customer-meta-filter">
-													<?php esc_html_e( 'Only Orders from Customers With Field:', 'product-sales-report-for-woocommerce' ); ?>
-													<?php self::docsLink( 'report-configuration/orders', 'only-orders-from-customers-with-field' ); ?>
-                                                </label>
-                                            </div>
-                                        </div>
-										<?php
-									}
-									?>
-                                </div> <!-- /ninjalytics-section-body -->
-                            </div> <!-- /ninjalytics-settings-toggle (Orders) -->
-
-							<?php if ( ! $reportSettings['export_orders'] ) { ?>
                                 <div class="ninjalytics-settings-toggle">
                                     <div class="ninjalytics-section-title">
-                                        <h3><?php esc_html_e( 'Segmentation', 'product-sales-report-for-woocommerce' ); ?></h3>
+                                        <h3><i class="berrypress-icon-cart"></i><?php echo( esc_html( $reporter->getPrimaryItemsName() ) ); ?></h3>
+                                        <label>
+                                            <input type="checkbox" class="ninjalytics-no-update" name="advanced_orders" value="1"<?php checked( ! empty( $reportSettings['advanced_orders'] ) ); ?>>
+                                            <span><?php esc_html_e( 'Advanced', 'product-sales-report-for-woocommerce' ) ?> </span>
+                                        </label>
+
                                         <button class="berrypress-btn-icon" type="button">
                                             <i class="berrypress-icon-expand_more"></i>
                                         </button>
                                     </div>
-									<?php
-									$groupByFields = $reporter->getGroupByFields();
-									?>
-
                                     <div class="ninjalytics-section-body">
-										<?php if ( $reporter->supports( PlatformFeatures::CHILD_ITEMS ) ) { ?>
-                                            <div class="ninjalytics-group-title">
-												<?php esc_html_e( 'Main Segment', 'product-sales-report-for-woocommerce' ); ?>:
-												<?php self::docsLink( 'report-configuration/segmentation', 'main-segment', true ); ?>
+                                        <div class="ninjalytics-group-title">
+                                            <?php esc_html_e( 'Status', 'product-sales-report-for-woocommerce' ); ?>:
+                                            <?php self::docsLink( 'report-configuration/orders', 'order-status' ); ?>
+                                        </div>
+
+                                        <div class="berrypress-mb-3">
+                                        <?php foreach ( $reporter->getOrderStatuses() as $status => $statusName ) { ?>
+                                            <label class="berrypress-field">
+                                                <input type="checkbox"
+                                                       name="order_statuses[]"<?php checked( in_array( $status, $reportSettings['order_statuses'] ) ); ?>
+                                                       value="<?php echo esc_attr( $status ); ?>"/>
+                                                <span class="label"><?php echo esc_html( $statusName ); ?></span>
+                                            </label>
+                                        <?php } ?>
+                                        </div>
+
+
+                                        <?php if ( $reporter->supports( PlatformFeatures::CHILD_ITEMS_FILTER ) ) { ?>
+                                            <div class="ninjalytics-group-title"><?php esc_html_e( 'Containing products', 'product-sales-report-for-woocommerce' ) ?>
                                             </div>
+                                            <?php $this->renderPrimaryProductsFilter($reporter, $reportSettings); ?>
+                                        <?php }
 
-                                            <label class="berrypress-field">
-                                                <input type="radio" class="ags-psr-disable-product-grouping"
-                                                       name="disable_product_grouping"
-                                                       value="0"<?php checked( empty( $reportSettings['disable_product_grouping'] ), true ); ?>>
-                                                <span class="label">
-													<?php
-													if ( $hasVariationSupport ) {
-														esc_html_e( 'By products or variations (based on ID)', 'product-sales-report-for-woocommerce' );
-													} else {
-														esc_html_e( 'By products (based on ID)', 'product-sales-report-for-woocommerce' );
-													}
-													?>
-												</span>
-                                            </label>
+                                        if ( $reporter->supports( PlatformFeatures::META ) ) { ?>
+                                            <div class="ninjalytics-field-switch-conditional ninjalytics-setting-advanced berrypress-mt-4">
 
-                                            <label class="berrypress-field">
-                                                <input type="radio" class="ags-psr-disable-product-grouping"
-                                                       name="disable_product_grouping"
-                                                       value="-1"<?php checked( $reportSettings['disable_product_grouping'], - 1 ); ?>>
-                                                <span class="label">
-													<?php
-													if ( $hasVariationSupport ) {
-														esc_html_e( 'By products or variations (based on SKU)', 'product-sales-report-for-woocommerce' );
-													} else {
-														esc_html_e( 'By products (based on SKU)', 'product-sales-report-for-woocommerce' );
-													}
-													?>
-												</span>
-                                            </label>
+                                                <div class="ninjalytics-group-title ninjalytics-pro-feature">
+                                                    <?php esc_html_e( 'Order filtering', 'product-sales-report-for-woocommerce' ); ?>:
+                                                    <?php self::proBadge() ?>
+                                                </div>
 
-                                            <label class="berrypress-field">
-                                                <input type="radio" class="ags-psr-disable-product-grouping"
-                                                       name="disable_product_grouping"
-                                                       value="2"<?php checked( $reportSettings['disable_product_grouping'], 2 ); ?> >
-                                                <span class="label"><?php esc_html_e( 'By product category', 'product-sales-report-for-woocommerce' ); ?></span>
-                                            </label>
-
-                                            <label class="berrypress-field">
-                                                <input type="radio" class="ags-psr-disable-product-grouping"
-                                                       name="disable_product_grouping"
-                                                       value="1"<?php checked( $reportSettings['disable_product_grouping'], 1 ); ?>>
-                                                <span class="label"><?php esc_html_e( 'None', 'product-sales-report-for-woocommerce' ); ?></span>
-                                            </label>
-
-										<?php } ?>
-										<?php
-										// Custom segments section
-										?>
-
-                                        <div class="ninjalytics-field-switch-conditional berrypress-mt-4">
-                                            <div class="berrypress-field">
-                                                <input type="checkbox" name="enable_custom_segments"
-                                                       id="hm_psr_enable_custom_segments"
-                                                       data-toggle-key="enable_custom_segments"
-                                                       value="1"<?php checked( isset( $reportSettings['enable_custom_segments'] ) && ( $reportSettings['enable_custom_segments'] == 1 || ( $reportSettings['enable_custom_segments'] == - 1 ) &&  $reportSettings['groupby'] ) ); ?> />
-                                                <label for="hm_psr_enable_custom_segments"
-                                                       class="berrypress-fw-medium"><?php esc_html_e( 'Enable custom segments', 'product-sales-report-for-woocommerce' ); ?><?php
-														self::docsLink( 'report-configuration/segmentation', 'custom-segments', true );
-													?></label>
+                                                <div class="berrypress-field ninjalytics-pro-feature">
+                                                    <input type="checkbox" id="ninjalytics-order-field-1"
+                                                           disabled/>
+                                                    <label for="ninjalytics-order-field-1">
+                                                        <?php esc_html_e( 'Only orders with field', 'product-sales-report-for-woocommerce' ); ?>:
+                                                        <?php self::proBadge() ?>
+                                                        <?php self::docsLink( 'report-configuration/orders', 'only-orders-with-field', true ); ?>
+                                                    </label>
+                                                </div>
 
                                             </div>
-                                            <div class="ninjalytics-field-child" data-toggle-panel="enable_custom_segments">
+                                            <?php
+                                        }
+                                        if ( $reporter->supports( PlatformFeatures::CHILD_ITEMS_META ) ) {
+                                            ?>
+                                            <div class="ninjalytics-field-switch-conditional ninjalytics-setting-advanced berrypress-mt-2">
 
-										<?php
+                                                <div class="berrypress-field ninjalytics-pro-feature">
+                                                    <input type="checkbox" id="ninjalytics-order-field-2"
+                                                           disabled/>
+                                                    <label for="ninjalytics-order-field-2">
+                                                        <?php esc_html_e( 'Only order items with field', 'product-sales-report-for-woocommerce' ); ?>:
+                                                        <?php self::proBadge() ?>
+                                                        <?php self::docsLink( 'report-configuration/orders', 'only-order-items-with-field', true ); ?>
+                                                    </label>
+                                                </div>
 
-										for ( $i = 1; $i < 6; ++ $i ) {
-											$fieldName = 'groupby' . ( $i == 1 ? '' : $i );
-											?>
-                                            <div class="ninjalytics-custom-segment">
-                                                <label class="ninjalytics-settings-title"
-                                                       for="hm_psr_field_<?php echo esc_attr( $fieldName ); ?>">
-                                                    <span class="label"><?php /* translators: %d: segment number */ echo esc_html( sprintf( __( 'Segment %d:', 'product-sales-report-for-woocommerce' ), $i + 1 ) ); ?></span>
-                                                    <?php
-                                                    if ($i != 1) self::proBadge();
-                                                    ?>
+                                            </div>
+
+                                            <?php
+
+                                        }
+
+                                        if ( $reporter->supports( PlatformFeatures::SHIPPING ) ) {
+                                            ?>
+                                            <div class="ninjalytics-group-title ninjalytics-pro-feature berrypress-mt-4">
+                                                <?php esc_html_e( 'Include orders by shipping method', 'product-sales-report-for-woocommerce' ); ?>:
+                                                <?php self::proBadge() ?>
+                                                <?php self::docsLink( 'report-configuration/orders', 'include-orders-by-shipping-method', true ); ?>
+                                            </div>
+                                        <div class="ninjalytics-checkboxes-container berrypress-mb-3">
+                                            <?php
+                                            foreach ( \NinjalyticsFree\ninjalytics_get_order_shipping_filter_options() as $shippingMethodId => $shippingMethod ) {
+                                                ?>
+                                                <label class="berrypress-field ninjalytics-pro-feature">
+                                                    <input type="checkbox"
+                                                           name="order_shipping_filter[]"<?php checked( in_array( $shippingMethodId, $reportSettings['order_shipping_filter'] ?? [] ) ); ?>
+                                                           disabled>
+                                                    <span class="label"><?php echo esc_html( $shippingMethod ); ?></span>
                                                 </label>
-                                                <select name="<?php echo esc_attr( $fieldName ); ?>"
-                                                        id="hm_psr_field_<?php echo esc_attr( $fieldName ); ?>"
+                                                <?php } ?>
+                                        </div> <!-- /ninjalytics-checkboxes-container-->
+                                            <?php
+                                        }
+
+                                        if ( $reporter->supports( PlatformFeatures::CUSTOMER_USERS ) ) {
+                                            ?>
+                                            <div class="ninjalytics-group-title ninjalytics-pro-feature berrypress-mt-4 ninjalytics-setting-advanced">
+                                                <?php esc_html_e( 'Filter Orders by Customer Role', 'product-sales-report-for-woocommerce' ); ?>:
+                                                <?php self::proBadge() ?>
+                                                <?php self::docsLink( 'report-configuration/orders', 'filter-orders-by-customer-role' ); ?>
+                                            </div>
+                                            <?php
+
+                                            $customerRoles = [ '-1' => __( '(Guest Customers)', 'product-sales-report-for-woocommerce' ) ];
+                                            foreach ( $wp_roles->roles as $roleId => $role ) {
+                                                $customerRoles[ $roleId ] = $role['name'];
+                                            }
+
+                                            ?>
+                                            <?php foreach (
+                                                [
+                                                    'customer_role'         => __( 'Include Only', 'product-sales-report-for-woocommerce' ),
+                                                    'customer_role_exclude' => __( 'Exclude', 'product-sales-report-for-woocommerce' )
+                                                ] as $settingKey => $label
+                                            ) { ?>
+                                                <div class="berrypress-mb-3">
+                                                    <div class="ninjalytics-group-subtitle ninjalytics-pro-feature berrypress-mb-2 berrypress-fw-medium"><?php echo esc_html( $label ); ?>:
+                                                    </div>
+
+                                                    <div class="ninjalytics-checkboxes-container">
+                                                    <?php foreach ( $customerRoles as $roleId => $roleName ) { ?>
+                                                        <label class="berrypress-field ninjalytics-pro-feature">
+                                                            <input type="checkbox" disabled>
+                                                            <span class="label"><?php echo esc_html( $roleName ); ?></span>
+                                                        </label>
+                                                    <?php } ?>
+                                                    </div>
+
+                                                </div>
+
+                                            <?php } ?>
+                                            <?php
+
+                                            $wcMemberships = ninjalytics_get_wc_membership_plans();
+                                            if ( $wcMemberships ) {
+                                                ?>
+                                                <div class="berrypress-field berrypress-field-flex berrypress-field-align-center ninjalytics-setting-advanced">
+                                                    <label for="ninjalytics-wc-membership">
+                                                           <?php esc_html_e( 'Include Orders by Customer Membership:', 'product-sales-report-for-woocommerce' ); ?>
+															<?php self::proBadge() ?>
+                                                    </label>
+
+                                                    <?php self::docsLink( 'report-configuration/orders', 'include-orders-by-customer-membership' ); ?>
+                                                    <select id="ninjalytics-wc-membership" name="wc_membership">
+                                                        <option disabled><?php esc_html_e( '(All Customers)', 'product-sales-report-for-woocommerce' ); ?></option>
+                                                        <option disabled><?php esc_html_e( '(Customers Without Membership)', 'product-sales-report-for-woocommerce' ); ?></option>
+                                                        <option disabled><?php esc_html_e( '(Customers With Any Membership)', 'product-sales-report-for-woocommerce' ); ?></option>
+                                                        <?php foreach ( $wcMemberships as $membershipId => $membershipName ) { ?>
+                                                            <option disabled><?php echo esc_html( $membershipName ); ?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+
+                                                <?php
+
+                                            }
+                                            ?>
+                                            <div class="ninjalytics-field-switch-conditional berrypress-mt-4 ninjalytics-setting-advanced">
+                                                <div class="ninjalytics-group-title ninjalytics-pro-feature"><?php esc_html_e( 'Advanced Filtering', 'product-sales-report-for-woocommerce' ); ?>
+                                                    <?php self::proBadge() ?>
+                                                </div>
+                                                <div class="berrypress-field ninjalytics-pro-feature">
+                                                    <input type="checkbox" id="ninjalytics-order-customer-meta-filter"
+                                                           disabled/>
+                                                    <label for="ninjalytics-order-customer-meta-filter">
+                                                        <?php esc_html_e( 'Only Orders from Customers With Field:', 'product-sales-report-for-woocommerce' ); ?>
+                                                        <?php self::docsLink( 'report-configuration/orders', 'only-orders-from-customers-with-field' ); ?>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <?php
+                                        }
+                                        ?>
+                                    </div> <!-- /ninjalytics-section-body -->
+                                </div> <!-- /ninjalytics-settings-toggle (Orders) -->
+
+                                <?php if ( ! $reportSettings['export_orders'] ) { ?>
+                                    <div class="ninjalytics-settings-toggle">
+                                        <div class="ninjalytics-section-title">
+                                            <h3><i class="berrypress-icon-layer"></i><?php esc_html_e( 'Segmentation', 'product-sales-report-for-woocommerce' ); ?></h3>
+                                            <button class="berrypress-btn-icon" type="button">
+                                                <i class="berrypress-icon-expand_more"></i>
+                                            </button>
+                                        </div>
+                                        <?php
+                                        $groupByFields = $reporter->getGroupByFields();
+                                        ?>
+
+                                        <div class="ninjalytics-section-body">
+                                            <?php if ( $reporter->supports( PlatformFeatures::CHILD_ITEMS ) ) { ?>
+                                                <div class="ninjalytics-group-title">
+                                                    <?php esc_html_e( 'Main Segment', 'product-sales-report-for-woocommerce' ); ?>:
+                                                    <?php self::docsLink( 'report-configuration/segmentation', 'main-segment', true ); ?>
+                                                </div>
+
+                                                <label class="berrypress-field">
+                                                    <input type="radio" class="ags-psr-disable-product-grouping"
+                                                           name="disable_product_grouping"
+                                                           value="0"<?php checked( empty( $reportSettings['disable_product_grouping'] ), true ); ?>>
+                                                    <span class="label">
                                                         <?php
-                                                        echo $i == 1 ? '' : 'disabled' ;
+                                                        if ( $hasVariationSupport ) {
+                                                            esc_html_e( 'By products or variations (based on ID)', 'product-sales-report-for-woocommerce' );
+                                                        } else {
+                                                            esc_html_e( 'By products (based on ID)', 'product-sales-report-for-woocommerce' );
+                                                        }
                                                         ?>
-                                                >
-                                                    <option value=""><?php esc_html_e( '(None)', 'product-sales-report-for-woocommerce' ); ?></option>
-													<?php
-                                                    if ( $i == 1 ) {
-                                                        $foundGroupByField = false;
-                                                        $fieldType         = '';
-                                                        $fieldTypes        = $reporter->getGroupByFieldTypes();
-                                                        foreach ( $groupByFields as $optionId => $optionName ) {
-                                                            if ( $optionId[0] != $fieldType ) {
-                                                                if ( ! $foundGroupByField && ! empty( $reportSettings[ $fieldName ] ) && $reportSettings[ $fieldName ][0] == $fieldType ) {
-                                                                    $foundGroupByField = true;
-                                                                    echo '<option value="' . esc_attr( $reportSettings[ $fieldName ] ) . '" selected>' . esc_html( substr( $reportSettings[ $fieldName ], 2 ) ) . '</option>';
+                                                    </span>
+                                                </label>
+
+                                                <label class="berrypress-field">
+                                                    <input type="radio" class="ags-psr-disable-product-grouping"
+                                                           name="disable_product_grouping"
+                                                           value="-1"<?php checked( $reportSettings['disable_product_grouping'], - 1 ); ?>>
+                                                    <span class="label">
+                                                        <?php
+                                                        if ( $hasVariationSupport ) {
+                                                            esc_html_e( 'By products or variations (based on SKU)', 'product-sales-report-for-woocommerce' );
+                                                        } else {
+                                                            esc_html_e( 'By products (based on SKU)', 'product-sales-report-for-woocommerce' );
+                                                        }
+                                                        ?>
+                                                    </span>
+                                                </label>
+
+                                                <label class="berrypress-field">
+                                                    <input type="radio" class="ags-psr-disable-product-grouping"
+                                                           name="disable_product_grouping"
+                                                           value="2"<?php checked( $reportSettings['disable_product_grouping'], 2 ); ?> >
+                                                    <span class="label"><?php esc_html_e( 'By product category', 'product-sales-report-for-woocommerce' ); ?></span>
+                                                </label>
+
+                                                <label class="berrypress-field">
+                                                    <input type="radio" class="ags-psr-disable-product-grouping"
+                                                           name="disable_product_grouping"
+                                                           value="1"<?php checked( $reportSettings['disable_product_grouping'], 1 ); ?>>
+                                                    <span class="label"><?php esc_html_e( 'None', 'product-sales-report-for-woocommerce' ); ?></span>
+                                                </label>
+
+                                            <?php } ?>
+                                            <?php
+                                            // Custom segments section
+                                            ?>
+
+                                            <div class="ninjalytics-field-switch-conditional berrypress-mt-4">
+                                                <div class="berrypress-field">
+                                                    <input type="checkbox" name="enable_custom_segments"
+                                                           id="hm_psr_enable_custom_segments"
+                                                           data-toggle-key="enable_custom_segments"
+                                                           value="1"<?php checked( isset( $reportSettings['enable_custom_segments'] ) && ( $reportSettings['enable_custom_segments'] == 1 || ( $reportSettings['enable_custom_segments'] == - 1 ) && !empty($reportSettings['groupby']) ) ); ?> />
+                                                    <label for="hm_psr_enable_custom_segments"
+                                                           class="berrypress-fw-medium"><?php esc_html_e( 'Enable custom segments', 'product-sales-report-for-woocommerce' ); ?><?php
+                                                            self::docsLink( 'report-configuration/segmentation', 'custom-segments', true );
+                                                        ?></label>
+
+                                                </div>
+                                                <div class="ninjalytics-field-child" data-toggle-panel="enable_custom_segments">
+
+                                            <?php
+
+                                            $fieldTypes        = $reporter->getGroupByFieldTypes();
+                                            for ( $i = 1; $i < 6; ++ $i ) {
+                                                $fieldName = 'groupby' . ( $i == 1 ? '' : $i );
+                                                ?>
+                                                <div class="ninjalytics-custom-segment">
+                                                    <label class="ninjalytics-settings-title"
+                                                           for="hm_psr_field_<?php echo esc_attr( $fieldName ); ?>">
+                                                        <span class="label"><?php /* translators: %d: segment number */ echo esc_html( sprintf( __( 'Segment %d:', 'product-sales-report-for-woocommerce' ), $i + 1 ) ); ?></span>
+                                                        <?php
+                                                        if ( $i != 1 ) {
+                                                            self::proBadge();
+                                                        }
+                                                        ?>
+                                                    </label>
+                                                    <select name="<?php echo esc_attr( $fieldName ); ?>"
+                                                            id="hm_psr_field_<?php echo esc_attr( $fieldName ); ?>"
+                                                        <?php
+                                                        echo $i == 1 ? '' : 'disabled';
+                                                        ?>
+                                                    >
+                                                        <option value=""><?php esc_html_e( '(None)', 'product-sales-report-for-woocommerce' ); ?></option>
+                                                        <?php
+                                                        if ( $i == 1 ) {
+                                                            $foundGroupByField = false;
+                                                            $fieldType         = '';
+                                                            foreach ( $groupByFields as $optionId => $optionName ) {
+                                                                if ( $optionId[0] != $fieldType ) {
+                                                                    if ( ! $foundGroupByField && ! empty( $reportSettings[ $fieldName ] ) && $reportSettings[ $fieldName ][0] == $fieldType ) {
+                                                                        $foundGroupByField = true;
+                                                                        echo '<option value="' . esc_attr( $reportSettings[ $fieldName ] ) . '" selected>' . esc_html( substr( $reportSettings[ $fieldName ], 2 ) ) . '</option>';
+                                                                    }
+                                                                    if ( $fieldType ) {
+                                                                        echo '</optgroup>';
+                                                                    }
+                                                                    $fieldType = $optionId[0];
+                                                                    echo '<optgroup label="' . esc_attr( $fieldTypes[ $fieldType ] ) . '" class="hm-psr-select-other" data-hm-psr-other-field-prefix="' . esc_attr( $fieldType ) . '_">';
                                                                 }
-                                                                $fieldType = $optionId[0];
-                                                                if ( $fieldType ) {
-                                                                    echo '</optgroup>';
-                                                                }
-                                                                echo '<optgroup label="' . esc_attr( $fieldTypes[ $fieldType ] ) . '" class="hm-psr-select-other" data-hm-psr-other-field-prefix="' . esc_attr( $fieldType ) . '_">';
-                                                                $isOrderItemField = true;
+                                                                $foundGroupByField = $foundGroupByField || $reportSettings[ $fieldName ] == $optionId;
+                                                                echo '<option value="' . esc_attr( $optionId ) . '"' . ( $reportSettings[ $fieldName ] == $optionId ? ' selected="selected"' : '' ) . '>' . esc_html( $optionName ) . '</option>';
                                                             }
-                                                            $foundGroupByField = $foundGroupByField || $reportSettings[ $fieldName ] == $optionId;
-                                                            echo '<option value="' . esc_attr( $optionId ) . '"' . ( $reportSettings[ $fieldName ] == $optionId ? ' selected="selected"' : '' ) . '>' . esc_html( $optionName ) . '</option>';
+                                                            if ( ! $foundGroupByField && ! empty( $reportSettings[ $fieldName ] ) ) {
+                                                                echo '<option value="' . esc_attr( $reportSettings[ $fieldName ] ) . '" selected>' . esc_html( substr( $reportSettings[ $fieldName ], 2 ) ) . '</option>';
+                                                            }
+                                                            if ( $fieldType ) {
+                                                                echo '</optgroup>';
+                                                            }
                                                         }
-                                                        if ( ! $foundGroupByField && ! empty( $reportSettings[ $fieldName ] ) ) {
-                                                            echo '<option value="' . esc_attr( $reportSettings[ $fieldName ] ) . '" selected>' . esc_html( substr( $reportSettings[ $fieldName ], 2 ) ) . '</option>';
-                                                        }
-                                                        if ( $fieldType ) {
-                                                            echo '</optgroup>';
-                                                        }
-                                                    }
-													?>
-                                                    </optgroup>
-                                                </select>
-                                                 <?php if ($i == 1)  { ?>
+                                                        ?>
+                                                    </select>
+                                                    <?php if ( $i == 1 ) { ?>
                                                     <button type="button"
                                                             class="berrypress-btn-icon ninjalytics-segment-reset"
                                                             aria-label="<?php esc_attr_e( 'Clear to none', 'product-sales-report-for-woocommerce' ); ?>"
@@ -1587,269 +1714,368 @@ class AdminPage extends BerryPressPage {
                                                                 class="berrypress-icon-close"></i><span
                                                                 class="berrypress-visually-hidden"><?php esc_html_e( 'Clear to none', 'product-sales-report-for-woocommerce' ); ?></span>
                                                     </button>
-                                                <?php } ?>
-                                            </div>
-											<?php
-										}
-										?>
-
-
-                                            </div> <!-- ninjalytics-field-child -->
-                                        </div> <!-- ninjalytics-field-switch-conditional-->
-                                    </div> <!-- /ninjalytics-section-body -->
-                                </div> <!-- /ninjalytics-settings-toggle (Segmentation) -->
-							<?php } ?>
-
-                            <div class="ninjalytics-settings-toggle">
-                                <div class="ninjalytics-section-title">
-                                    <h3><?php esc_html_e( 'Report Fields', 'product-sales-report-for-woocommerce' ); ?></h3>
-                                    <button class="berrypress-btn-icon" type="button">
-                                        <i class="berrypress-icon-expand_more"></i>
-                                    </button>
-                                </div>
-
-                                <div class="ninjalytics-section-body">
-
-                                    <div class="ninjalytics-group-title">
-	                                    <?php esc_html_e( 'Report Fields', 'product-sales-report-for-woocommerce' ); ?>
-	                                    <?php self::docsLink( 'report-configuration/fields' ); ?>
-                                    </div>
-
-
-                                    <div id="hm_psr_report_fields">
-                                        <?php
-                                        $customFields     = $reporter->getCustomFields( $reportSettings['export_orders'], true );
-                                        $customFieldsFlat = array_merge( ...array_values( $customFields ) );
-                                        $addonFields      = ninjalytics_getAddonFields();
-                                        $noTotalFields    = array(
-                                            'builtin::product_id',
-                                            'builtin::product_sku',
-                                            'builtin::product_name',
-                                            'builtin::variation_id',
-                                            'builtin::variation_sku',
-                                            'builtin::variation_attributes',
-                                            'builtin::product_categories',
-                                            'order_id',
-                                            'order_status',
-                                            'order_date',
-                                            'billing_name',
-                                            'billing_phone',
-                                            'builtin::publish_time',
-                                            'builtin::product_desc',
-                                            'builtin::product_excerpt',
-                                            'builtin::product_menu_order'
-                                        );
-                                        foreach ( $reportSettings['fields'] as $fieldId ) {
-                                            $isGroupingField = substr( $fieldId, 0, 22 ) == 'builtin::groupby_field';
-                                            if ( ! isset( $fieldOptions[ $fieldId ] ) && ! isset( $customFieldsFlat[ $fieldId ] ) && ! isset( $addonFields[ $fieldId ] ) && ! $isGroupingField ) {
-
-                                                // Compatibility with pre-1.6.9 versions that didn't have the builtin:: prefix
-                                                if ( isset( $fieldOptions[ 'builtin::' . $fieldId ] ) ) {
-                                                    if ( isset( $reportSettings['field_names'][ $fieldId ] ) ) {
-                                                        $reportSettings['field_names'][ 'builtin::' . $fieldId ] = $reportSettings['field_names'][ $fieldId ];
-                                                    }
-                                                    $fieldId = 'builtin::' . $fieldId;
-                                                }
-
-                                            }
-                                            $divClass = 'ninjalytics-report-field ';
-                                            if ( in_array( $fieldId, array(
-                                                    'builtin::variation_id',
-                                                    'builtin::variation_sku',
-                                                    'builtin::variation_attributes'
-                                                ) ) || substr( $fieldId, 0, 11 ) == 'variation::' ) {
-                                                $divClass .= ' hm_psr_variation_field';
-                                            } elseif ( $isGroupingField ) {
-                                                $divClass .= ' hm_psr_' . substr( $fieldId, 9 ) ;
-                                            }
-                                            $fieldValue = isset( $reportSettings['field_names'][ $fieldId ] ) ? $reportSettings['field_names'][ $fieldId ] : ( isset( $fieldOptions[ $fieldId ] ) ? $fieldOptions[ $fieldId ] : $fieldId );
-                                            ?>
-                                            <div class="<?php echo esc_attr($divClass); ?>">
-                                                <input type="hidden" name="fields[]"
-                                                       value="<?php echo esc_attr( $fieldId ); ?>"/>
-                                                <label for="field_name_<?php echo esc_attr( $fieldId ); ?>" class="berrypress-visually-hidden">
-                                                    <?php /* translators: %s: field name */ echo esc_html( sprintf( __( 'Field label for %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>
-                                                </label>
-                                                <i class="berrypress-icon-drag-indicator"></i>
-                                                <input type="text"
-                                                       id="field_name_<?php echo esc_attr( $fieldId ); ?>"
-                                                       class="hm_psr_field_name"
-                                                       name="field_names[<?php echo esc_attr( $fieldId ); ?>]"
-                                                       value="<?php echo esc_attr( $fieldValue ); ?>"
-                                                       aria-describedby="field_desc_<?php echo esc_attr( $fieldId ); ?>"/>
-
-                                                <span id="field_desc_<?php echo esc_attr( $fieldId ); ?>" class="berrypress-visually-hidden">
-                                                    <?php /* translators: %s: field name */ echo esc_html( sprintf( __( 'Options for field: %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>
-                                                </span>
-                                                <div role="group" aria-label="<?php /* translators: %s: field name */ echo esc_attr( sprintf( __( 'Display options for %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>" class="ninjalytics-field-options">
-                                                    <label class="hm_psr_total_field<?php echo in_array( $fieldId, $noTotalFields ) ? ' no-total' : ''; ?>">
-                                                        <input type="checkbox"
-                                                               id="total_field_<?php echo esc_attr( $fieldId ); ?>"
-                                                               name="total_fields[]"
-                                                               value="<?php echo esc_attr( $fieldId ); ?>"<?php checked( in_array( $fieldId, $reportSettings['total_fields'] ) ); ?>
-                                                               aria-label="<?php /* translators: %s: field name */ echo esc_attr( sprintf( __( 'Include %s in totals row', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>" />
-                                                        <span aria-hidden="true"><?php esc_html_e( 'Total', 'product-sales-report-for-woocommerce' ); ?></span>
-                                                    </label>
-                                                    <label class="hm_psr_chart_field <?php //echo in_array( $fieldId, $noTotalFields ) ? ' no-chart' : ''; ?>">
-                                                        <input type="checkbox"
-                                                               id="chart_field_<?php echo esc_attr( $fieldId ); ?>"
-                                                               name="chart_fields[]"
-                                                               value="<?php echo esc_attr( $fieldId ); ?>"<?php checked( in_array( $fieldId, $reportSettings['chart_fields'] ) ); ?>
-                                                               aria-label="<?php /* translators: %s: field name */ echo esc_attr( sprintf( __( 'Include %s in chart', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>" />
-                                                        <span aria-hidden="true"><?php esc_html_e( 'Chart', 'product-sales-report-for-woocommerce' ); ?></span>
-                                                    </label>
-                                                    <label class="hm_psr_round_field<?php echo in_array( $fieldId, $noTotalFields ) ? ' no-round' : ''; ?>">
-                                                        <input type="checkbox"
-                                                               id="round_field_<?php echo esc_attr( $fieldId ); ?>"
-                                                               name="round_fields[]"
-                                                               value="<?php echo esc_attr( $fieldId ); ?>"<?php checked( in_array( $fieldId, $reportSettings['round_fields'] ) ); ?>
-                                                               aria-label="<?php /* translators: %s: field name */ echo esc_attr( sprintf( __( 'Round values for %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>" />
-                                                        <span aria-hidden="true"><?php esc_html_e( 'Round', 'product-sales-report-for-woocommerce' ); ?></span>
-                                                    </label>
+                                                    <?php } ?>
                                                 </div>
-                                                <div class="ninjalytics-field-actions-wrapper">
-                                                    <button type="button"
-                                                            class="berrypress-btn berrypress-btn-icon ninjalytics-btn-field-edit"
-                                                            aria-label="<?php /* translators: %s: field name */ echo esc_attr( sprintf( __( 'Edit field: %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>">
-                                                        <i class="berrypress-icon-edit"></i>
-                                                        <span class="berrypress-visually-hidden"><?php /* translators: %s: field name */ echo esc_html( sprintf( __( 'Edit field: %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?></span>
-                                                    </button>
-                                                    <button class="berrypress-btn berrypress-btn-icon" type="button"
-                                                            onclick="ninjalytics_remove_field(this.parentElement);"
-                                                            aria-label="<?php /* translators: %s: field name */ echo esc_attr( sprintf( __( 'Remove field: %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>">
-                                                        <i class="berrypress-icon-delete" aria-hidden="true"></i>
-                                                        <span class="berrypress-visually-hidden"><?php /* translators: %s: field name */ echo esc_html( sprintf( __( 'Remove field: %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?></span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <?php
-                                        }
-
-                                        ?>
-                                    </div>
-                                    <div role="group" class="ninjalytics-add-field-group" aria-labelledby="ninjalytics-add-field-label">
-
-                                        <label id="ninjalytics-add-field-label" class="berrypress-visually-hidden" for="hm_psr_custom_field">
-                                            <strong><?php esc_html_e( 'Add Field', 'product-sales-report-for-woocommerce' ); ?></strong>
-                                        </label>
-
-                                        <div class="ninjalytics-add-report-field">
-                                            <select id="hm_psr_custom_field"
-                                                    class="ninjalytics-no-update"
-                                                    aria-label="<?php esc_attr_e( 'Select field to add to report', 'product-sales-report-for-woocommerce' ); ?>">
                                                 <?php
-                                                foreach ( array_merge( array( 'Built-in Fields' => $fieldOptions ), $customFields ) as $fieldGroupName => $fields ) {
-                                                    $fieldGroupPrefix = ninjalytics_get_field_group_prefix($fieldGroupName, $reportSettings);
+                                            }
+                                            ?>
 
-                                                    $optgroupClasses = [];
-                                                    if ( $fieldGroupName != 'Built-in Fields' && $fieldGroupName != 'Product Taxonomies' ) {
-                                                        $optgroupClasses[] = 'hm-psr-select-other';
-                                                    }
+                                                </div> <!-- ninjalytics-field-child -->
+                                            </div> <!-- ninjalytics-field-switch-conditional-->
+                                        </div> <!-- /ninjalytics-section-body -->
+                                    </div> <!-- /ninjalytics-settings-toggle (Segmentation) -->
+                                <?php } ?>
 
-                                                    if ( $fieldGroupName == 'Product' || $fieldGroupName == 'Product Taxonomies' || $fieldGroupName == 'Product Variation' ) {
-                                                        $optgroupClasses[] = 'hm-psr-product-fields';
-                                                    }
-
-                                                    echo '<optgroup label="' . esc_attr( $fieldGroupName == 'Built-in Fields' ? 'Built-in Fields' : sprintf( /* translators: %s = option name */ __( '%s [Pro]', 'product-sales-report-for-woocommerce'),  $fieldGroupName ) ) . '"' . ( $optgroupClasses ? ' class="' . esc_attr(implode( ' ', $optgroupClasses )) . '"' : '' ) . ( isset( $fieldGroupPrefix ) ? ' data-hm-psr-other-field-prefix="' . esc_attr( $fieldGroupPrefix ) . '"' : '' ) . '>';
-                                                    foreach ( $fields as $fieldId => $fieldDisplay ) {
-                                                        $fieldClasses = '';
-                                                        if ( in_array( $fieldId, array(
-                                                                'builtin::variation_id',
-                                                                'builtin::variation_sku',
-                                                                'builtin::variation_attributes'
-                                                            ) ) || substr( $fieldId, 0, 11 ) == 'variation::' ) {
-                                                            $fieldClasses = 'hm_psr_variation_field';
-                                                        }
-                                                        if ( in_array( $fieldId, [
-                                                                'builtin::product_id',
-                                                                'builtin::variation_id',
-                                                                'builtin::variation_sku',
-                                                                'builtin::variation_attributes',
-                                                                'builtin::product_sku',
-                                                                'builtin::product_categories',
-                                                                'builtin::product_price',
-                                                                'builtin::product_price_with_tax',
-                                                                'builtin::product_menu_order',
-                                                                'builtin::product_stock',
-                                                                'builtin::publish_time',
-                                                                'builtin::product_desc',
-                                                                'builtin::product_excerpt'
-                                                            ]
-                                                        ) ) {
-                                                            $fieldClasses .= ( empty( $fieldClasses ) ? '' : ' ' ) . 'hm-psr-product-field';
-                                                        }
-                                                        if ( in_array( $fieldId, $noTotalFields ) ) {
-                                                            $fieldClasses .= ( empty( $fieldClasses ) ? '' : ' ' ) . 'no-total-field no-round-field';
-                                                        }
-
-                                                        echo('<option value="'.esc_attr($fieldId).'"'.(empty($fieldClasses) ? '' : ' class="'.esc_attr($fieldClasses).'"').disabled($fieldGroupName != 'Built-in Fields' || substr($fieldDisplay, -6) == ' [Pro]', true, false).'>'.esc_html($fieldDisplay).'</option>');
-                                                    }
-                                                    echo '</optgroup>';
-                                                }
-
-                                                $addonFields = array_diff_key( $addonFields, $fieldOptions, $customFieldsFlat );
-                                                if ( ! empty( $addonFields ) ) {
-                                                    ?>
-                                                    <optgroup
-                                                            label="<?php esc_attr_e( 'Addon Fields', 'product-sales-report-for-woocommerce' ); ?>">
-                                                        <?php
-                                                        foreach ( $addonFields as $fieldId => $fieldData ) {
-                                                            echo '<option value="' . esc_attr( $fieldId ) . '">' . esc_html( $fieldData['label'] ) . '</option>';
-                                                        }
-                                                        ?>
-                                                    </optgroup>
-                                                    <?php
-                                                }
-                                                ?>
-                                            </select>
-
-                                            <button type="button"
-                                                    class="berrypress-btn berrypress-btn-primary"
-                                                    id="hm-psr-button-add-field"
-                                                    aria-label="<?php esc_attr_e( 'Add selected field to report', 'product-sales-report-for-woocommerce' ); ?>">
-                                                <i class="berrypress-icon-add"></i>
-                                                <?php esc_html_e( 'Add', 'product-sales-report-for-woocommerce' ); ?>
-                                            </button>
-
-                                        </div>
-
-                                        <button type="button"
-                                                class="berrypress-btn berrypress-btn-secondary ninjalytics-pro-feature"
-                                                id="ags-psr-button-add-fieldbuilder"
-                                                data-bp-tooltip="<?php esc_attr_e( 'Upgrade to Pro to define your own fields based on formulas, other fields, and functions.', 'product-sales-report-for-woocommerce' ); ?>"
-                                                aria-label="<?php esc_attr_e( 'Create new calculated field', 'product-sales-report-for-woocommerce' ); ?>">
-                                            <i class="berrypress-icon-calculate"></i>
-                                            <?php self::proBadge() ?>
-                                            <?php esc_html_e( 'Add Calculated Field', 'product-sales-report-for-woocommerce' ); ?>
+                                <div class="ninjalytics-settings-toggle">
+                                    <div class="ninjalytics-section-title">
+                                        <h3>
+                                            <i class="berrypress-icon-database-search"></i>
+                                            <?php esc_html_e( 'Report Fields', 'product-sales-report-for-woocommerce' ); ?></h3>
+                                        <button class="berrypress-btn-icon" type="button">
+                                            <i class="berrypress-icon-expand_more"></i>
                                         </button>
                                     </div>
 
-                                    <p class="berrypress-text-secondary berrypress-color-disabled berrypress-fs-12 berrypress-mb-3"><?php esc_html_e( 'Click and drag to the left of the field name text box to re-order fields.', 'product-sales-report-for-woocommerce' ); ?> <?php self::proBadge() ?></p>
+                                    <div class="ninjalytics-section-body">
 
-                                    <div class="ninjalytics-group-title ninjalytics-fields-refresh">
-                                        <a class="berrypress-btn berrypress-btn-icon"
-                                           href="<?php echo( esc_url( wp_nonce_url( add_query_arg( 'ninjalytics_action_free', 'update-fields' ), 'hm-psrp-update-fields' ) . '#orders' ) ); ?>">
-                                            <i class="berrypress-icon-reset"></i>
-                                            <span class="berrypress-visually-hidden"><?php esc_html_e('Refresh Fields', 'product-sales-report-for-woocommerce') ?></span>
-                                        </a>
-	                                    <?php esc_html_e('Refresh Fields', 'product-sales-report-for-woocommerce') ?>:
-	                                    <?php self::docsLink( 'report-configuration/fields', 'refresh-fields' ); ?>
-                                    </div>
-                                 </div> <!-- /ninjalytics-section-body -->
-                            </div> <!-- /ninjalytics-settings-toggle (Report Fields) -->
+                                        <div id="hm_psr_report_fields">
+                                            <?php
+                                            $customFields     = $reporter->getCustomFields( $reportSettings['export_orders'], true );
+                                            $customFieldsFlat = array_merge( ...array_values( $customFields ) );
+                                            $addonFields      = ninjalytics_getAddonFields();
+                                            $noTotalFields    = array(
+                                                'builtin::product_id',
+                                                'builtin::product_image',
+                                                'builtin::product_sku',
+                                                'builtin::product_name',
+                                                'builtin::variation_id',
+                                                'builtin::variation_sku',
+                                                'builtin::variation_attributes',
+                                                'builtin::product_categories',
+                                                'builtin::order_id',
+                                                'builtin::order_status',
+                                                'builtin::order_date',
+                                                'builtin::billing_name',
+                                                'builtin::billing_phone',
+                                                'builtin::publish_time',
+                                                'builtin::product_desc',
+                                                'builtin::product_excerpt',
+                                                'builtin::product_menu_order'
+                                            );
+                                            foreach ( $reportSettings['fields'] as $fieldId ) {
+                                                $isGroupingField = substr( $fieldId, 0, 22 ) == 'builtin::groupby_field';
+                                                if ( ! isset( $fieldOptions[ $fieldId ] ) && ! isset( $customFieldsFlat[ $fieldId ] ) && ! isset( $addonFields[ $fieldId ] ) && ! $isGroupingField ) {
 
-                            <?php $this->renderDisplaySection( $reportSettings, $orderBy ); ?>
+                                                    // Compatibility with pre-1.6.9 versions that didn't have the builtin:: prefix
+                                                    if ( isset( $fieldOptions[ 'builtin::' . $fieldId ] ) ) {
+                                                        if ( isset( $reportSettings['field_names'][ $fieldId ] ) ) {
+                                                            $reportSettings['field_names'][ 'builtin::' . $fieldId ] = $reportSettings['field_names'][ $fieldId ];
+                                                        }
+                                                        $fieldId = 'builtin::' . $fieldId;
+                                                    }
 
-							<?php
-                                if ( ! $reportSettings['export_orders'] ) {
-                                    $this->renderChartSection( $reportSettings );
-                                }
-                            ?>
+                                                }
+                                                $divClass = 'ninjalytics-report-field ';
+                                                if ( in_array( $fieldId, array(
+                                                        'builtin::variation_id',
+                                                        'builtin::variation_sku',
+                                                        'builtin::variation_attributes'
+                                                    ) ) || substr( $fieldId, 0, 11 ) == 'variation::' ) {
+                                                    $divClass .= 'hm_psr_variation_field';
+                                                } elseif ( $isGroupingField ) {
+                                                    $divClass .= 'hm_psr_' . substr( $fieldId, 9 );
+                                                } elseif ( substr( $fieldId, 0, 14 ) == 'fieldbuilder::' ) {
+                                                    $divClass .= 'ninjalytics-editable-field';
+                                                }
+                                                $fieldValue = isset( $reportSettings['field_names'][ $fieldId ] ) ? $reportSettings['field_names'][ $fieldId ] : ( isset( $fieldOptions[ $fieldId ] ) ? $fieldOptions[ $fieldId ] : $fieldId );
+                                                ?>
+                                                <div class="<?php echo esc_attr($divClass); ?>">
+                                                    <input type="hidden" name="fields[]"
+                                                           value="<?php echo esc_attr( $fieldId ); ?>"/>
+                                                    <label for="field_name_<?php echo esc_attr( $fieldId ); ?>" class="berrypress-visually-hidden">
+                                                        <?php /* translators: %s: field name */ echo esc_html( sprintf( __( 'Field label for %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>
+                                                    </label>
+                                                    <i class="berrypress-icon-drag-indicator"></i>
+                                                    <input type="text"
+                                                           id="field_name_<?php echo esc_attr( $fieldId ); ?>"
+                                                           class="hm_psr_field_name"
+                                                           name="field_names[<?php echo esc_attr( $fieldId ); ?>]"
+                                                           value="<?php echo esc_attr( $fieldValue ); ?>"
+                                                           aria-describedby="field_desc_<?php echo esc_attr( $fieldId ); ?>"/>
 
-                            <?php $this->renderAdvancedSection( $reportSettings ); ?>
-                        </div> <!-- /ninjalytics-settings -->
+                                                    <span id="field_desc_<?php echo esc_attr( $fieldId ); ?>" class="berrypress-visually-hidden">
+                                                        <?php /* translators: %s: field name */ echo esc_html( sprintf( __( 'Options for field: %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>
+                                                    </span>
+                                                    <div role="group" aria-label="<?php echo esc_attr( sprintf( __( 'Display options for %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>" class="ninjalytics-field-options">
+                                                        <label class="hm_psr_total_field<?php echo in_array( $fieldId, $noTotalFields ) ? ' no-total' : ''; ?>">
+                                                            <input type="checkbox"
+                                                                   id="total_field_<?php echo esc_attr( $fieldId ); ?>"
+                                                                   name="total_fields[]"
+                                                                   value="<?php echo esc_attr( $fieldId ); ?>"<?php checked( in_array( $fieldId, $reportSettings['total_fields'] ) ); ?>
+                                                                   aria-label="<?php /* translators: %s: field name */ echo esc_attr( sprintf( __( 'Include %s in totals row', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>" />
+                                                            <span aria-hidden="true"><?php esc_html_e( 'Total', 'product-sales-report-for-woocommerce' ); ?></span>
+                                                        </label>
+                                                        <label class="hm_psr_chart_field <?php //echo in_array( $fieldId, $noTotalFields ) ? ' no-chart' : ''; ?>">
+                                                            <input type="checkbox"
+                                                                   id="chart_field_<?php echo esc_attr( $fieldId ); ?>"
+                                                                   name="chart_fields[]"
+                                                                   value="<?php echo esc_attr( $fieldId ); ?>"<?php checked( in_array( $fieldId, $reportSettings['chart_fields'] ) ); ?>
+                                                                   aria-label="<?php /* translators: %s: field name */ echo esc_attr( sprintf( __( 'Include %s in chart', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>" />
+                                                            <span aria-hidden="true"><?php esc_html_e( 'Chart', 'product-sales-report-for-woocommerce' ); ?></span>
+                                                        </label>
+                                                        <label class="hm_psr_round_field<?php echo in_array( $fieldId, $noTotalFields ) ? ' no-round' : ''; ?>">
+                                                            <input type="checkbox"
+                                                                   id="round_field_<?php echo esc_attr( $fieldId ); ?>"
+                                                                   name="round_fields[]"
+                                                                   value="<?php echo esc_attr( $fieldId ); ?>"<?php checked( in_array( $fieldId, $reportSettings['round_fields'] ) ); ?>
+                                                                   aria-label="<?php /* translators: %s: field name */ echo esc_attr( sprintf( __( 'Round values for %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>" />
+                                                            <span aria-hidden="true"><?php esc_html_e( 'Round', 'product-sales-report-for-woocommerce' ); ?></span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="ninjalytics-field-actions-wrapper">
+                                                        <button type="button"
+                                                                class="berrypress-btn berrypress-btn-icon ninjalytics-btn-field-edit"
+                                                                aria-label="<?php /* translators: %s: field name */ echo esc_attr( sprintf( __( 'Edit field: %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>">
+                                                            <i class="berrypress-icon-edit"></i>
+                                                            <span class="berrypress-visually-hidden"><?php /* translators: %s: field name */ echo esc_html( sprintf( __( 'Edit field: %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?></span>
+                                                        </button>
+                                                        <button class="berrypress-btn berrypress-btn-icon" type="button"
+                                                                onclick="ninjalytics_remove_field(this.parentElement);"
+                                                                aria-label="<?php /* translators: %s: field name */ echo esc_attr( sprintf( __( 'Remove field: %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>">
+                                                            <i class="berrypress-icon-delete" aria-hidden="true"></i>
+                                                            <span class="berrypress-visually-hidden"><?php /* translators: %s: field name */ echo esc_html( sprintf( __( 'Remove field: %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?></span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <?php
+                                            }
+
+                                            ?>
+                                        </div>
+                                        <div role="group" class="ninjalytics-add-field-group" aria-labelledby="ninjalytics-add-field-label">
+
+                                            <label id="ninjalytics-add-field-label" class="berrypress-visually-hidden" for="hm_psr_custom_field">
+                                                <strong><?php esc_html_e( 'Add Field', 'product-sales-report-for-woocommerce' ); ?></strong>
+                                            </label>
+
+                                            <div class="ninjalytics-add-report-field">
+                                                <select id="hm_psr_custom_field"
+                                                        class="ninjalytics-no-update"
+                                                        aria-label="<?php esc_attr_e( 'Select field to add to report', 'product-sales-report-for-woocommerce' ); ?>">
+                                                    <?php
+													$builtInFieldsGroup = __('Built-in Fields', 'product-sales-report-for-woocommerce');
+                                                    foreach ( array_merge( array( $builtInFieldsGroup => $fieldOptions ), $customFields ) as $fieldGroupName => $fields ) {
+                                                        $fieldGroupPrefix = ninjalytics_get_field_group_prefix($fieldGroupName, $reportSettings);
+
+                                                        $optgroupClasses = [];
+
+                                                        if ( $fieldGroupName == 'Product' || $fieldGroupName == 'Product Taxonomies' || $fieldGroupName == 'Product Variation' ) {
+                                                            $optgroupClasses[] = 'hm-psr-product-fields';
+                                                        }
+
+                                                        echo '<optgroup label="' . esc_attr( $fieldGroupName ) . '"' . ( $optgroupClasses ? ' class="' . esc_attr(implode( ' ', $optgroupClasses )) . '"' : '' ) . '>';
+                                                        foreach ( $fields as $fieldId => $fieldDisplay ) {
+                                                            $fieldClasses = '';
+                                                            if ( in_array( $fieldId, array(
+                                                                    'builtin::variation_id',
+                                                                    'builtin::variation_sku',
+                                                                    'builtin::variation_attributes'
+                                                                ) ) || substr( $fieldId, 0, 11 ) == 'variation::' ) {
+                                                                $fieldClasses = 'hm_psr_variation_field';
+                                                            }
+                                                            if ( in_array( $fieldId, [
+                                                                    'builtin::product_id',
+                                                                    'builtin::variation_id',
+                                                                    'builtin::variation_sku',
+                                                                    'builtin::variation_attributes',
+                                                                    'builtin::product_sku',
+                                                                    'builtin::product_categories',
+                                                                    'builtin::product_price',
+                                                                    'builtin::product_price_with_tax',
+                                                                    'builtin::product_menu_order',
+                                                                    'builtin::product_stock',
+                                                                    'builtin::unique_item_count',
+                                                                    'builtin::publish_time',
+                                                                    'builtin::product_desc',
+                                                                    'builtin::product_excerpt'
+                                                                ]
+                                                            ) ) {
+                                                                $fieldClasses .= ( empty( $fieldClasses ) ? '' : ' ' ) . 'hm-psr-product-field';
+                                                            }
+                                                            if ( in_array( $fieldId, $noTotalFields ) ) {
+                                                                $fieldClasses .= ( empty( $fieldClasses ) ? '' : ' ' ) . 'no-total-field no-round-field';
+                                                            }
+                                                            echo '<option value="' . esc_attr( $fieldId ) . '"' . ( empty( $fieldClasses ) ? '' : ' class="' . esc_attr( $fieldClasses ) . '"' ) . disabled( $fieldGroupName != __('Built-in Fields', 'product-sales-report-for-woocommerce') || substr( $fieldDisplay, -6 ) == ' [Pro]', true, false ) . '>' . esc_html( $fieldDisplay ) . '</option>';
+                                                        }
+														
+                                                        if ( $fieldGroupName != $builtInFieldsGroup && $fieldGroupName != 'Product Taxonomies' ) {
+															echo('<option disabled>'.esc_html__( 'Other', 'product-sales-report-for-woocommerce' ).'</option>');
+														}
+														
+                                                        echo '</optgroup>';
+                                                    }
+
+
+                                                    $addonFields = array_diff_key( $addonFields, $fieldOptions, $customFieldsFlat );
+                                                    if ( ! empty( $addonFields ) ) {
+                                                        ?>
+                                                        <optgroup
+                                                                label="<?php esc_attr_e( 'Addon Fields', 'product-sales-report-for-woocommerce' ); ?>">
+                                                            <?php
+                                                            foreach ( $addonFields as $fieldId => $fieldData ) {
+                                                                echo '<option disabled>' . esc_html( $fieldData['label'] ) . '</option>';
+                                                            }
+                                                            ?>
+                                                        </optgroup>
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                </select>
+
+                                                <button type="button"
+                                                        class="berrypress-btn berrypress-btn-primary"
+                                                        id="hm-psr-button-add-field"
+                                                        aria-label="<?php esc_attr_e( 'Add selected field to report', 'product-sales-report-for-woocommerce' ); ?>">
+                                                    <i class="berrypress-icon-add"></i>
+                                                    <?php esc_html_e( 'Add', 'product-sales-report-for-woocommerce' ); ?>
+                                                </button>
+
+                                            </div>
+
+                                            <button type="button"
+                                                    class="berrypress-btn berrypress-btn-secondary ninjalytics-pro-feature"
+                                                    id="ags-psr-button-add-fieldbuilder"
+                                                    data-bp-tooltip="<?php esc_attr_e( 'Upgrade to Pro to define your own fields based on formulas, other fields, and functions.', 'product-sales-report-for-woocommerce' ); ?>"
+                                                    aria-label="<?php esc_attr_e( 'Create new calculated field', 'product-sales-report-for-woocommerce' ); ?>">
+                                                <i class="berrypress-icon-calculate"></i>
+                                                <?php self::proBadge() ?>
+                                                <?php esc_html_e( 'Add Calculated Field', 'product-sales-report-for-woocommerce' ); ?>
+                                            </button>
+                                        </div>
+
+                                        <p class="berrypress-text-secondary berrypress-fs-12 berrypress-mb-3"><?php esc_html_e( 'Click and drag to the left of the field name text box to re-order fields.', 'product-sales-report-for-woocommerce' ); ?>
+                                            <?php if ( $reporterId == 'woocommerce' ) {
+                                                esc_html_e( 'Available fields depend on the selected report type.', 'product-sales-report-for-woocommerce' ); ?>
+                                            <?php } ?>
+                                        </p>
+
+
+
+                                        <div class="ninjalytics-group-title">
+                                            <?php esc_html_e( 'Report Fields Documentation', 'product-sales-report-for-woocommerce' ); ?>
+                                            <?php self::docsLink( 'report-configuration/fields' ); ?>
+                                        </div>
+
+
+                                        <div class="ninjalytics-group-title ninjalytics-fields-refresh">
+                                            <a class="berrypress-btn berrypress-btn-icon"
+                                               href="<?php echo( esc_url( wp_nonce_url( add_query_arg( 'ninjalytics_action_free', 'update-fields' ), 'hm-psrp-update-fields' ) . '#orders' ) ); ?>">
+                                                <i class="berrypress-icon-reset"></i>
+                                                <span class="berrypress-visually-hidden"><?php esc_html_e('Refresh Fields', 'product-sales-report-for-woocommerce') ?></span>
+                                            </a>
+                                            <?php esc_html_e('Refresh Fields', 'product-sales-report-for-woocommerce') ?>:
+                                            <?php self::docsLink( 'report-configuration/fields', 'refresh-fields' ); ?>
+                                        </div>
+
+
+                                        </div> <!-- /ninjalytics-section-body -->
+                                </div> <!-- /ninjalytics-settings-toggle (Report Fields) -->
+
+                                <?php $this->renderDisplaySection( $reportSettings, $orderBy ); ?>
+
+                                <?php
+                                    if ( ! $reportSettings['export_orders'] ) {
+                                        $this->renderChartSection( $reportSettings );
+                                    }
+                                ?>
+
+                                <?php $this->renderAdvancedSection( $reportSettings ); ?>
+                            </div> <!-- /ninjalytics-report-sidebar-settings -->
+                            <div id="ninjalytics-report-sidebar-email"
+                                 class="berrypress-hidden"
+                                 role="tabpanel"
+                                 aria-labelledby="ninjalytics-report-sidebar-tab-email"
+                                 aria-hidden="true"
+                                 tabindex="0"
+                                 hidden>
+                                <?php include __DIR__ . '/views/report-sidebar-schedule.php'; ?>
+                            </div>
+
+                            <div id="ninjalytics-report-sidebar-mobileapp"
+                                 class="berrypress-hidden"
+                                 role="tabpanel"
+                                 aria-labelledby="ninjalytics-report-sidebar-tab-mobileapp"
+                                 aria-hidden="true"
+                                 tabindex="0"
+                                 hidden>
+                                <?php include __DIR__ . '/views/report-sidebar-mobile-app.php'; ?>
+                            </div> <!-- /ninjalytics-report-sidebar-mobileapp-->
+
+                            <div id="ninjalytics-report-sidebar-debug"
+                                 class="berrypress-hidden"
+                                 role="tabpanel"
+                                 aria-labelledby="ninjalytics-report-sidebar-tab-debug"
+                                 aria-hidden="true"
+                                 tabindex="0"
+                                 hidden>
+								<?php $this->renderDebugSection( $reportSettings ); ?>
+                            </div> <!-- /ninjalytics-report-sidebar-debug-->
+                        </div> <!-- /ninjalytics-report-sidebar -->
 
                     </div> <!-- /ninjalytics-settings-panel -->
+
+                        <div id="ninjalytics-report-sidebar-tabs"
+                             role="tablist"
+                             aria-label="<?php esc_attr_e( 'Report sidebar', 'product-sales-report-for-woocommerce' ); ?>">
+                            <button type="button"
+                                    role="tab"
+                                    id="ninjalytics-report-sidebar-tab-settings"
+                                    class="ninjalytics-report-sidebar-tab ninjalytics-report-sidebar-tab-active"
+                                    aria-selected="true"
+                                    aria-controls="ninjalytics-report-sidebar-settings"
+                                    tabindex="0">
+                                <i class="berrypress-icon-database-search"></i>
+                                <?php esc_html_e( 'Settings', 'product-sales-report-for-woocommerce' ); ?>
+                            </button>
+
+                            <span class="ninjalytics-tab-line"></span>
+
+                            <button type="button"
+                                    role="tab"
+                                    id="ninjalytics-report-sidebar-tab-email"
+                                    class="ninjalytics-report-sidebar-tab"
+                                    aria-selected="false"
+                                    aria-controls="ninjalytics-report-sidebar-email"
+                                    tabindex="-1">
+                                <i class="berrypress-icon-access_time"></i>
+                                <?php esc_html_e( 'Schedule', 'product-sales-report-for-woocommerce' ); ?>
+                            </button>
+
+                            <button type="button"
+                                    role="tab"
+                                    id="ninjalytics-report-sidebar-tab-mobileapp"
+                                    class="ninjalytics-report-sidebar-tab"
+                                    aria-selected="false"
+                                    aria-controls="ninjalytics-report-sidebar-mobileapp"
+                                    tabindex="-1">
+                                <i class="berrypress-icon-mobile" aria-hidden="true"></i>
+                                <?php esc_html_e( 'Mobile App', 'product-sales-report-for-woocommerce' ); ?>
+                            </button>
+
+                            <button type="button"
+                                    role="tab"
+                                    id="ninjalytics-report-sidebar-tab-debug"
+                                    class="ninjalytics-report-sidebar-tab"
+                                    aria-selected="false"
+                                    aria-controls="ninjalytics-report-sidebar-debug"
+                                    tabindex="-1">
+                                <i class="berrypress-icon-debug" aria-hidden="true"></i>
+                                <?php esc_html_e( 'Debug', 'product-sales-report-for-woocommerce' ); ?>
+                            </button>
+                        </div>
+                    </div> <!-- /ninjalytics-settings-sidebar -->
+
+                    </div> <!-- /ninjalytics-settings-split -->
 
 					<?php
 					//ninjalytics_savePresetField();
@@ -1869,80 +2095,95 @@ class AdminPage extends BerryPressPage {
                 </div> <!-- /ninjalytics-settings-settings -->
             </form> <!-- /ninjalytics-form -->
 		<?php } else { ?>
-                <div class="ninjalytics-nj-reports-container">
-                    <div class="ninjalytics-card-reports ninjalytics-col-1">
-
-                        <div class="berrypress-card berrypress-card-100">
-                            <div class="berrypress-card-header">
-                                <h2><?php esc_html_e( 'Reports', 'product-sales-report-for-woocommerce' ); ?></h2>
-                            </div>
-                            <div class="berrypress-card-content">
-                                <table id="ninjalytics_presets_panel">
-                                    <tbody>
-                                    <?php
-                                    $runNonce = wp_create_nonce( 'hm-psr-run' );
-                                    if ( is_array( $savedReportSettings ) && count( $savedReportSettings ) > 1 ) {
-                                        uasort( $savedReportSettings, function ( $preset1, $preset2 ) {
-                                            return strcasecmp(
-                                                isset( $preset1['preset_name'] ) ? $preset1['preset_name'] : '',
-                                                isset( $preset2['preset_name'] ) ? $preset2['preset_name'] : ''
-                                            );
-                                        } );
-                                        foreach ( $savedReportSettings as $presetId => $preset ) {
-                                            if ( ! $presetId ) {
-                                                continue;
-                                            }
-                                            ?>
-                                            <tr>
-                                                <td class="ninjalytics-report-row-name">
-                                                    <a class="ninjalytics-report-name"
-                                                       href="?page=ninjalytics-free&amp;preset=<?php echo (int) $presetId; ?><?php if ( isset( $preset['_reporter'] ) ) { ?>&amp;ninjalytics_reporter=<?php echo esc_attr( $preset['_reporter'] ); } ?>"
-                                                       aria-label="<?php esc_attr_e( 'Edit Report', 'product-sales-report-for-woocommerce' ); ?>">
-                                                        <?php echo esc_html( $preset['preset_name'] ); ?>
-                                                    </a>
-                                                </td>
-                                                <td class="ninjalytics-report-row-actions">
-                                                    <a href="?page=ninjalytics-free&amp;ninjalytics_action_free=run&amp;preset=<?php echo (int) $presetId; ?><?php if ( isset( $preset['_reporter'] ) ) { ?>&amp;ninjalytics_reporter=<?php echo esc_attr( $preset['_reporter'] );
-                                                    } ?>&amp;hm-psr-nonce=<?php echo esc_attr( $runNonce ); ?>"
-                                                       aria-label="<?php esc_attr_e( 'Download', 'product-sales-report-for-woocommerce' ); ?>"
-                                                       target="_blank" class="berrypress-btn berrypress-btn-icon">
-                                                        <i class="berrypress-icon-download" aria-hidden="true"></i>
-                                                    </a>
-                                                    <a href="?page=ninjalytics-free&amp;preset=<?php echo (int) $presetId; ?><?php if ( isset( $preset['_reporter'] ) ) { ?>&amp;ninjalytics_reporter=<?php echo esc_attr( $preset['_reporter'] );
-                                                    } ?>" class="berrypress-btn berrypress-btn-icon"
-                                                       aria-label="<?php esc_attr_e( 'Edit', 'product-sales-report-for-woocommerce' ); ?>">
-                                                        <i class="berrypress-icon-edit" aria-hidden="true"></i>
-                                                    </a>
-                                                    <a href="?page=ninjalytics-free&amp;ninjalytics_action_free=preset-del&amp;preset=<?php echo (int) $presetId; ?>&amp;_wpnonce=<?php echo esc_attr( $runNonce ); ?>"
-                                                       class="berrypress-btn berrypress-btn-icon"
-                                                       onclick="return confirm('<?php echo esc_js( __( 'Are you sure that you want to delete this report?', 'product-sales-report-for-woocommerce' ) ); ?>');"
-                                                       aria-label="<?php esc_attr_e( 'Remove', 'product-sales-report-for-woocommerce' ); ?>">
-                                                        <i class="berrypress-icon-delete" aria-hidden="true"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        <?php } ?>
-                                    <?php } else { ?>
-                                        <tr class="ninjalytics-empty">
-                                            <td style="text-align: left; font-weight: normal;">
-                                                <div class="ninjalytics-welcome">
-                                                    <?php esc_html_e( "You don't have any saved reports yet. Click the button below to get started!", 'product-sales-report-for-woocommerce' ); ?>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div id="hm_psr-buttons-wrapper" class="berrypress-mt-3">
-                            <a href="#" id="ags-psr-template-modal"
-                               class="berrypress-btn berrypress-btn-primary ags-psr-ml-10"><?php esc_html_e( 'New Report', 'product-sales-report-for-woocommerce' ); ?></a>
-                        </div>
+            <div class="ninjalytics-nj-reports-container">
+                <div class="ninjalytics-card-reports ninjalytics-col-1">
+                    <div class="berrypress-card berrypress-card-100">
+                    <div class="berrypress-card-header">
+                        <h2><?php esc_html_e( 'Reports', 'product-sales-report-for-woocommerce' ); ?></h2>
                     </div>
+                    <div class="berrypress-card-content">
+                        <table id="ninjalytics_presets_panel">
+                            <tbody>
+							<?php
+							$runNonce = wp_create_nonce( 'hm-psr-run' );
+							$activeReporterId = ninjalytics_get_active_reporter_id();
+							$reportersInfo = ninjalytics_get_reporters_info();
+							
+							if ( is_array( $savedReportSettings ) && count( $savedReportSettings ) > 1 ) {
+								uasort( $savedReportSettings, function ( $preset1, $preset2 ) {
+									return strcasecmp(
+										isset( $preset1['preset_name'] ) ? $preset1['preset_name'] : '',
+										isset( $preset2['preset_name'] ) ? $preset2['preset_name'] : ''
+									);
+								} );
+								foreach ( $savedReportSettings as $presetId => $preset ) {
+									if ( ! $presetId ) {
+										continue;
+									}
+									$reporterId = $preset['_reporter'] ?? $activeReporterId;
+									
+									if (empty($reportersInfo[$reporterId]['active'])) {
+										if ($reporterId == 'woocommerce-legacy' && ($reportersInfo['woocommerce']['active'] ?? false)) {
+											$reporterId = 'woocommerce';
+										} else if ($reporterId == 'woocommerce' && ($reportersInfo['woocommerce-legacy']['active'] ?? false)) {
+											$reporterId = 'woocommerce-legacy';
+										} else {
+											continue;
+										}
+									}
+										
+									if (!current_user_can($reportersInfo[$reporterId]['capability'])) {
+										continue;
+									}
+									
+									?>
+                                    <tr>
+                                        <td class="ninjalytics-report-row-name">
+                                            <a class="ninjalytics-report-name"
+                                               href="?page=ninjalytics-free&amp;preset=<?php echo (int) $presetId; ?><?php if ( isset( $preset['_reporter'] ) ) { ?>&amp;_reporter=<?php echo esc_attr( $preset['_reporter'] ); } ?>"
+                                               aria-label="<?php esc_attr_e( 'Edit Report', 'product-sales-report-for-woocommerce' ); ?>">
+												<?php echo esc_html( $preset['preset_name'] ); ?>
+                                            </a>
+                                        </td>
+                                        <td class="ninjalytics-report-row-actions">
+                                            <a href="?page=ninjalytics-free&amp;ninjalytics_action_free=run&amp;preset=<?php echo (int) $presetId; ?><?php if ( isset( $preset['_reporter'] ) ) { ?>&amp;_reporter=<?php echo esc_attr( $preset['_reporter'] );
+											} ?>&amp;hm-psr-nonce=<?php echo esc_attr( $runNonce ); ?>"
+                                               aria-label="<?php esc_attr_e( 'Download', 'product-sales-report-for-woocommerce' ); ?>"
+                                               target="_blank" class="berrypress-btn berrypress-btn-icon">
+                                                <i class="berrypress-icon-download" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="?page=ninjalytics-free&amp;preset=<?php echo (int) $presetId; ?><?php if ( isset( $preset['_reporter'] ) ) { ?>&amp;_reporter=<?php echo esc_attr( $preset['_reporter'] );
+											} ?>" class="berrypress-btn berrypress-btn-icon"
+                                               aria-label="<?php esc_attr_e( 'Edit', 'product-sales-report-for-woocommerce' ); ?>">
+                                                <i class="berrypress-icon-edit" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="?page=ninjalytics-free&amp;ninjalytics_action_free=preset-del&amp;preset=<?php echo (int) $presetId; ?><?php if ( isset( $preset['_reporter'] ) ) { ?>&amp;_reporter=<?php echo esc_attr( $preset['_reporter'] );
+                                            } ?>&amp;_wpnonce=<?php echo esc_attr( $runNonce ); ?>"
+                                               class="berrypress-btn berrypress-btn-icon"
+                                               onclick="return confirm('<?php echo esc_js( __( 'Are you sure that you want to delete this report?', 'product-sales-report-for-woocommerce' ) ); ?>');"
+                                               aria-label="<?php esc_attr_e( 'Remove', 'product-sales-report-for-woocommerce' ); ?>">
+                                                <i class="berrypress-icon-delete" aria-hidden="true"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+								<?php } ?>
+							<?php } else { ?>
+                                <tr class="ninjalytics-empty">
+                                    <td style="text-align: left; font-weight: normal;">
+                                        <div class="ninjalytics-welcome">
+											<?php esc_html_e( "You don't have any saved reports yet. Click the button below to get started!", 'product-sales-report-for-woocommerce' ); ?>
+                                        </div>
+                                    </td>
+                                </tr>
+							<?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                    <div class="berrypress-upgrade-box ninjalytics-col-2">
+            </div>
+
+            <div class="berrypress-upgrade-box ninjalytics-col-2">
                             <div>
                                 <div>
                                     <i class="berrypress-upgrade-box-icon berrypress-icon-filled berrypress-icon-lock"></i>
@@ -1994,10 +2235,11 @@ class AdminPage extends BerryPressPage {
 
                                             <?php
                                             printf(
-                                            /* translators: 1: Android link, 2: iOS link */
-                                                    esc_html__( 'Access your reports on the go with the Ninjalytics app for %1$s or %2$s (beta)', 'product-sales-report-for-woocommerce' ),
+                                            /* translators: 1: Android link, 2: iOS link, 3: Ninjalytics Pro link */
+                                                    esc_html__( 'Access your reports on the go with the Ninjalytics app for %1$s or %2$s (beta) with %3$s', 'product-sales-report-for-woocommerce' ),
                                                     '<a class="berrypress-link" href="' . esc_url( 'https://play.google.com/store/apps/details?id=com.berrypress.ninjalytics' ) . '" target="_blank">' . esc_html__( 'Android', 'product-sales-report-for-woocommerce' ) . '</a>',
-                                                    '<a class="berrypress-link" href="' . esc_url( 'https://apps.apple.com/se/app/ninjalytics/id6757487864?l=en-GB' ) . '" target="_blank">' . esc_html__( 'iOS', 'product-sales-report-for-woocommerce' ) . '</a>'
+                                                    '<a class="berrypress-link" href="' . esc_url( 'https://apps.apple.com/se/app/ninjalytics/id6757487864?l=en-GB' ) . '" target="_blank">' . esc_html__( 'iOS', 'product-sales-report-for-woocommerce' ) . '</a>',
+                                                    '<a class="berrypress-link" href="' . esc_url( self::getProductUrl() ) . '" target="_blank">' . esc_html__( 'Ninjalytics Pro', 'product-sales-report-for-woocommerce' ) . '</a>'
                                             );
                                             ?>
                                         </li>
@@ -2031,10 +2273,21 @@ class AdminPage extends BerryPressPage {
                                 </div>
                             </div>
                         </div>
-                </div>
+            </div>
 
-        </div>
-    </div>
+            <div class="ninjalytics-about-app-notice">
+                <p class="berrypress-fs-14">
+					<?php
+					printf(
+						/* translators: 1: Android link, 2: iOS link, 3: Ninjalytics Pro link */
+						esc_html__( 'Access your reports on the go with the Ninjalytics app for %1$s or %2$s (beta) with %3$s', 'product-sales-report-for-woocommerce' ),
+						'<a class="berrypress-link" href="' . esc_url( 'https://play.google.com/store/apps/details?id=com.berrypress.ninjalytics' ) . '" target="_blank">' . esc_html__( 'Android', 'product-sales-report-for-woocommerce' ) . '</a>',
+						'<a class="berrypress-link" href="' . esc_url( 'https://apps.apple.com/se/app/ninjalytics/id6757487864?l=en-GB' ) . '" target="_blank">' . esc_html__( 'iOS', 'product-sales-report-for-woocommerce' ) . '</a>',
+						'<a class="berrypress-link" href="' . esc_url( self::getProductUrl() ) . '" target="_blank">' . esc_html__( 'Ninjalytics Pro', 'product-sales-report-for-woocommerce' ) . '</a>'
+					);
+					?>
+				</p>
+            </div>
 
 
 			<?php $this->renderTemplateModal(); ?>

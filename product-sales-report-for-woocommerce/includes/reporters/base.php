@@ -17,6 +17,10 @@ enum PlatformFeatures {
 	case META;
 	case COGS;
 	case ALT_DATES;
+	case ORDER_CREATOR;
+	case COUPONS;
+	case ITEM_STOCK;
+	case ORDER_PARENT;
 }
 
 abstract class Base {
@@ -45,7 +49,7 @@ abstract class Base {
 	
 	abstract function getBuiltInFields($exportOrders);
 	
-	abstract function getRow($product, $fields, &$totals, $fieldbuilderFields, $fieldbuilderDependencies);
+	abstract function getRow($product, $fields);
 	
 	abstract public function getGroupByFieldTypes();
 	
@@ -86,8 +90,11 @@ abstract class Base {
 			'order_shipping_filter' => [],
 			'include_header' => 1,
 			'include_totals' => 0,
+			'preview_cells_multiline' => 1,
 			'format_amounts' => 1,
 			'exclude_free' => 0,
+			'exclude_unmanaged_stock' => 0,
+			'format' => 'CSV',
 			'refunds' => 1,
 			'adjustments' => 1,
 			'report_unfiltered' => 0,
@@ -104,9 +111,15 @@ abstract class Base {
 			'format_csv_escape' => '\\',
 			'disable_product_grouping' => 0,
 			'intermediate_rounding' => 0,
-			'round_fields' => ['builtin::gross_sales', 'builtin::gross_after_discount', 'builtin::taxes', 'builtin::discount', 'builtin::total_with_tax', 'builtin::avg_order_total'],
+			'round_fields' => ['builtin::gross_sales', 'builtin::gross_after_discount', 'builtin::taxes', 'builtin::total_with_tax', 'builtin::avg_order_total'],
 			'chart_type' => 'line_series',
-			
+			'shipping_product_name' => 'Shipping - [method_name]',
+			'exclude_free_after_discount' => 1,
+			'one_line_per_order' => 0,
+			'order_total_once' => 0,
+			'order_fields_once' => 0,
+			'order_group_empty_row' => 0,
+			'totals_by_type' => 0,
 			'report_time_mode' => 'preset',
 			'report_time_preset' => 'last30',
 			'report_time_basic_from' => '',
@@ -118,7 +131,7 @@ abstract class Base {
 			'report_time_absolute_from_date' => $today,
 			'report_time_absolute_from_time' => '00:00:00',
 			'report_time_absolute_to_date' => $today,
-			'report_time_absolute_to_time' => '23:59:59'
+			'report_time_absolute_to_time' => '23:59:59',
 		);
 	}
 	
@@ -141,7 +154,7 @@ abstract class Base {
 			'filter_range'        => false,
 			'nocache'             => false,
 			'debug'               => false,
-			'order_types'         => [],
+			'order_types'         => false,
 			'order_status'        => [],
 			'parent_order_status' => false,
 		);
@@ -149,124 +162,7 @@ abstract class Base {
 	
 		
 	public function getReportTemplates() {
-		return apply_filters('ninjalytics_report_templates', [
-			'all_sales' => [
-				'preset_name' => 'All Sales',
-				'display_mode' => 'chart',
-				'chart_type' => 'line_totals',
-				'fields' => [ 'builtin::product_name', 'builtin::quantity_sold', 'builtin::gross_after_discount' ],
-				'chart_fields' => [ 'builtin::gross_after_discount', 'builtin::quantity_sold' ],
-				'orderby' => 'builtin::product_name',
-				'orderdir' => 'asc',
-				'icon' => 'icon_4'
-			],
-			'top_selling' => [
-				'preset_name' => 'Top Selling Products',
-				'chart_type' => 'bar',
-				'fields' => [ 'builtin::product_name', 'builtin::product_sku', 'builtin::quantity_sold', 'builtin::gross_after_discount' ],
-				'chart_fields' => [ 'builtin::gross_after_discount' ],
-				'orderby' => 'builtin::gross_after_discount',
-				'variations' => 0,
-				'limit_on' => 1,
-				'chart_series_name' => 'builtin::product_name',
-				'icon' => 'icon_3',
-			],
-			'top_rated' => [
-				'preset_name' => 'Top Rated Products',
-				'chart_type' => 'bar',
-				'fields' => [ 'builtin::product_name', 'builtin::product_sku', '_wc_average_rating' ],
-				'field_names' => [ '_wc_average_rating' => 'Rating' ],
-				'chart_fields' => [ '_wc_average_rating' ],
-				'orderby' => '_wc_average_rating',
-				'variations' => 0,
-				'limit_on' => 1,
-				'chart_series_name' => 'builtin::product_name',
-				'icon' => 'icon_5',
-				'pro' => true
-			],
-			'stock' => [
-				'preset_name' => 'Stock Report',
-				'chart_type' => 'bar',
-				'fields' => [ 'builtin::product_name', 'builtin::product_sku', 'builtin::product_stock' ],
-				'chart_fields' => [ 'builtin::product_stock' ],
-				'orderby' => 'builtin::product_name',
-				'orderdir' => 'asc',
-				'variations' => 0,
-				'chart_series_name' => 'builtin::product_name',
-				'icon' => 'icon_6'
-			],
-			'state_sales' => [
-				'preset_name' => 'Sales by US State',
-				'display_mode' => 'chart',
-				'chart_type' => 'pie',
-				'disable_product_grouping' => 1,
-				'groupby' => 'o_'.$this->billingStateMetaKey ?? '',
-				'fields' => [ 'builtin::groupby_field', 'builtin::gross_after_discount', 'builtin::quantity_sold' ],
-				'field_names' => [ 'builtin::groupby_field' => 'Billing State' ],
-				'chart_fields' => [ 'builtin::gross_after_discount', 'builtin::quantity_sold' ],
-				'order_meta_filter_on' => 1,
-				'order_meta_filter_key' => '_billing_country',
-				'order_meta_filter_op' => '=',
-				'order_meta_filter_value' => 'US',
-				'orderby' => 'builtin::groupby_field',
-				'orderdir' => 'asc',
-				'chart_series_name' => 'builtin::groupby_field',
-				'icon' => 'icon_7',
-			],
-			'product_sales' => [
-				'preset_name' => 'Sales by Product',
-				'chart_type' => 'pie',
-				'fields' => [ 'builtin::product_name', 'builtin::product_sku', 'builtin::gross_after_discount', 'builtin::quantity_sold' ],
-				'chart_fields' => [ 'builtin::gross_after_discount', 'builtin::quantity_sold' ],
-				'orderby' => 'builtin::product_name',
-				'orderdir' => 'asc',
-				'variations' => 0,
-				'chart_series_name' => 'builtin::product_name',
-				'icon' => 'icon_8'
-			],
-			'payment_method_sales' => [
-				'preset_name' => 'Sales by Payment Method',
-				'display_mode' => 'chart',
-				'chart_type' => 'pie',
-				'disable_product_grouping' => 1,
-				'groupby' => 'o__payment_method',
-				'fields' => ['builtin::groupby_field', 'builtin::gross_after_discount', 'builtin::quantity_sold'],
-				'field_names' => ['builtin::groupby_field' => 'Payment Method' ],
-				'chart_fields' => [ 'builtin::gross_after_discount', 'builtin::quantity_sold' ],
-				'orderby' => 'builtin::groupby_field',
-				'orderdir' => 'asc',
-				'chart_series_name' => 'builtin::groupby_field',
-				'icon' => 'icon_9'
-			],
-			'currency_sales' => [
-				'preset_name' => 'Sales by Currency',
-				'display_mode' => 'chart',
-				'chart_type' => 'pie',
-				'disable_product_grouping' => 1,
-				'groupby' => 'o__order_currency',
-				'fields' => ['builtin::groupby_field', 'builtin::gross_after_discount', 'builtin::quantity_sold'],
-				'field_names' => ['builtin::groupby_field' => 'Currency' ],
-				'chart_fields' => [ 'builtin::gross_after_discount', 'builtin::quantity_sold' ],
-				'orderby' => 'builtin::groupby_field',
-				'orderdir' => 'asc',
-				'chart_series_name' => 'builtin::groupby_field',
-				'icon' => 'icon_1'
-			],
-			'country_sales' => [
-				'preset_name' => 'Sales by Country',
-				'display_mode' => 'chart',
-				'chart_type' => 'pie',
-				'disable_product_grouping' => 1,
-				'groupby' => 'o__billing_country',
-				'fields' => ['builtin::groupby_field', 'builtin::gross_after_discount', 'builtin::quantity_sold'],
-				'field_names' => ['builtin::groupby_field' => 'Billing Country' ],
-				'chart_fields' => [ 'builtin::gross_after_discount', 'builtin::quantity_sold' ],
-				'orderby' => 'builtin::groupby_field',
-				'orderdir' => 'asc',
-				'chart_series_name' => 'builtin::groupby_field',
-				'icon' => 'icon_2'
-			]
-		]);
+		return apply_filters( 'ninjalytics_report_templates', [] );
 	}
 	
 	public function getGmtConversionSql($field) {
@@ -353,6 +249,10 @@ abstract class Base {
 	function getWhereMetaField($key, $value) {
 		return "meta_{$key}.meta_value";
 	}
+	
+	function getOrderItemTypes() {
+		return ['line_item'];
+	}
 
 	/**
 	 * Get report totals such as order totals and discount amounts.
@@ -387,7 +287,8 @@ abstract class Base {
 
 		foreach ( $data as $raw_key => $value ) {
 			
-			if (in_array(strstr($raw_key, '.', true), [ $value['type'], $value['function'] ], true)) {
+			$beforePeriod = strstr($raw_key, '.', true);
+			if ($beforePeriod !== false && strlen($beforePeriod) && in_array($beforePeriod, [ $value['type'], ($value['function'] ?? '') ], true)) {
 				$raw_key = substr(strstr($raw_key, '.'), 1);
 			}
 			
@@ -407,7 +308,19 @@ abstract class Base {
 			
 			
 			if ( $value['function'] ?? '' ) {
-				$get = preg_replace('/\\s/', '', $value['function'])."({$distinct} {$get_key})";
+				$sql_function_name = preg_replace( '/\\s/', '', $value['function'] );
+				if ( isset( $value['function_args_before'] ) && !array_diff($value['function_args_before'], ['%s', '%f', '%d']) ) {
+					$sql_inner = implode(',', $value['function_args_before']).',';
+					$queryParams['select'] = array_merge($queryParams['select'] ?? [], array_keys($value['function_args_before']));
+				} else {
+					$sql_inner = '';
+				}
+				$sql_inner          .= "{$distinct} {$get_key}";
+				if ( isset( $value['function_args_after'] ) && !array_diff($value['function_args_after'], ['%s', '%f', '%d']) ) {
+					$sql_inner .= ',' . implode(',', $value['function_args_after']);
+					$queryParams['select'] = array_merge($queryParams['select'] ?? [], array_keys($value['function_args_after']));
+				}
+				$get = "{$sql_function_name}({$sql_inner})";
 			} else {
 				$get = "{$distinct} {$get_key}";
 			}
@@ -455,7 +368,7 @@ abstract class Base {
 		$query['where'] = [];
 		$queryParams['where'] = [];
 		
-		if ($order_types) {
+		if ($order_types !== false) {
 			$queryParams['where'] = array_merge($queryParams['where'], $order_types);
 			$query['where'][] = "
 				posts.{$this->ordersTypeColumn} 	IN ( " . substr(str_repeat('%s,', count($order_types)), 0, -1) . " )
@@ -538,14 +451,14 @@ abstract class Base {
 		// woocommerce\includes\admin\reports\class-wc-admin-report.php
 		if ( ! empty( $where ) ) {
 			foreach ( $where as $value ) {
-				if (!in_array($value['key'], [$this->ordersDateColumn], true)) {
+				if (!in_array($value['key'], $this->getAllowedWhereColumns(), true)) {
 					throw new \Exception('Unsupported "where" value.');
 				}
 				
-				$postsWhere = ' posts.'.sanitize_key($value['key']).' ';
+				$postsWhere = ' '.$value['key'].' ';
 				
 				if ( strtolower( $value['operator'] ) === 'in' || strtolower( $value['operator'] ) === 'not in' ) {
-					$queryParams['where']  = array_merge( (array) $value['value'], $queryParams['where']);
+					$queryParams['where'] = array_merge( $queryParams['where'], (array) $value['value'] );
 					$postsWhere .= "{$value['operator']} (". substr(str_repeat('%s,', count((array) $value['value'])), 0, -1) .")";
 				} else {
 					$queryParams['where'][] = $value['value'];
@@ -561,7 +474,7 @@ abstract class Base {
 		if ( $group_by ) {
 			$group_by = explode(',', $group_by);
 			foreach ($group_by as &$item) {
-				if ( $item != 'product_category' && $item != 'product_sku' ) {
+				if ( $item != 'product_category' && $item != 'product_sku' && $item != $this->getExportGroupingField() ) {
 					$item = trim($item);
 					if (!isset($fieldsMap[$item])) {
 						throw new \Exception('Invalid "group by" value: '.esc_html($item));
@@ -634,6 +547,11 @@ abstract class Base {
 		);
 
 		return $result;
+	}
+	
+	function getAllowedWhereColumns() {
+		// Must be sanitized!
+		return [ 'posts.'.sanitize_key($this->ordersDateColumn) ];
 	}
 	
 		

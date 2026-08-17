@@ -4,6 +4,9 @@
  * License:     GNU General Public License version 3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
  */
+if ( !defined( 'ABSPATH' ) ) {
+	exit;
+}
 if (!class_exists('Ninjalytics_CSV_Export')) {
 	class Ninjalytics_CSV_Export {
 
@@ -36,4 +39,14 @@ if (!class_exists('Ninjalytics_CSV_Export')) {
 		public function close() { }
 	}
 }
-?>
+
+if (!class_exists('Ninjalytics_CSV_ASCII_Export')) {
+	class Ninjalytics_CSV_ASCII_Export extends Ninjalytics_CSV_Export {
+		
+		public function putRow($data, $header=false, $footer=false) {
+			foreach ($data as $key => &$value)
+				$value = mb_convert_encoding($value, 'ISO-8859-1');
+			return parent::putRow($data, $header, $footer);
+		}
+	}
+}

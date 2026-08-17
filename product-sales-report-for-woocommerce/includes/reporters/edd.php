@@ -65,7 +65,24 @@ class EDD extends OrdersBase {
 	
 	public function getReportTemplates() {
 		$templates = parent::getReportTemplates();
-		unset($templates['top_rated']);
+		// Presets that target WooCommerce order statuses, physical stock, US state sales, or WC refund/margin/shipping flows are not applicable to EDD.
+		foreach (
+			[
+				'top_rated',
+				'order_export_fulfillment_shipping',
+				'refund_analytics_products',
+				'refund_trend_monthly',
+				'order_export_accounting',
+				'order_export_refunds_returns',
+				'order_export_margin_summary',
+				'order_export_line_items',
+				'stock',
+				'stock_watchlist', 
+				'state_sales',
+			] as $eddInapplicable
+		) {
+			unset( $templates[ $eddInapplicable ] );
+		}
 		return $templates;
 	}
 	

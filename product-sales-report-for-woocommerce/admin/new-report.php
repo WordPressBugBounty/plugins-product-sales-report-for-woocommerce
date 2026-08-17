@@ -23,14 +23,14 @@ trait NewReportPageTrait {
 					<img src="<?php echo esc_url( plugin_dir_url( dirname( __DIR__ ) . '/ninjalytics.php' ) . 'images/ninjalytics.png' ); ?>" alt="" />
 				</span>
 				<h2 class="ninjalytics-new-report-title"><?php esc_html_e( 'Create Report', 'product-sales-report-for-woocommerce' ); ?></h2>
-				<p class="ninjalytics-new-report-subtitle"><?php esc_html_e( 'Choose a template or start from a blank configuration to build the report that fits your workflow.', 'product-sales-report-for-woocommerce' ); ?></p>
+				<p class="ninjalytics-new-report-subtitle"><?php esc_html_e( 'Choose a template or start from a blank configuration to build the report that fits your workflow. Available fields and settings depend on the template you choose.', 'product-sales-report-for-woocommerce' ); ?></p>
 				<div class="ninjalytics-new-report-actions">
 					<button type="button" class="berrypress-btn berrypress-btn-primary js-ninjalytics-modal-trigger" data-ninjalytics-template-filter="all">
-						<?php esc_html_e( 'Use Template', 'product-sales-report-for-woocommerce' ); ?>
+						<?php esc_html_e( 'New Report', 'product-sales-report-for-woocommerce' ); ?>
 					</button>
-					<a class="berrypress-btn berrypress-btn-secondary" href="<?php echo esc_url( $blankReportUrl ); ?>">
-						<?php esc_html_e( 'Create Blank', 'product-sales-report-for-woocommerce' ); ?>
-					</a>
+<!--					<a class="berrypress-btn berrypress-btn-secondary" href="--><?php //echo esc_url( $blankReportUrl ); ?><!--">-->
+<!--						--><?php //esc_html_e( 'Create Blank', 'product-sales-report-for-woocommerce' ); ?>
+<!--					</a>-->
 				</div>
 			</div>
 		</div>
@@ -42,7 +42,12 @@ trait NewReportPageTrait {
 			<?php foreach ( ninjalytics_get_reporters_info() as $integrationKey => $integration ) {
 				$cardClasses = [  'ninjalytics-new-report-integration-card' ];
 				if ( $integration['active'] && current_user_can($integration['capability']) ) {
-					$templateCount = count(ninjalytics_get_reporter_by_id($integrationKey)->getReportTemplates());
+					$templateCount = count( array_filter(
+						ninjalytics_get_reporter_by_id($integrationKey)->getReportTemplates(),
+						function ( $template ) {
+							return empty( $template['pro'] );
+						}
+					) );
 				} else {
 					$cardClasses[] = 'ninjalytics-new-report-integration-card-disabled';
 					if ( $hideInactiveTemplates ) {

@@ -2,7 +2,6 @@
 This file is part of Ninjalytics. For licensing and copyright notices, please see ../license.txt.
 */
 jQuery(document).ready(function($) {
-	var hm_psr_table_search = null, hm_psr_chart, hm_psr_table, hm_psr_freeze_field_order = false;
 
 	var $productSelect = $('#ninjalytics-product-ids');
 	if ($productSelect.length && typeof $productSelect.selectWoo === 'function') {
@@ -133,8 +132,8 @@ jQuery(document).ready(function($) {
 				cache: true,
 				transport: function(params, success, failure) {
 					if (!productSelectConfig.restUrl) {
-						failure();
-						return undefined;
+						setTimeout(failure, 250);
+						return {};
 					}
 					var request = $.ajax({
 						url: productSelectConfig.restUrl,
@@ -212,24 +211,28 @@ jQuery(document).ready(function($) {
 	}
 
 	window.ninjalytics_update_chart = function() {
-		if (hm_psr_chart) {
-			hm_psr_chart.destroy();
+		if (window.ninjalytics_chart && window.ninjalytics_chart.destroy) {
+			ninjalytics_chart.destroy();
 		}
-		if (hm_psr_table) {
-			hm_psr_table_search = hm_psr_table.search();
-			hm_psr_freeze_field_order = true;
-			hm_psr_table.destroy(true);
-			hm_psr_freeze_field_order = false;
+		if (window.ninjalytics_table && window.ninjalytics_table.destroy) {
+			window.ninjalytics_table_search = ninjalytics_table.search();
+			window.hm_psr_freeze_field_order = true;
+			ninjalytics_table.destroy(true);
+			window.hm_psr_freeze_field_order = false;
 			 $('#ninjalytics_output_container h2').remove();
 		} else {
-			hm_psr_table_search = null;
+			window.ninjalytics_table_search = null;
 		}
 		var mode = $('.ninjalytics-display-options button[aria-pressed="true"]').data('display-mode');
 		$('#ninjalytics-chart-no-fields').addClass('berrypress-hidden');
-		$('#ninjalytics_output_container').removeClass('ninjalytics-output-chart ninjalytics-output-table').addClass('ninjalytics-output-loading ninjalytics-output-' + mode).show();
+		$('#ninjalytics_output_container').removeClass('ninjalytics-output-chart ninjalytics-output-table').addClass('ninjalytics-output-' + mode).show();
 		$('#hm_sbp_field_orderby, #ninjalytics-orderdir,.hm_psr_field_name').toggleClass('ninjalytics-no-update', mode == 'table');
-		hm_psr_get_chart_data( mode == 'chart' ? hm_psr_build_chart : hm_psr_build_table );
+		hm_psr_get_chart_data( $('#ninjalytics_output_container'), mode, mode == 'chart' ? hm_psr_build_chart : hm_psr_build_table, null, hm_psr_update_debug_sql_box );
 	}
+
+	$('#ninjalytics-refresh-report-button').on('click', function() {
+		ninjalytics_update_chart();
+	});
 
 	$('.ninjalytics-display-options button').on('click', function () {
 
@@ -262,8 +265,10 @@ jQuery(document).ready(function($) {
 		if (!$templateModal.length) {
 			return;
 		}
+		var $templateGrid = $templateModal.find('.ninjalytics-template-modal-grid');
 		var $templateCards = $templateModal.find('[data-ninjalytics-template-card="true"]');
 		var $templateFilters = $templateModal.find('.js-ninjalytics-template-filter');
+		var $sectionHeaders = $templateModal.find('[data-ninjalytics-template-section]');
 		var $searchInput = $('#ninjalytics-template-search');
 		var activeFilter = $('.ninjalytics-template-modal-filters > :first-child').attr('data-ninjalytics-template-filter');
 
@@ -332,7 +337,42 @@ jQuery(document).ready(function($) {
 				updateCardState($card);
 				$card.toggle(matchesFilter && matchesSearch);
 			});
+
+			// Hide section headers that no longer have any visible card,
+			// and track which reporters still have visible content.
+			var visibleReporters = {};
+			$sectionHeaders.each(function() {
+				var $header = $(this);
+				var section = ($header.data('ninjalytics-template-section') || '').toString().split('|');
+				var reporter = section[0];
+				var type = section[1];
+				if (!reporter || !type) {
+					return;
+				}
+				var hasVisible = $templateCards.filter(
+					'[data-ninjalytics-template-integrations="' + reporter + '"]' +
+					'[data-ninjalytics-template-type="' + type + '"]'
+				).filter(':visible').length > 0;
+				$header.toggle(hasVisible);
+				if (hasVisible) {
+					visibleReporters[reporter] = true;
+				}
+			});
+
+			// Drop the reporter prefix when it is not needed for disambiguation:
+			// either the active filter already names the reporter, or only one
+			// reporter has any visible section right now. The actual hiding is
+			// done via CSS based on these two state markers on the grid.
+			var multipleReportersVisible = Object.keys(visibleReporters).length > 1;
+			$templateGrid
+				.attr('data-ninjalytics-active-filter', activeFilter || '')
+				.toggleClass('is-single-reporter', !multipleReportersVisible);
 		}
+
+		// Apply once on init so the server-rendered prefix state matches the
+		// initial activeFilter (e.g. when only one reporter is active, the
+		// "WooCommerce - " prefix should be hidden before the modal is opened).
+		applyTemplateFilters();
 
 		function openTemplateModal(filter) {
 			if (filter) {
@@ -368,12 +408,156 @@ jQuery(document).ready(function($) {
 		});
 	})();
 
-	$('#ninjalytics-settings .ninjalytics-section-title').on('click', function(e) {
-		if ($(e.target).closest('label').length) {
+	// Report sidebar tabs (Settings / AI / Schedule) — optional selection; no panel when none selected.
+	(function initNinjalyticsReportSidebarTabs() {
+		var $tablist = $('#ninjalytics-report-sidebar-tabs[role="tablist"]');
+		if (!$tablist.length) {
 			return;
 		}
-		$(this).parent().toggleClass('ninjalytics-active');
+
+		var $sidebar = $('#ninjalytics-report-sidebar');
+		var $tabs = $tablist.find('[role="tab"]');
+
+		function showPanel($panel) {
+			if (!$panel.length) {
+				return;
+			}
+			$panel.removeClass('berrypress-hidden').attr({ 'aria-hidden': 'false' }).prop('hidden', false);
+		}
+
+		function hidePanel($panel) {
+			if (!$panel.length) {
+				return;
+			}
+			$panel.addClass('berrypress-hidden').attr({ 'aria-hidden': 'true' }).prop('hidden', true);
+		}
+
+		function hideAllPanels() {
+			$tabs.each(function() {
+				var id = $(this).attr('aria-controls');
+				if (id) {
+					hidePanel($('#' + id));
+				}
+			});
+		}
+
+		function unselectTabs() {
+			$tabs.each(function() {
+				$(this)
+					.attr({ 'aria-selected': 'false', 'tabindex': '-1' })
+					.removeClass('ninjalytics-report-sidebar-tab-active');
+			});
+			$tabs.first().attr('tabindex', '0');
+			hideAllPanels();
+			$sidebar.removeClass('ninjalytics-report-sidebar--panel-open');
+			syncSidebarSplitWidth();
+		}
+
+		function activateTab($tab) {
+			if (!$tab || !$tab.length) {
+				return;
+			}
+			var panelId = $tab.attr('aria-controls');
+			var $panel = panelId ? $('#' + panelId) : $();
+
+			$tabs.each(function() {
+				var $eachTab = $(this);
+				var isSelected = $eachTab[0] === $tab[0];
+				$eachTab
+					.attr({ 'aria-selected': isSelected ? 'true' : 'false', 'tabindex': isSelected ? '0' : '-1' })
+					.toggleClass('ninjalytics-report-sidebar-tab-active', isSelected);
+			});
+
+			hideAllPanels();
+			showPanel($panel);
+			$sidebar.addClass('ninjalytics-report-sidebar--panel-open');
+			syncSidebarSplitWidth();
+		}
+
+		function syncSidebarSplitWidth() {
+			if (!window.ninjalyticsSettingsSplit) {
+				return;
+			}
+			if ($sidebar.hasClass('ninjalytics-report-sidebar--panel-open')) {
+				window.ninjalyticsSettingsSplit.expand();
+			} else {
+				window.ninjalyticsSettingsSplit.collapse();
+			}
+		}
+
+		function toggleTab($tab) {
+			if ($tab.attr('aria-selected') === 'true') {
+				unselectTabs();
+			} else {
+				activateTab($tab);
+			}
+		}
+
+		window.ninjalyticsReportSidebarTabs = {
+			activate: function(tabId) {
+				var $tab = tabId ? $('#' + tabId) : $();
+				if ($tab.length) {
+					activateTab($tab);
+				}
+			},
+			unselect: unselectTabs,
+			getSelectedTabId: function() {
+				var $selected = $tabs.filter('[aria-selected="true"]');
+				return $selected.length ? $selected.attr('id') : null;
+			}
+		};
+
+		$tabs.on('click', function() {
+			toggleTab($(this));
+		});
+
+		$tabs.on('keydown', function(e) {
+			var index = $tabs.index(this);
+			var next = -1;
+
+			if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+				next = (index + 1) % $tabs.length;
+			} else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+				next = (index - 1 + $tabs.length) % $tabs.length;
+			} else if (e.key === 'Home') {
+				next = 0;
+			} else if (e.key === 'End') {
+				next = $tabs.length - 1;
+			} else if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				toggleTab($(this));
+				return;
+			} else {
+				return;
+			}
+
+			e.preventDefault();
+			$tabs.eq(next).focus();
+		});
+
+		if ($tabs.filter('[aria-selected="true"]').length) {
+			$sidebar.addClass('ninjalytics-report-sidebar--panel-open');
+		} else {
+			hideAllPanels();
+		}
+		// Split init runs later; defer width sync until expand/collapse API exists.
+		$(function() {
+			syncSidebarSplitWidth();
+		});
+	})();
+
+	$('#ninjalytics-report-sidebar .ninjalytics-section-title').on('click', function(e) {
+		if ($(e.target).closest('label, input').length) {
+			return;
+		}
+		var $toggle = $(this).parent('.ninjalytics-settings-toggle');
+		var isActive = $toggle.hasClass('ninjalytics-active');
+
+		// Accordion: only one settings section open at a time in the side panel.
+		$toggle.siblings('.ninjalytics-settings-toggle').removeClass('ninjalytics-active');
+		$toggle.toggleClass('ninjalytics-active', !isActive);
 	});
+
 	$('#hm-psr-button-add-field').click(function() {
 		var $fieldsSelect = $('#hm_psr_custom_field');
 		var $selectedOption = $fieldsSelect.find('option:selected:first');
@@ -416,12 +600,12 @@ jQuery(document).ready(function($) {
 				newOrder.push(preSortColumnOrder.indexOf(this.value));
 			});
 
-			if (hm_psr_table) {
-				hm_psr_freeze_field_order = true;
+			if (window.ninjalytics_table) {
+				window.hm_psr_freeze_field_order = true;
 				try {
-					hm_psr_table.colReorder.order(newOrder);
+					ninjalytics_table.colReorder.order(newOrder);
 				} catch (x) {}
-				hm_psr_freeze_field_order = false;
+				window.hm_psr_freeze_field_order = false;
 			}
 
 			if ($('.ninjalytics-display-options button[aria-pressed="true"]').data('display-mode') == 'chart') {
@@ -429,7 +613,7 @@ jQuery(document).ready(function($) {
 			}
 		}
 	}).on('input', '.hm_psr_field_name', function() {
-		$(hm_psr_table.table().header()).find('.dt-column-title').eq( $(this).closest('.ninjalytics-report-field').index() ).text(this.value);
+		$(ninjalytics_table.table().header()).find('.dt-column-title').eq( $(this).closest('.ninjalytics-report-field').index() ).text(this.value);
 		hm_psr_update_sort_options();
 	});
 
@@ -495,8 +679,8 @@ jQuery(document).ready(function($) {
 	});
 	hm_psr_update_sort_options();
 
-	$('#ninjalytics-settings .hm-psr-select-other')
-		.append($('<option>').html('Other...').prop('disabled', true).addClass('hm-psr-select-other-option'))
+	$('#ninjalytics-report-sidebar .hm-psr-select-other')
+		.append($('<option>').html('Other...').addClass('hm-psr-select-other-option'))
 		.closest('select')
 		.change(function() {
 			var $this = $(this);
@@ -529,6 +713,7 @@ jQuery(document).ready(function($) {
 					.after($otherField);
 			}
 		});
+		
 	$('.ags-psr-disable-product-grouping').change(function() {
 		var state = parseInt($(this).val());
 		var productFieldSelector = '#hm_psr_custom_field .hm-psr-product-field' + (state === 2 ? ':not([value="builtin::product_categories"])' : '');
@@ -545,213 +730,47 @@ jQuery(document).ready(function($) {
 			}
 		}
 	}).first().change();
-	
-	var dataSeq = 0;
-	function hm_psr_get_chart_data(callback) {
-		var thisDataSeq = ++dataSeq;
-		var request = $('#ninjalytics-form').serializeArray();
-		var sortOrder = [0, 'asc'];
-		var chartSeriesName, chartType, fields = [], allFieldNames = {}, mode = $('.ninjalytics-display-options button[aria-pressed="true"]').data('display-mode'), showHeader = false, showTotals = false;
-		request = request.map(function(field) {
-			if (field.name.substring(0, 12) == 'field_names[' && field.name[field.name.length - 1] == ']') {
-				allFieldNames[ field.name.substring(12, field.name.length - 1) ] = field.value;
-			}
-			switch(field.name) {
-				case 'include_header':
-					showHeader = field.value;
-					break;
-				case 'include_totals':
-					showTotals = field.value;
-					break;
-				case 'fields[]':
-					if (mode === 'chart') {
-						return {};
-					}
-					fields.push(field.value);
-					break;
-				case 'chart_fields[]':
-					if (mode === 'chart') {
-						field.name = 'fields[]';
-						fields.push(field.value);
-						break;
-					}
-				case 'chart_type':
-					if (mode === 'chart') {
-						chartType = field.value;
-						break;
-					}
-				case 'total_fields[]':
-					if (mode === 'chart') {
-						return {};
-					}
-					break;
-				case 'chart_series_name':
-					if (mode === 'chart') {
-						chartSeriesName = field.value;
-						// no break
-					}
-				case 'email_to':
-				case 'format':
-					return {};
-				case 'orderby':
-					sortOrder[0] = field.value;
-					return field;
-				case 'orderdir':
-					sortOrder[1] = field.value;
-					return field;
-			}
-			return field;
+
+	function ninjalyticsFormatDebugSql(sql) {
+		var normalized = String(sql).replace(/\s+/g, ' ').trim();
+		if (!normalized) {
+			return '';
+		}
+		var keywords = [
+			'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'GROUP BY', 'ORDER BY',
+			'SELECT', 'FROM', 'WHERE', 'HAVING', 'LIMIT', 'UNION', 'AND', 'OR'
+		];
+		keywords.forEach(function(keyword) {
+			var pattern = new RegExp('\\s*\\b' + keyword.replace(/\s+/g, '\\s+') + '\\b', 'gi');
+			normalized = normalized.replace(pattern, '\n' + keyword.toUpperCase());
 		});
-
-		if (sortOrder[0]) {
-			sortOrder[0] = fields.indexOf(sortOrder[0]);
-		}
-
-		if (!sortOrder[0] || sortOrder[0] == -1) {
-			sortOrder[0] = 0;
-		}
-
-		if (!fields.length) {
-			$('#ninjalytics_output_container').removeClass('ninjalytics-output-loading');
-			$('#ninjalytics-chart-no-fields').removeClass('berrypress-hidden');
-			return;
-		}
-
-		request.push({name: 'format', value: (mode === 'chart' && chartType == 'line_totals') ? 'json-totals' : 'json'});
-		if (mode === 'chart') {
-			if (chartType == 'line_totals') {
-				request = request.concat(fields.map(function(field) {
-					return {name: 'total_fields[]', value: field};
-				}));
-				request.push({name: 'include_totals', value: 1});
-				showTotals = 1;
-			}
-			request.unshift({name: 'fields[]', value: chartSeriesName});
-			fields.unshift(chartSeriesName);
-
-			request.push({name: '_chart', value: 1});
-		}
-
-		if ($('#ninjalytyics-display-mode').length) {
-			request.push({name: 'display_mode', value: mode});
-		}
-
-		var fieldNames = fields.map(function(field) {
-			return allFieldNames[field];
-		});
-
-		request.push({name: 'ninjalytics_action_free', value: 'run'});
-
-		var targetRequestLength = 10;
-		var $loader = $('#ninjalytics_output_container .ninjalytics-loading progress').val('');
-		var reportTitle = null;
-
-		var data = {};
-		var debugSqlLog = [];
-		$('#ninjalytics-debug-sql-content').empty();
-		$('#ninjalytics-debug-sql-box').addClass('berrypress-hidden').attr('aria-hidden', 'true');
-
-		function buildData(batchStart, batchSize) {
-
-			var headers = {
-				'X-Psr-Chart-Run-Start': batchStart,
-				'X-Psr-Chart-Run-Count': batchSize
-			};
-			var requestStart = Date.now();
-			$.post({
-				url: location.href,
-				data: request.filter( function (item) { return item.name; } ),
-				headers: headers,
-				success: function(response, s, ajax) {
-					response = extractJsonComments(response);
-					var responseComments = response[1];
-					if (responseComments.debugSql) {
-						responseComments.debugSql.forEach(function(sqlLine) {
-							debugSqlLog.push(sqlLine);
-						});
-						hm_psr_update_debug_sql_box(debugSqlLog);
-					}
-					response = JSON.parse(response[0]);
-					var meta = ajax.getResponseHeader('X-Psr-Meta');
-					if (meta) {
-						meta = JSON.parse(meta);
-						if (meta.title) {
-							reportTitle = meta.title;
-						}
-						$('#ninjalytics-dates-desc').val( meta.datesDesc );
-						var dateMode = $('.ninjalytics-date-range-tabs :checked').val();
-						if (dateMode === 'basic' || dateMode === 'dynamic') {
-							$('#ninjalytics-date-range-' + dateMode + ' p').each(function(i) {
-								$(this).text( i ? meta.endDate : meta.startDate );
-							});
-						}
-					}
-					if (mode === 'chart') {
-						var requestDuration = (Date.now() - requestStart) / 1000;
-						var labels = ajax.getResponseHeader('X-Psr-Chart-Labels');
-						labels = labels ? labels.split('|') : [''];
-						
-						$('#ninjalytics-chart-duplicate-series').addClass('berrypress-hidden');
-
-						for (var i = 0; i < labels.length; ++i) {
-							var dataPoints = {};
-							for (var j = 0; j < response[i].length; ++j) {
-								var seriesValue = chartType == 'line_totals' ? 'TOTALS' : response[i][j][0];
-								if (dataPoints.hasOwnProperty(seriesValue)) {
-									$('#ninjalytics-chart-duplicate-series').removeClass('berrypress-hidden');
-								} else {
-									dataPoints[seriesValue] = response[i][j].slice(1);
-								}
-							}
-							data[ labels[i] ] = dataPoints;
-						}
-
-						var runsRemaining = parseInt(ajax.getResponseHeader('X-Psr-Chart-Run-Remaining'));
-
-					} else {
-						var runsRemaining = 0;
-						data = response;
-					}
-
-					if (thisDataSeq === dataSeq) {
-						if (runsRemaining) {
-							$loader.val( (batchStart + batchSize) / (batchStart + batchSize + runsRemaining) * 99 );
-							buildData(batchStart + batchSize, Math.min(runsRemaining, Math.max(1, Math.floor(targetRequestLength / requestDuration))));
-						} else {
-							$loader.val(99);
-							callback(data, fieldNames, showHeader, showTotals, reportTitle, sortOrder);
-						}
-					}
-				},
-				dataType: 'text'
-			});
-		}
-
-		if (thisDataSeq === dataSeq) {
-			buildData(1, 1);
-		}
-
+		return normalized.replace(/\n(AND|OR)\b/gi, '\n  $1').trim();
 	}
 
 	function hm_psr_update_debug_sql_box(queries) {
-		if (queries && queries.length && $('#ninjalytics-enable-debug').prop('checked')) {
-			$('#ninjalytics-debug-sql-content').text(queries.join('\n\n'));
-			$('#ninjalytics-debug-sql-box').removeClass('berrypress-hidden').attr('aria-hidden', 'false');
-		}
-	}
+		var $box = $('#ninjalytics-debug-sql-box');
+		var $list = $('#ninjalytics-debug-sql-list');
+		var $count = $('#ninjalytics-debug-sql-count');
+		var labelTemplate = $box.data('query-label-template') || 'Query %d';
 
-	function extractJsonComments(str) {
-		var comments = {};
-		return [
-			str.replaceAll(/\/\*(.+?)\:(.*?)\*\//g, function (substr, key, value) {
-				if (!comments[key]) {
-					comments[key] = [];
-				}
-				comments[key].push( JSON.parse(value) );
-				return '';
-			}),
-			comments
-		];
+		if (queries && queries.length && $('#ninjalytics-enable-debug').prop('checked')) {
+			$list.empty();
+			queries.forEach(function(sql, index) {
+				var $item = $('<div class="ninjalytics-debug-sql-query"/>');
+				var $label = $('<div class="ninjalytics-debug-sql-query-label"/>')
+					.text(labelTemplate.replace('%d', String(index + 1)));
+				var $pre = $('<pre class="ninjalytics-debug-sql-query-code"/>')
+					.text(ninjalyticsFormatDebugSql(sql));
+				$item.append($label, $pre);
+				$list.append($item);
+			});
+			$count.text('(' + queries.length + ')').prop('hidden', false);
+			$box.removeClass('berrypress-hidden').attr('aria-hidden', 'false');
+		} else {
+			$list.empty();
+			$count.text('').prop('hidden', true);
+			$box.addClass('berrypress-hidden').attr('aria-hidden', 'true');
+		}
 	}
 
 	ninjalytics_update_chart();
@@ -759,198 +778,10 @@ jQuery(document).ready(function($) {
 
 	$('#ninjalytics-enable-debug').on('change', function() {
 		if (!$(this).prop('checked')) {
-			$('#ninjalytics-debug-sql-content').empty();
-			$('#ninjalytics-debug-sql-box').addClass('berrypress-hidden').attr('aria-hidden', 'true');
+			hm_psr_update_debug_sql_box(null);
 		}
 	});
 
-	function hm_psr_build_table(data, fieldNames, showHeader, showTotals, reportTitle, reportSort) {
-		// // Destroy existing table instance if it exists
-		// if (hm_psr_table) {
-		// 	hm_psr_table_search = hm_psr_table.search();
-		// 	hm_psr_table.destroy(true);
-		// 	hm_psr_table = null;
-		// }
-
-		var $table = $('<table>').append(
-			$('<thead>').append(
-				$('<tr>').append(
-					fieldNames.map(function(fieldName) {
-						return $('<th>').attr('data-order-sequence', '["asc","desc"]').text(showHeader ? fieldName : '');
-					})
-				)
-			),
-			$('<tbody>').append(
-				(showTotals ? data.slice(0,  -1) : data).map(function(row) {
-					return $('<tr>').append(
-						row.map(function(cell) {
-							return $('<td>').text(cell);
-						})
-					);
-				})
-			)
-		).on('order.dt', function(a, b, order) {
-			if (order.length) {
-				$('#hm_sbp_field_orderby').val( $('#hm_sbp_field_orderby > :eq(' + order[0].col + ')').val() );
-				$('#ninjalytics-orderdir').val( order[0].dir );
-			}
-		}).on('column-reorder.dt', function(a, b, order) {
-			if (hm_psr_freeze_field_order) {
-				return;
-			}
-			var $c = $('#hm_psr_report_fields').children();
-			var $move = order.from.map( function(i) { return $c.eq(i); } );
-			if (order.to > order.from[0]) {
-				$c.eq(order.to).after($move);
-			} else if (order.to < $c.length) {
-				$c.eq(order.to).before($move);
-			}
-		});
-
-		if (showTotals && data.length) {
-			$table.append(
-				$('<tfoot>').append(
-					$('<tr>').append(
-						data[data.length - 1].map(function(cell) {
-							return $('<td>').text(cell);
-						})
-					)
-				)
-			);
-		}
-
-
-		$('#ninjalytics_output_container')
-			.append(reportTitle ? $('<h2>').text(reportTitle) : '', $table)
-			.removeClass('ninjalytics-output-loading')
-			.find('.ninjalytics-loading progress').val('');
-		
-		hm_psr_table = $table.DataTable({
-			pageLength:25,
-			order:[reportSort],
-			colReorder:true,
-			responsive:true,
-			select:true,
-			language: {
-				lengthMenu: 'Show: _MENU_',
-				searchPlaceholder: 'Search',
-				search: '_INPUT_'
-			},
-			layout: {
-				topStart: 'search',
-				topEnd: 'pageLength',
-			}
-		});
-
-		if (hm_psr_table_search !== null) {
-			hm_psr_table.search(hm_psr_table_search);
-			hm_psr_table.draw();
-		}
-
-		
-	}
-
-	function hm_psr_is_empty_chart(data) {
-		for (var entry in data) {
-			if (Object.values(data[entry]).length) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	function hm_psr_build_chart(data, fieldNames, showHeader, showTotals, reportTitle, reportSort) {
-		var $chart = $('#hm_psr_chart');
-		$chart.next('.ninjalytics-chart-empty').remove();
-		if (hm_psr_is_empty_chart(data)) {
-			$chart.after( $('<p>').addClass('ninjalytics-chart-empty').text('No data') );
-		} else {
-
-			var multiDataset = false, multiSeries = true;
-			switch ( $('#hm_psr_chart_type :radio:checked').val() ) {
-				case 'bar':
-					var chartType = 'bar';
-					break;
-				case 'pie':
-					var chartType = 'pie';
-					break;
-				case 'line_totals':
-					multiSeries = false;
-				// no break
-				case 'line_series':
-					multiDataset = true;
-				// no break
-				default:
-					var chartType = 'line';
-			}
-
-			if (!multiDataset) {
-				data = Object.values(data)[0];
-			}
-
-			var chartData = {
-				labels: Object.keys(data),
-				datasets: []
-			};
-
-			if (multiDataset) {
-				var chartSeries = {};
-				for (var label in data) {
-					for (var series in data[label]) {
-						chartSeries[series] = [];
-					}
-				}
-
-				for (label in data) {
-					for (series in chartSeries) {
-						chartSeries[series].push(data[label][series] ? data[label][series] : []);
-					}
-				}
-
-				for (series in chartSeries) {
-					for (var i = 1; i < fieldNames.length; ++i) {
-						chartData.datasets.push({
-							data: chartSeries[series].map(function(values) {
-								return values[i - 1] ? values[i - 1] : 0;
-							}),
-							label: (multiSeries ? series + ' - ' : '') + fieldNames[i]
-						});
-					}
-				}
-
-			} else {
-				for (var i = 1; i < fieldNames.length; ++i) {
-					chartData.datasets.push(
-						{
-							label: fieldNames[i],
-							data: Object.values(data).map(function(value) {
-								return value[i - 1];
-							})
-						}
-					);
-				}
-			}
-
-			var chartParams = {
-				type: chartType,
-				data: chartData,
-				options: {
-					plugins: {
-						title: {
-							display: !(!reportTitle),
-							text: reportTitle
-						}
-					}
-				}
-			};
-
-			console.log(chartParams);
-
-			hm_psr_chart = new Chart($chart[0], chartParams);
-		}
-
-		$chart.parent().removeClass('ninjalytics-output-loading').find('.ninjalytics-loading progress').val('');
-	}
 
 	// Conditional setting visibility
 	function getScopeFromInput($input) {
@@ -1008,23 +839,363 @@ jQuery(document).ready(function($) {
 	});
 
 	$('#hm_sbp_field_orderby, #ninjalytics-orderdir').on('change', function() {
-		if (hm_psr_table) {
+		if (window.ninjalytics_table) {
 			try {
-				hm_psr_table.order([
+				ninjalytics_table.order([
 					$('#hm_sbp_field_orderby > :selected').index(),
 					$('#ninjalytics-orderdir').val()
 				]);
-				hm_psr_table.draw();
+				ninjalytics_table.draw();
 			} catch (x) {}
 			
 		}
 	});
+
+	// Rename report by editing the breadcrumb label.
+	var $breadcrumbReportName = $('#ninjalytics-breadcrumb-report-name');
+	var $presetNameInput = $('input[name="preset_name"]');
+	if ($breadcrumbReportName.length && $presetNameInput.length) {
+		var syncBreadcrumbFromInput = function() {
+			var inputValue = $presetNameInput.val() || '';
+			if ($breadcrumbReportName.text() !== inputValue) {
+				$breadcrumbReportName.text(inputValue);
+			}
+		};
+
+		// Push raw breadcrumb text to the hidden input (no change event until commit).
+		var syncInputFromBreadcrumb = function() {
+			var text = ($breadcrumbReportName.text() || '').replace(/[\r\n\t]+/g, ' ');
+			if ($presetNameInput.val() !== text) {
+				$presetNameInput.val(text);
+			}
+		};
+
+		var breadcrumbEditOriginal = '';
+		var skipBreadcrumbCommitOnBlur = false;
+
+		// On blur, normalize the visible text (trim) and push to the input.
+		var commitBreadcrumb = function() {
+			var text = ($breadcrumbReportName.text() || '').replace(/[\r\n\t]+/g, ' ').trim();
+			if ($breadcrumbReportName.text() !== text) {
+				$breadcrumbReportName.text(text);
+			}
+			if ($presetNameInput.val() !== text) {
+				$presetNameInput.val(text).trigger('change');
+			}
+		};
+
+		var isBreadcrumbEditing = function() {
+			return $breadcrumbReportName.attr('contenteditable') === 'true';
+		};
+
+		var enableBreadcrumbEdit = function() {
+			if (isBreadcrumbEditing()) {
+				return;
+			}
+			breadcrumbEditOriginal = ($breadcrumbReportName.text() || '').replace(/[\r\n\t]+/g, ' ').trim();
+			$breadcrumbReportName
+				.attr('contenteditable', 'true')
+				.addClass('is-editing');
+		};
+
+		var disableBreadcrumbEdit = function() {
+			$breadcrumbReportName
+				.attr('contenteditable', 'false')
+				.removeClass('is-editing');
+		};
+
+		var selectBreadcrumbText = function() {
+			var el = $breadcrumbReportName[0];
+			if (!el) {
+				return;
+			}
+			var range = document.createRange();
+			range.selectNodeContents(el);
+			var sel = window.getSelection();
+			sel.removeAllRanges();
+			sel.addRange(range);
+		};
+
+		syncBreadcrumbFromInput();
+
+		$breadcrumbReportName.on('mousedown', function(e) {
+			e.stopPropagation();
+		});
+
+		$breadcrumbReportName.on('click', function(e) {
+			e.stopPropagation();
+			enableBreadcrumbEdit();
+			if (document.activeElement !== this) {
+				this.focus();
+			}
+		});
+
+		$breadcrumbReportName.on('focus', function() {
+			enableBreadcrumbEdit();
+			// Select all text on focus for easy replacement.
+			selectBreadcrumbText();
+		});
+
+		$breadcrumbReportName.on('keydown', function(e) {
+			// Enter confirms the rename.
+			if (e.key === 'Enter' || e.keyCode === 13) {
+				e.preventDefault();
+				$breadcrumbReportName.trigger('blur');
+				return;
+			}
+			// Escape cancels and restores the value from when editing started.
+			if (e.key === 'Escape' || e.keyCode === 27) {
+				e.preventDefault();
+				skipBreadcrumbCommitOnBlur = true;
+				$breadcrumbReportName.text(breadcrumbEditOriginal);
+				$presetNameInput.val(breadcrumbEditOriginal);
+				disableBreadcrumbEdit();
+				$breadcrumbReportName.blur();
+			}
+		});
+
+		$breadcrumbReportName.on('paste', function(e) {
+			e.preventDefault();
+			var text = '';
+			if (e.originalEvent && e.originalEvent.clipboardData) {
+				text = e.originalEvent.clipboardData.getData('text/plain');
+			} else if (window.clipboardData) {
+				text = window.clipboardData.getData('Text');
+			}
+			text = text.replace(/[\r\n\t]+/g, ' ');
+			if (document.execCommand) {
+				document.execCommand('insertText', false, text);
+			} else {
+				$breadcrumbReportName.text(($breadcrumbReportName.text() || '') + text);
+			}
+		});
+
+		$breadcrumbReportName.on('input', syncInputFromBreadcrumb);
+		$breadcrumbReportName.on('blur', function() {
+			if (skipBreadcrumbCommitOnBlur) {
+				skipBreadcrumbCommitOnBlur = false;
+				return;
+			}
+			commitBreadcrumb();
+			disableBreadcrumbEdit();
+		});
+		$presetNameInput.on('change input', function() {
+			// Don't fight the user while they are editing the breadcrumb.
+			if (document.activeElement === $breadcrumbReportName[0]) {
+				return;
+			}
+			syncBreadcrumbFromInput();
+		});
+	}
+
+	// Resizable split: report data vs settings panel (Split.js, viewport >= 1101px).
+	(function initNinjalyticsSettingsSplit() {
+		var $layoutRoot = $('#ninjalytics-settings-settings');
+		var $splitHost = $layoutRoot.find('.ninjalytics-settings-split');
+		if (!$layoutRoot.length || !$splitHost.length || typeof Split !== 'function') {
+			return;
+		}
+
+		var dataEl = $splitHost.children('.ninjalytics-settings-data')[0];
+		var sidebarEl = $splitHost.children('.ninjalytics-settings-sidebar')[0];
+		var panelEl = sidebarEl ? sidebarEl.querySelector('.ninjalytics-settings-panel') : null;
+		if (!dataEl || !sidebarEl || !panelEl) {
+			return;
+		}
+
+		var storageKey = 'ninjalytics_settings_panel_width';
+		var splitMq = window.matchMedia('(min-width: 1101px)');
+		var splitInstance = null;
+		var defaultPanelWidthPx = 380;
+		var minPanelWidthPx = 320;
+		var maxPanelWidthPx = 560;
+		var minDataWidthPx = 280;
+		// Must match .gutter.gutter-horizontal width in _settings-split.scss (8px → calc(N% - 4px) per pane).
+		var splitGutterSize = 8;
+
+		function clampPanelWidth(px) {
+			return Math.max(minPanelWidthPx, Math.min(maxPanelWidthPx, Math.round(px)));
+		}
+
+		function readPanelWidthPx() {
+			var hostWidth = $splitHost.width();
+			try {
+				var raw = localStorage.getItem(storageKey);
+				if (raw !== null && raw !== '') {
+					var px = parseInt(raw, 10);
+					if (isFinite(px) && px > 0) {
+						return clampPanelWidth(px);
+					}
+				}
+			} catch (err) {}
+			return defaultPanelWidthPx;
+		}
+
+		function measureSidebarTabsWidthPx() {
+			var $tabsEl = $('#ninjalytics-report-sidebar-tabs');
+			if (!$tabsEl.length) {
+				return 52;
+			}
+			return $tabsEl.outerWidth();
+		}
+
+		function savePanelWidthPx() {
+			try {
+				var sidebarW = $(sidebarEl).outerWidth();
+				var contentW = sidebarW - measureSidebarTabsWidthPx();
+				localStorage.setItem(storageKey, String(clampPanelWidth(contentW)));
+			} catch (err) {}
+		}
+
+		function sidebarTotalWidthPx(contentPx) {
+			return measureSidebarTabsWidthPx() + clampPanelWidth(contentPx);
+		}
+
+		function panelWidthToSplitSizes(contentPx) {
+			var hostWidth = $splitHost.width();
+			if (!hostWidth) {
+				return [65, 35];
+			}
+			var sidebarPx = sidebarTotalWidthPx(contentPx);
+			var maxSidebarPx = hostWidth - splitGutterSize - minDataWidthPx;
+			if (maxSidebarPx < sidebarTotalWidthPx(minPanelWidthPx)) {
+				maxSidebarPx = sidebarTotalWidthPx(minPanelWidthPx);
+			}
+			sidebarPx = Math.min(sidebarPx, maxSidebarPx);
+			var sidebarPercent = (sidebarPx / hostWidth) * 100;
+			return [100 - sidebarPercent, sidebarPercent];
+		}
+
+		function hostHasWidth() {
+			return $splitHost.width() > 0;
+		}
+
+		function createSplit() {
+			if (splitInstance || !hostHasWidth()) {
+				return;
+			}
+			$layoutRoot.addClass('ninjalytics-layout-enabled');
+			var minSidebarPx = sidebarTotalWidthPx(minPanelWidthPx);
+			splitInstance = Split([dataEl, sidebarEl], {
+				sizes: panelWidthToSplitSizes(readPanelWidthPx()),
+				minSize: [minDataWidthPx, minSidebarPx],
+				gutterSize: splitGutterSize,
+				snapOffset: 0,
+				cursor: 'col-resize',
+				onDragEnd: function() {
+					savePanelWidthPx();
+					if (typeof window.ninjalyticsAdjustReportTable === 'function') {
+						window.ninjalyticsAdjustReportTable();
+					}
+				}
+			});
+			window.requestAnimationFrame(function() {
+				if (typeof window.ninjalyticsAdjustReportTable === 'function') {
+					window.ninjalyticsAdjustReportTable();
+				}
+			});
+		}
+
+		function destroySplit() {
+			if (!splitInstance) {
+				return;
+			}
+			splitInstance.destroy();
+			splitInstance = null;
+			$layoutRoot.removeClass('ninjalytics-layout-enabled');
+		}
+
+		function isSidebarCollapsed() {
+			return $layoutRoot.hasClass('ninjalytics-sidebar-collapsed');
+		}
+
+		function collapsePanel() {
+			$layoutRoot.addClass('ninjalytics-sidebar-collapsed');
+			panelEl.style.display = 'none';
+			if (splitMq.matches) {
+				destroySplit();
+			}
+		}
+
+		function expandPanel() {
+			$layoutRoot.removeClass('ninjalytics-sidebar-collapsed');
+			panelEl.style.display = '';
+			if (!splitMq.matches) {
+				return;
+			}
+			window.requestAnimationFrame(function() {
+				if (!hostHasWidth() || isSidebarCollapsed()) {
+					return;
+				}
+				createSplit();
+				if (typeof window.ninjalyticsAdjustReportTable === 'function') {
+					window.ninjalyticsAdjustReportTable();
+				}
+			});
+		}
+
+		function syncSplit() {
+			if (!splitMq.matches) {
+				destroySplit();
+				return;
+			}
+			if (!hostHasWidth()) {
+				return;
+			}
+			if (isSidebarCollapsed()) {
+				destroySplit();
+				return;
+			}
+			createSplit();
+		}
+
+		function scheduleSync() {
+			window.requestAnimationFrame(function() {
+				syncSplit();
+			});
+		}
+
+		window.ninjalyticsSettingsSplit = {
+			collapse: collapsePanel,
+			expand: expandPanel,
+			isCollapsed: isSidebarCollapsed
+		};
+
+		scheduleSync();
+		$(window).on('load', scheduleSync);
+		if (typeof splitMq.addEventListener === 'function') {
+			splitMq.addEventListener('change', function() {
+				if (splitMq.matches && !isSidebarCollapsed()) {
+					scheduleSync();
+				} else if (!splitMq.matches) {
+					scheduleSync();
+				} else {
+					destroySplit();
+				}
+			});
+		} else if (typeof splitMq.addListener === 'function') {
+			splitMq.addListener(function() {
+				if (splitMq.matches && !isSidebarCollapsed()) {
+					scheduleSync();
+				} else if (!splitMq.matches) {
+					scheduleSync();
+				} else {
+					destroySplit();
+				}
+			});
+		}
+	})();
 });
 
 function hm_psr_add_custom_field(fieldId, fieldName) {
-	var customFieldBox = jQuery('#hm_psr_report_fields > div:last').clone().removeClass('hm_psr_groupby_field hm_psr_variation_field');
+	var customFieldBox = jQuery('#hm_psr_report_fields > div.ninjalytics-report-field:last');
+	if (!customFieldBox.length && window.ninjalytics_new_field) {
+		customFieldBox = window.ninjalytics_new_field;
+	}
+	customFieldBox = customFieldBox.clone().removeClass('hm_psr_groupby_field hm_psr_groupby_field2 hm_psr_groupby_field3 hm_psr_groupby_field4 hm_psr_groupby_field5 hm_psr_variation_field ninjalytics-editable-field');
 	customFieldBox.children('input[type="hidden"]').attr('value', fieldId);
 	customFieldBox.children('input[type="text"]').attr('name', 'field_names[' + fieldId + ']').val(fieldName);
+	delete window.ninjalytics_new_field;
 
 	if (fieldId == 'builtin::groupby_field') {
 		customFieldBox.addClass( 'hm_psr_groupby_field' + (fieldId == 'builtin::groupby_field' ? '' : fieldId[22]) );
@@ -1046,6 +1217,9 @@ function ninjalytics_remove_field(btn) {
 	if ($field.hasClass('hm_psr_groupby_field')) {
 		alert('This field is a grouping field. To remove this field, please change the Custom segment 1 setting in the Grouping & Sorting tab.');
 		return;
+	}
+	if (!$field.siblings().length) {
+		window.ninjalytics_new_field = $field;
 	}
 	$field.remove();
 	hm_psr_update_sort_options();

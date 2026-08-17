@@ -3,9 +3,9 @@
  * Plugin Name:          Ninjalytics: Sales Reports & Order Export for WooCommerce and EDD
  * Description:          Generates a report on individual WooCommerce products sold during a specified time period.
  * Plugin URI:           https://berrypress.com/product/woocommerce/ninjalytics/?utm_campaign=wordpressorg&source=ninjalytics-free-plugin
- * Version:              2.0.15
- * WC tested up to:      10.9
- * WC requires at least: 2.2
+ * Version:              2.1.1
+ * WC tested up to:      11.0
+ * WC requires at least: 7.0
  * Requires PHP:         8.1
  * Author:               BerryPress
  * Author URI:           https://wpzone.co/?utm_source=product-sales-report-pro&utm_medium=link&utm_campaign=wp-plugin-author-uri
@@ -51,30 +51,50 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use NinjalyticsFree\Reporters\PlatformFeatures;
 
-define('NINJALYTICS_FREE_VERSION', '2.0.15');
+define('NINJALYTICS_FREE_VERSION', '2.1.0');
 
 add_filter('default_option_ninjalytics_settings', __NAMESPACE__.'\\ninjalytics_psr_import');
 function ninjalytics_psr_import($default) {
-	$default = get_option('hm_psr_report_settings', $default);
-	if (isset($default[0])) {
-		$default[0]['preset_name'] = 'Last used settings from Product Sales Report';
-		if (in_array($default[0]['orderby'] ?? '', ['product_id', 'quantity', 'gross', 'gross_after_discount'])) {
-			$default[0]['orderby'] = 'builtin::'.$default[0]['orderby'];
-		}
-	} else {
+	remove_filter('default_option_ninjalytics_settings', __NAMESPACE__.'\\ninjalytics_psr_import');
+	if (!get_option('ninjalytics_settings')) {
 		$default = [];
-	}
-	array_unshift($default, []);
-	
-	
-	$xoiDefault = get_option('hm_xoiwc_report_settings', []);
-	if (isset($xoiDefault[0]) && !isset($xoiDefault[0]['report_start_time'])) { // don't import Pro settings
-		$xoiDefault[0]['preset_name'] = 'Last used settings from Export Order Items';
-		$xoiDefault[0]['export_orders'] = 1;
-		if (isset($xoiDefault[0]['orderby'])) {
-			$xoiDefault[0]['orderby'] = 'builtin::'.$xoiDefault[0]['orderby'];
+		
+		$psrSettings = get_option('hm_psr_report_settings', []);
+		
+		if (isset($psrSettings[0])) {
+			require_once(__DIR__.'/includes/migration.php');
+			$default = ninjalytics_process_psr_settings($psrSettings);
 		}
-		$default[] = $xoiDefault[0];
+		array_unshift($default, []);
+		
+		// Import EOIP Free and EOIP Pro as separate sources so the user gets both sets of presets.
+		$xoiSources = array(
+			'Export Order Items'     => get_option('hm_xoiwc_report_settings', []),
+			'Export Order Items Pro' => get_option('ags_xoiwcp_report_settings', get_option('hm_xoiwcp_report_settings', [])),
+		);
+		
+		foreach ($xoiSources as $src) {
+			if ($src) {
+				require_once(__DIR__.'/includes/migration.php');
+				$default = array_merge($default, ninjalytics_process_xoi_settings($xoiSources));
+				break;
+			}
+		}
+		
+		if ($default) {
+			$dateFieldKeys = ninjalytics_date_field_keys();
+			foreach ($default as $presetId => &$preset) {
+				if ($presetId) {
+					update_option(
+						'ninjalytics_report_dates_'.((int) $presetId),
+						wp_json_encode(array_intersect_key($preset, $dateFieldKeys)),
+						false
+					);
+					$preset = array_diff_key($preset, $dateFieldKeys);
+				}
+			}
+			update_option('ninjalytics_settings', $default, false);
+		}
 	}
 	
 	return $default;
@@ -195,19 +215,19 @@ function ninjalytics_maybe_run_report()
 {
 	global $pagenow;
 	
-	$ninjalytics_action_free = sanitize_text_field(wp_unslash($_REQUEST['ninjalytics_action_free'] ?? ''));
+	$ninjalytics_action = sanitize_text_field(wp_unslash($_REQUEST['ninjalytics_action_free'] ?? ''));
 	
 	// Check if we are in admin and on the report page
-	if (!is_admin() && $ninjalytics_action_free != 'apikey') {
+	if (!is_admin() && $ninjalytics_action != 'apikey') {
         return;
     }
 
-	if (($pagenow == 'admin.php' && isset($_GET['page']) && $_GET['page'] == 'ninjalytics-free') || ($ninjalytics_action_free == 'apikey')) {
+	if (($pagenow == 'admin.php' && isset($_GET['page']) && $_GET['page'] == 'ninjalytics-free') || ($ninjalytics_action == 'apikey')) {
 		
 		add_filter('nocache_headers', __NAMESPACE__.'\\ninjalytics_filter_nocache_headers', 9999);
 		nocache_headers();
 		
-		switch ($ninjalytics_action_free) {
+		switch ($ninjalytics_action) {
 			case 'run':
 			
 			if (empty($_REQUEST['hm-psr-nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['hm-psr-nonce'])), 'hm-psr-run') ) {
@@ -215,7 +235,11 @@ function ninjalytics_maybe_run_report()
 			}
 			
 			$reportersInfo = ninjalytics_get_reporters_info();
-			$reporterId = ninjalytics_get_active_reporter_id();
+			try {
+				$reporterId = ninjalytics_get_active_reporter_id();
+			} catch (\Exception $e) {
+				wp_die(esc_html__('No active reporting source was found. Please make sure a supported e-commerce plugin (such as WooCommerce) is installed and active, then try again.', 'product-sales-report-for-woocommerce'));
+			}
 			
 			if ( !current_user_can($reportersInfo[$reporterId]['capability']) ) {
 				return;
@@ -243,7 +267,7 @@ function ninjalytics_maybe_run_report()
 						// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- int cast
 						$savedReportSettings[(int) ($_GET['preset'] ?? '')],
 						// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- int cast
-						((int) ($_POST['preset'] ?? '')) ? json_decode(get_option('ninjalytics_report_dates_'.((int) ($_POST['preset'] ?? '')), '{}'), true) : []
+						isset($_GET['preset']) ? json_decode(get_option('ninjalytics_report_dates_'.((int) $_GET['preset']), '{}'), true) : []
 					);
 				}
 				
@@ -256,20 +280,7 @@ function ninjalytics_maybe_run_report()
 						'ninjalytics_report_dates_'.((int) $_POST['preset']),
 						wp_json_encode(array_intersect_key(
 							$_POST,
-							[
-								'display_mode' => true,
-								'report_time_mode' => true,
-								'report_time_basic_from' => true,
-								'report_time_basic_from_unit' => true,
-								'report_time_basic_from_round' => true,
-								'report_time_basic_to' => true,
-								'report_time_basic_to_unit' => true,
-								'report_time_basic_to_round' => true,
-								'report_time_absolute_from_date' => true,
-								'report_time_absolute_from_time' => true,
-								'report_time_absolute_to_date' => true,
-								'report_time_absolute_to_time' => true
-							]
+							ninjalytics_date_field_keys()
 						)),
 						false
 					);
@@ -279,8 +290,16 @@ function ninjalytics_maybe_run_report()
 			if (!empty($_POST['hm_psr_debug'])) {
 // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_error_reporting -- Intentionally enabled for debug mode
 				error_reporting(E_ALL);
+				// Log PHP errors instead of displaying them inline: the report
+				// response is a streamed JSON/CSV body, so echoing error markup
+				// into it (via display_errors) corrupts the output.
 // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Intentionally enabled for debug mode
-				ini_set('display_errors', 1);
+				ini_set('display_errors', 0);
+				set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging instead of echoing into the report output
+					error_log(sprintf('[Ninjalytics report debug] %s in %s on line %d', $errstr, $errfile, $errline));
+					return true;
+				});
 			}
 			
 			// Map new (1.6.8) product category checklist onto old field name
@@ -297,7 +316,7 @@ function ninjalytics_maybe_run_report()
 				'limit_on', 'include_nil', 'include_shipping', 'include_unpublished', 'include_header', 'include_totals',
 				'format_amounts', 'exclude_free', 'report_unfiltered',
 				'refunds', 'adjustments', 'report_title_on', 'hm_psr_debug', 'disable_product_grouping', 'intermediate_rounding',
-				'advanced_table_downloads', 'advanced_data_display', 'advanced_products', 'advanced_orders'
+				'advanced_table_downloads', 'advanced_data_display', 'advanced_products', 'advanced_orders', 'exclude_free_after_discount', 'one_line_per_order'
 				) as $checkboxField) {
 				
 				if (!isset($newSettings[$checkboxField])) {
@@ -427,7 +446,8 @@ function ninjalytics_maybe_run_report()
 				include_once(__DIR__.'/includes/Ninjalytics_CSV_Export.php');
 // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- No equivalent function in WP_Filesystem
 				$out = fopen($filepath, 'w');
-				$dest = new \Ninjalytics_CSV_Export($out, array(
+				$formatClass = $_POST['format'] == 'csv-ascii' ? '\Ninjalytics_CSV_ASCII_Export' : '\Ninjalytics_CSV_Export';
+				$dest = new $formatClass($out, array(
 					// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- false positive
 					'delimiter' => sanitize_text_field(wp_unslash($_POST['format_csv_delimiter'] ?? ',')),
 					'surround' => sanitize_text_field(wp_unslash($_POST['format_csv_surround'] ?? '"')),
@@ -617,6 +637,38 @@ function ninjalytics_get_report_dates_presets()
 			]
 		]
 	];
+}
+
+function ninjalytics_date_field_keys() {
+	return [
+		'display_mode' => true, // not technically a date field, but still saved with them
+		'report_time_mode' => true,
+		'report_time_preset' => true,
+		'report_time_basic_from' => true,
+		'report_time_basic_from_unit' => true,
+		'report_time_basic_from_round' => true,
+		'report_time_basic_to' => true,
+		'report_time_basic_to_unit' => true,
+		'report_time_basic_to_round' => true,
+		'report_time_absolute_from_date' => true,
+		'report_time_absolute_from_time' => true,
+		'report_time_absolute_to_date' => true,
+		'report_time_absolute_to_time' => true,
+		'report_time_dynamic_from' => true,
+		'report_time_dynamic_to' => true
+	];
+}
+
+/**
+ * Next numeric preset ID. Keys must stay stable (never reindexed) so
+ * ninjalytics_report_dates_{id} and widget preset_id stay aligned.
+ */
+function ninjalytics_next_preset_id( array $savedReportSettings ) {
+	if ( ! $savedReportSettings ) {
+		return 1;
+	}
+
+	return (int) max( array_keys( $savedReportSettings ) ) + 1;
 }
 
 function ninjalytics_get_field_group_prefix($fieldGroupName, $reportSettings)
@@ -892,6 +944,30 @@ function ninjalytics_export_body($reporter, $dest, $start_date, $end_date)
 		}
 	}
 	
+	if (!empty($_POST['export_orders'])) {
+		if ((!empty($_POST['order_total_once']) || !empty($_POST['order_fields_once']) || !empty($_POST['order_group_empty_row'])) && !in_array('builtin::order_id', $_POST['fields'])) {
+			$_POST['fields'][] = 'builtin::order_id';
+			$addedOrderIdField = true;
+		}
+		
+		if (!empty($_POST['totals_by_type']) && !in_array('builtin::order_item_type', $_POST['fields'])) {
+			$_POST['fields'][] = 'builtin::order_item_type';
+			$addedOrderItemTypeField = true;
+		}
+	}
+
+	$addedPreviewOrderParentForOrderLinks = false;
+	if (
+		sanitize_text_field( wp_unslash( $_POST['format'] ?? '' ) ) === 'json'
+		&& $reporter->supports(PlatformFeatures::ORDER_PARENT)
+		&& in_array( 'builtin::order_id', $_POST['fields'], true )
+		&& ! in_array( 'builtin::order_parent', $_POST['fields'], true )
+	) {
+		$_POST['fields'][]           = 'builtin::order_parent';
+		$addedPreviewOrderParentForOrderLinks = true;
+	}
+
+	
 	// Get base fields
 	$baseFields = array_unique(array_map('sanitize_text_field', wp_unslash($_POST['fields'] ?? [])));
 	
@@ -921,7 +997,7 @@ function ninjalytics_export_body($reporter, $dest, $start_date, $end_date)
 			}
 		}
 		
-		$productsFiltered = ($productsFilteringMode == 'cats' || ($supportsChildItems && empty($_POST['include_unpublished']) ) );
+		$productsFiltered = ($productsFilteringMode == 'cats' || ($supportsChildItems && empty($_POST['export_orders']) && empty($_POST['include_unpublished'])));
 		if ($productsFiltered || ($supportsChildItems && !empty($_POST['include_nil']))) {
 			$params = array(
 				'post_type' => $reporter->productPostType,
@@ -948,7 +1024,7 @@ function ninjalytics_export_body($reporter, $dest, $start_date, $end_date)
 				);
 			}
 			
-			if (!empty($_POST['include_unpublished']) || !$supportsChildItems) {
+			if ((!empty($_POST['include_unpublished']) || !empty($_POST['export_orders'])) || !$supportsChildItems) {
 				$params['post_status'] = 'any';
 			}
 			
@@ -982,11 +1058,16 @@ function ninjalytics_export_body($reporter, $dest, $start_date, $end_date)
 	$reporter->start_date = $start_date;
 	$reporter->end_date = $end_date;
 	
+	// Override WC tax location, if necessary for a report field
+	if (in_array('product_price_with_tax', $baseFields)) {
+		add_filter('woocommerce_get_tax_location', __NAMESPACE__.'\\ninjalytics_override_tax_location');
+	}
+	
 	// Initialize totals array
 	if (empty($_POST['include_totals']) || empty($_POST['total_fields'])) {
 		$totals = array();
 	} else {
-		$totals = array_combine(array_map('sanitize_text_field', wp_unslash($_POST['total_fields'] ?? [])), array_fill(0, count($_POST['total_fields'] ?? []), 0));
+		$totals = ['default' => array_combine(array_map('sanitize_text_field', wp_unslash($_POST['total_fields'] ?? [])), array_fill(0, count($_POST['total_fields'] ?? []), 0))];
 	}
 	
 	$rows = array();
@@ -1009,13 +1090,16 @@ function ninjalytics_export_body($reporter, $dest, $start_date, $end_date)
 				'gross_after_discount',
 				'taxes'
 			), ($reporter->supports(PlatformFeatures::COGS) ? ['cogs'] : [])),
-			(empty($_POST['export_orders']) ? (int) $_POST['disable_product_grouping'] : 1),
-			((empty($_POST['export_orders']) && (int) $_POST['disable_product_grouping']) == 2) ? 'product_category' : '');
+			(int) $_POST['disable_product_grouping'],
+			(((int) $_POST['disable_product_grouping'] == 2) ? 'product_category' : ''));
 		}
 		
 		
 		foreach ($sold_products as $product) {
-			$row = $reporter->getRow($product, $selectedReportFields, $totals, [], []);
+			if (!empty($_POST['exclude_unmanaged_stock']) && $reporter->supports(PlatformFeatures::ITEM_STOCK) && !$reporter->reportRowTracksInventory($product)) {
+				continue;
+			}
+			$row = $reporter->getRow($product, $selectedReportFields, $totals);
 			if (isset($rows[(string) $row[$orderIndex]])) {
 				$rows[(string) $row[$orderIndex]][] = $row;
 			} else {
@@ -1034,8 +1118,8 @@ function ninjalytics_export_body($reporter, $dest, $start_date, $end_date)
 		}
 	}
 	
-	if (!empty($_POST['include_shipping']) && $reporter->supports(PlatformFeatures::SHIPPING)) {
-		$hasTaxFields = (count(array_intersect(array('builtin::taxes', 'builtin::total_with_tax', 'taxes', 'total_with_tax'), $baseFields)) > 0);
+	if (empty($_POST['export_orders']) && !empty($_POST['include_shipping']) && $reporter->supports(PlatformFeatures::SHIPPING)) {
+		$hasTaxFields = (count(array_intersect(array('builtin::line_tax', 'builtin::taxes', 'builtin::line_total_with_tax', 'builtin::total_with_tax', 'line_tax', 'taxes', 'line_total_with_tax', 'total_with_tax'), $baseFields)) > 0);
 		$shippingResult = ninjalytics_getShippingReportData($reporter, $baseFields, $start_date, $end_date, $hasTaxFields);
 		
 		
@@ -1060,7 +1144,7 @@ function ninjalytics_export_body($reporter, $dest, $start_date, $end_date)
 			), $disableProductGrouping);
 		}
 		foreach ($shippingResult as $shipping) {
-			$row = ninjalytics_get_shipping_row($shipping, $selectedReportFields, $totals);
+			$row = ninjalytics_get_shipping_row($shipping, $selectedReportFields);
 			if (isset($rows[(string) $row[$orderIndex]])) {
 				$rows[(string) $row[$orderIndex]][] = $row;
 			} else {
@@ -1075,6 +1159,127 @@ function ninjalytics_export_body($reporter, $dest, $start_date, $end_date)
 		ksort($rows);
 	}
 	
+	$allRows = [];
+	foreach ($rows as $filterValueRows) {
+		foreach ($filterValueRows as $row) {
+			$allRows[] = $row;
+		}
+	}
+	
+	$orderIdIndex = array_search('builtin::order_id', $_POST['fields']);
+	
+	if (!empty($_POST['export_orders']) && (!empty($_POST['order_fields_once']) || !empty($_POST['order_group_empty_row']))) {
+		
+		if (empty($_POST['order_fields_once'])) {
+			$skipOrderFields = [];
+		} else {
+			$skipOrderFields = $reporter->getBuiltInOrderRelatedExportFields();
+			foreach ($_POST['fields'] as $field) {
+				if (substr($field, 0, 12) == 'order_meta::' || substr($field, 0, 20) == 'customer_user_meta::') {
+					$skipOrderFields[] = $field;
+				}
+			}
+			$skipOrderFields = ninjalytics_get_field_indexes($skipOrderFields);
+		}
+		
+		
+		for ($i = 0; $i < count($allRows); ++$i) {
+			if ($i) {
+				if ($allRows[$i][$orderIdIndex] == $allRows[$i - 1][$orderIdIndex]) {
+					if ($skipOrderFields) {
+						foreach ($skipOrderFields as $orderFieldIndex) {
+							$allRows[$i][$orderFieldIndex] = '';
+						}
+					}
+				} else if (!empty($_POST['order_group_empty_row'])) {
+					array_splice($allRows, $i, 0, [array_fill(0, count($_POST['fields']), '')]);
+					++$i;
+				}
+			}
+			
+		}
+	}
+	
+	if ($totals) {
+		$totalsByType = !empty($_POST['export_orders']) && !empty($_POST['totals_by_type']);
+		if ($totalsByType) {
+			$orderItemTypeIndex = array_search('builtin::order_item_type', $_POST['fields']);
+		}
+		
+		$orderTotalSkipFields = [];
+		if (!empty($_POST['export_orders'])) {
+			if (!empty($_POST['order_total_once'])) {
+				$orderTotalSkipFields[] = 'builtin::order_total';
+			}
+			$orderTotalSkipIds = [];
+		}
+		
+		$totalsIndexMap = [];
+		foreach ($totals['default'] as $totalField => $t) {
+			$totalsIndexMap[$totalField] = array_search($totalField, $_POST['fields']);
+		}
+		
+		foreach ($allRows as $row) {
+			foreach ($totalsIndexMap as $totalField => $totalIndex) {
+				if ($orderTotalSkipFields && in_array($totalField, $orderTotalSkipFields) && in_array($row[$orderIdIndex], $orderTotalSkipIds)) {
+					continue;
+				}
+				
+				if (!empty($row[$totalIndex]) && is_numeric($row[$totalIndex])) {
+					if ($totalsByType && !isset($totals['t'.$row[$orderItemTypeIndex]])) {
+						$totals['t'.$row[$orderItemTypeIndex]] = $totals['default'];
+					}
+					$totals[$totalsByType ? 't'.$row[$orderItemTypeIndex] : 'default'][$totalField] = ($totals[$totalsByType ? 't'.$row[$orderItemTypeIndex] : 'default'][$totalField] ?? 0) + (float) $row[$totalIndex];
+				}
+			}
+			
+			if ($orderTotalSkipFields) {
+				$orderTotalSkipIds[] = $row[$orderIdIndex];
+			}
+		}
+		
+	}
+	
+	
+	if (!empty($_POST['format_amounts']) && !empty($_POST['round_fields'])) {
+		$roundIndexes = ninjalytics_get_field_indexes($_POST['round_fields']);
+		$allRows = array_map(function($row) use ($roundIndexes) {
+			foreach ($roundIndexes as $index) {
+				if (is_numeric($row[$index])) {
+					$row[$index] = number_format($row[$index], 2, '.', '');
+				}
+			}
+			return $row;
+		}, $allRows);
+	}
+
+	if ( ! empty( $addedPreviewOrderParentForOrderLinks ) ) {
+		foreach ( $allRows as &$row ) {
+			array_pop( $row );
+		}
+		array_pop( $selectedReportFields );
+		array_pop( $_POST['fields'] );
+		unset( $row, $addedPreviewOrderParentForOrderLinks );
+	}
+
+	if (!empty($addedOrderItemTypeField)) {
+		foreach ($allRows as &$row) {
+			array_pop($row);
+		}
+		array_pop($selectedReportFields);
+		array_pop($_POST['fields']);
+		unset($row, $addedOrderItemTypeField);
+	}
+	
+	if (!empty($addedOrderIdField)) {
+		foreach ($allRows as &$row) {
+			array_pop($row);
+		}
+		array_pop($selectedReportFields);
+		array_pop($_POST['fields']);
+		unset($row, $addedOrderIdField);
+	}
+	
 	$rowNum = 0;
 	
 	if (empty($_POST['limit_on'])) {
@@ -1085,29 +1290,53 @@ function ninjalytics_export_body($reporter, $dest, $start_date, $end_date)
 		$limit = -1;
 	}
 	
-	foreach ($rows as $filterValueRows) {
-		foreach ($filterValueRows as $row) {
-			++$rowNum;
-			if ($limit && $rowNum > $limit) {
-				break 2;
-			}
-			$dest->putRow($row);
+	foreach ($allRows as $row) {
+		++$rowNum;
+		if ($limit && $rowNum > $limit) {
+			break;
 		}
+		$dest->putRow($row);
 	}
 	
+	
+	
 	if (!empty($_POST['include_totals'])) {
-		$dest->putRow(ninjalytics_get_totals_row($totals, $selectedReportFields), false, true);
+		ninjalytics_get_totals_row($totals, $selectedReportFields, $dest);
 	}
 	
 	// Remove report query filter
 	remove_filter('ninjalytics_get_order_report_query', [$reporter, 'filterReportQuery']);
 	
+	remove_filter('woocommerce_get_tax_location', __NAMESPACE__.'\\ninjalytics_override_tax_location');
+	
 	
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
 }
 
+function ninjalytics_get_field_indexes($fieldIds) {
+	return array_filter(
+		array_map(function($field) {
+			return array_search($field, $_POST['fields']);
+		}, $fieldIds),
+		function($field) {
+			return $field !== false;
+		}
+	);
+}
+
 function ninjalytics_is_hpos() {
 	return method_exists('Automattic\WooCommerce\Utilities\OrderUtil', 'custom_orders_table_usage_is_enabled') && \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
+}
+
+
+function ninjalytics_override_tax_location()
+{
+	// Copied from get_tax_location() in WooCommerce includes/class-wc-tax.php
+	// Modified by Jonathan Hall
+	return array(
+		WC()->countries->get_base_country(), WC()->countries->get_base_state(), WC()->countries->get_base_postcode(), WC()->countries->get_base_city()
+	);
+	// End code copied from WooCommerce
 }
 
 function ninjalytics_process_refunds($sold_products, $refunded_products, $fieldsToAdjust, $disableProductGrouping, $additionalMatchField='')
@@ -1157,7 +1386,7 @@ function ninjalytics_process_refunds($sold_products, $refunded_products, $fields
 		} else if (!empty($_POST['refunds'])) {
 			foreach ($fieldsToAdjust as $field) {
 				if (isset($product->$field)) {
-					$product->$field += (abs($refunded_product->$field) * -1);
+					$product->$field += (abs((float) ($refunded_product->$field ?? 0)) * -1);
 				}
 			}
 		}
@@ -1166,8 +1395,39 @@ function ninjalytics_process_refunds($sold_products, $refunded_products, $fields
 	return $sold_products;
 }
 
-function ninjalytics_get_product_row($product, $fields, &$totals)
+/**
+ * CSS embedded in HTML / HTML-enhanced downloads so product image cells render without loading ninjalytics.css.
+ */
+function ninjalytics_get_html_export_product_image_thumb_css() {
+	return 'img.ninjalytics-product-image-thumb{display:inline-block;vertical-align:middle;width:36px;height:36px;border-radius:4px;object-fit:cover;}';
+}
+
+function ninjalytics_get_product_image_cell($product_ids)
 {
+	$imageUrls = array_filter(array_unique(array_map(function($productId) {
+		$imageId = get_post_thumbnail_id($productId);
+		return $imageId ? wp_get_attachment_image_url($imageId, 'thumbnail') : '';
+	}, $product_ids)));
+	$rowValue = implode(', ', $imageUrls);
+	if (!empty($rowValue) && in_array($_POST['format'] ?? '', ['html', 'html-enhanced'], true)) {
+		$firstImageUrl = reset($imageUrls);
+		$firstProductId = reset($product_ids);
+		$productIdForLink = $firstProductId ? (int) $firstProductId : 0;
+		$imgTag = '<img class="ninjalytics-product-image-thumb" src="' . esc_url($firstImageUrl) . '" alt="" loading="lazy" />';
+		return $productIdForLink ? '<a class="berrypress-link" href="' . esc_url(get_edit_post_link($productIdForLink, '')) . '" target="_blank" rel="noopener noreferrer">' . $imgTag . '</a>' : $imgTag;
+	}
+	return $rowValue;
+}
+
+function ninjalytics_get_product_row($product, $fields)
+{
+	global $ninjalytics_shipping_methods, $ninjalytics_shipping_product_names, $ninjalytics_shipping_product_name_merge_fields, $woocommerce;
+	
+	if (!empty($_POST['export_orders'])) {
+		// Alias
+		$product->order_item_ids = $product->order_item_id;
+	}
+	
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- This is a helper function, to be called after nonce is checked as needed, no persistent changes
 	$row = array();
 
@@ -1179,6 +1439,27 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 	
 	$product->_product_ids = empty($product->product_id) ? [] : ($disableProductGrouping == -1 ? array_unique(explode(',', $product->product_id)) : [$product->product_id]);
 	$product->_variation_ids = empty($product->variation_id) ? [] : ($disableProductGrouping == -1 ? array_unique(explode(',', $product->variation_id)) : [$product->variation_id]);
+	
+    $isShipping = (!empty($_POST['export_orders']) && $product->order_item_type == 'shipping');
+	// Calculate shipping line tax
+	if ($isShipping) {
+
+		if (class_exists('WC_Order_Item_Shipping')) { // WC 3.0+
+
+			$oi = new \WC_Order_Item_Shipping($product->order_item_id);
+			$product->line_tax = $oi->get_total_tax();
+
+		} else if (isset($product->shipping_taxes)) {
+			$product->line_tax = 0;
+			$taxArray = @unserialize($product->shipping_taxes);
+			if (!empty($taxArray)) {
+				foreach ($taxArray as $taxItem) {
+					$product->line_tax += $taxItem;
+				}
+			}
+		}
+
+	}
 		
 	foreach ($fields as $fieldIndex => $field) {
 			$rowValue = '';
@@ -1187,7 +1468,7 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 				$taxAmounts = explode(',', $product->order_item_ids);
 				$taxId = substr($field, 15);
 				$rowValue = array_sum(array_map(function($orderItemId) use ($taxId) {
-					return ninjalytics_get_order_item_tax($orderItemId, $taxId, !empty($_POST['intermediate_rounding']));
+					return (float) ninjalytics_get_order_item_tax($orderItemId, $taxId, !empty($_POST['intermediate_rounding']));
 				}, $taxAmounts));
 			} else if ( !empty($_POST['export_orders']) || $groupByProducts || !in_array($field, [
 															'builtin::product_id', 'builtin::variation_id', 'builtin::variation_sku', 'builtin::variation_attributes', 'builtin::product_sku',
@@ -1197,14 +1478,83 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 				
 				switch ($field) {
 					case 'builtin::product_id':
-						$rowValue = implode(', ', $product->_product_ids);
+						$rowValue = $isShipping ? $product->shipping_method_id : implode(', ', $product->_product_ids);
+						break;
+					case 'builtin::product_image':
+						if ($isShipping || (empty($product->_product_ids) && empty($product->_variation_ids))) {
+							$rowValue = '';
+						} else {
+							$rowValue = ninjalytics_get_product_image_cell(empty($product->_variation_ids) ? $product->_product_ids : $product->_variation_ids);
+						}
 						break;
 					case 'builtin::product_sku':
 						$rowValue = isset($product->product_sku) ? $product->product_sku : implode(', ', array_unique(array_map(function($productId) {
 							return get_post_meta($productId, '_sku', true);
 						}, $product->_product_ids)));
 						break;
+					case 'builtin::item_sku':
+						$rowValueDelimiter = ', ';
+						$rowValue = $product->_variation_ids
+							? array_unique(array_map(function($variationId) {
+								return get_post_meta($variationId, '_sku', true);
+							}, $product->_variation_ids))
+							: (
+								isset($product->product_sku) ? $product->product_sku : implode(', ', array_unique(array_map(function($productId) {
+									return get_post_meta($productId, '_sku', true);
+								}, $product->_product_ids)))
+							);
+						break;
 					case 'builtin::product_name':
+						if ($isShipping) {
+							$shippingProductNameHasMethodName = strpos($_POST['shipping_product_name'], '[method_name]') !== false;
+							$shippingProductNameHasLineName = strpos($_POST['shipping_product_name'], '[line_name]') !== false;
+							if ($shippingProductNameHasMethodName && isset($ninjalytics_shipping_product_names[$product->shipping_method_id])) {
+								$rowValue = $ninjalytics_shipping_product_names[$product->shipping_method_id];
+							} else {
+								if (!isset($ninjalytics_shipping_product_name_merge_fields)) {
+									if ($shippingProductNameHasMethodName) {
+										// We need this to resolve the shipping method names later on
+										$woocommerce->shipping->load_shipping_methods();
+										$ninjalytics_shipping_product_methods = $woocommerce->shipping->get_shipping_methods();
+										if ($shippingProductNameHasLineName) {
+											$ninjalytics_shipping_product_name_merge_fields = array('[method_name]', '[line_name]');
+										} else {
+											$ninjalytics_shipping_product_names = array();
+											$ninjalytics_shipping_product_name_merge_fields = '[method_name]';
+										}
+									}
+
+									if ($shippingProductNameHasLineName) {
+										if (!isset($ninjalytics_shipping_product_name_merge_fields)) {
+											$ninjalytics_shipping_product_name_merge_fields = '[line_name]';
+										}
+									}
+								}
+								if (empty($ninjalytics_shipping_product_name_merge_fields)) {
+									$rowValue = $_POST['shipping_product_name'];
+								} else {
+									if ($shippingProductNameHasMethodName) {
+										if (!empty($ninjalytics_shipping_methods[$product->shipping_method_id]->method_title)) {
+											$mergeValues = $ninjalytics_shipping_methods[$product->shipping_method_id]->method_title;
+										} else if (empty($product->shipping_method_id)) {
+											$mergeValues = '';
+										} else {
+											$mergeValues = $product->shipping_method_id;
+										}
+									}
+
+									if ($shippingProductNameHasLineName) {
+										$mergeValues = ($shippingProductNameHasMethodName ? array($mergeValues, $product->product_name) : $product->product_name);
+									}
+									$productName = str_replace($ninjalytics_shipping_product_name_merge_fields, $mergeValues, $_POST['shipping_product_name']);
+									$rowValue = $productName;
+									if (isset($ninjalytics_shipping_product_names)) {
+										$ninjalytics_shipping_product_names[$product->shipping_method_id] = $productName;
+									}
+								}
+							}
+						} else {
+							
 						// Following code provided by and copyright Daniel von Mitschke, released under GNU General Public License (GPL) version 2 or later, used under GPL version 3 or later (see license/LICENSE.TXT)
 						// Modified by Jonathan Hall
 						if ($groupByProducts || !empty($_POST['export_orders'])) {
@@ -1220,6 +1570,8 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
                         }
 						$rowValue = $name;
 						// End code provided by Daniel von Mitschke
+						
+						}
 						break;
 					case 'builtin::quantity_sold':
 					case 'builtin::quantity':
@@ -1227,11 +1579,11 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 						break;
 					case 'builtin::gross_sales':
 					case 'builtin::line_subtotal':
-						$rowValue = $product->gross;
+						$rowValue = $isShipping ? $product->shipping_cost : $product->gross;
 						break;
 					case 'builtin::gross_after_discount':
 					case 'builtin::line_total':
-						$rowValue = $product->gross_after_discount;
+						$rowValue = $isShipping ? $product->shipping_cost : $product->gross_after_discount;
 						break;
 					case 'builtin::product_categories':
 						$rowValue = ($disableProductGrouping == 2 ? $product->product_category : ninjalytics_get_custom_field_value($product->_product_ids, 'taxonomy::product_cat'));
@@ -1280,14 +1632,11 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 						break;
 					case 'builtin::taxes':
 					case 'builtin::line_tax':
-						$rowValue = $product->taxes;
-						break;
-					case 'builtin::discount':
-						$rowValue = $product->gross - $product->gross_after_discount;
+						$rowValue = $product->{$isShipping ? 'shipping_taxes' : 'taxes'} ?? 0;
 						break;
 					case 'builtin::total_with_tax':
 					case 'builtin::line_total_with_tax':
-						$rowValue = $product->gross_after_discount + $product->taxes;
+						$rowValue = ($isShipping ? $product->shipping_cost : $product->gross_after_discount) + ($product->{$isShipping ? 'shipping_taxes' : 'taxes'} ?? 0);
 						break;
 					case 'builtin::avg_order_total':
 						$rowValue = $product->avg_order_total;
@@ -1308,8 +1657,8 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 					case 'builtin::publish_time':
 						$rowValueDelimiter = ', ';
 						$rowValue = array_map(function($productId) {
-							get_the_time('Y-m-d H:i:s', $productId);
-						}, $product->_product_ids);
+							return get_the_time('Y-m-d H:i:s', $productId);
+						}, ninjalytics_get_variation_or_product_ids($product->_product_ids, $product->_variation_ids));
 						break;
 					case 'builtin::cogs':
 						$rowValue = $product->cogs ?? '';
@@ -1342,10 +1691,7 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 						$rowValue = isset($product->cogs) ? ($product->gross_after_discount - $product->cogs) : '';
 						break;
 					case 'builtin::margin':
-						$rowValue = isset($product->cogs) ? (($product->gross_after_discount - $product->cogs) / $product->gross_after_discount) : '';
-						break;
-					case 'builtin::refund_cogs':
-						$rowValue = $product->refund_cogs ?? '';
+						$rowValue = isset($product->cogs) ? ($product->gross_after_discount ? (($product->gross_after_discount - $product->cogs) / $product->gross_after_discount) : 0) : '';
 						break;
 					case 'builtin::item_cogs':
 						$rowValueDelimiter = ', ';
@@ -1380,11 +1726,7 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 						if ($product->_product_ids) {
 							$rowValue = implode("\n---\n", array_unique(array_map(function($productId) {
 								$productPost = get_post($productId);
-								if (empty($productPost)) {
-									$rowValue = '';
-								} else {
-									$rowValue = html_entity_decode(wp_strip_all_tags(do_shortcode($productPost->post_content)));
-								}
+								return empty($productPost) ? '' : html_entity_decode(wp_strip_all_tags(do_shortcode($productPost->post_content)));
 							}, $product->_product_ids)));
 						} else {
 							$rowValue = '';
@@ -1396,11 +1738,7 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 						if ($product->_product_ids) {
 							$rowValue = implode("\n---\n", array_unique(array_map(function($productId) {
 								$productPost = get_post($productId);
-								if (empty($productPost)) {
-									$rowValue = '';
-								} else {
-									$rowValue = html_entity_decode(wp_strip_all_tags(do_shortcode($productPost->post_excerpt)));
-								}
+								return empty($productPost) ? '' : html_entity_decode(wp_strip_all_tags(do_shortcode($productPost->post_excerpt)));
 							}, $product->_product_ids)));
 						} else {
 							$rowValue = '';
@@ -1422,13 +1760,13 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 						$rowValue = strstr($product->order_date, ' ', true);
 						break;
 					case 'builtin::order_parent':
-						$rowValue = $product->order_parent;
+						$rowValue = $product->parent_order_id ?? '';
 						break;
 					case 'builtin::order_item_type':
 						$rowValue = $product->order_item_type;
 						break;
 					case 'builtin::order_item_name':
-						$rowValue = $product->order_item_name;
+						$rowValue = $product->product_name;
 						break;
 					case 'builtin::billing_name':
 	                    $rowValue = $product->billing_first_name.' '. $product->billing_last_name;
@@ -1458,6 +1796,9 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 					case 'builtin::billing_state':
 						$rowValue = $product->billing_state;
 						break;
+					case 'builtin::billing_country':
+						$rowValue = $product->billing_country;
+						break;
 					case 'builtin::shipping_name':
 	                    $rowValue = $product->shipping_first_name.' '. $product->shipping_last_name;
 						break;
@@ -1486,54 +1827,15 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 					case 'builtin::shipping_state':
 						$rowValue = $product->shipping_state;
 						break;
-					case 'builtin::customer_order_note':
-						$rowValue = $product->customer_order_note;
-						break;
-					case 'builtin::order_note_most_recent':
-						// Copied from woocommerce/includes/admin/meta-boxes/class-wc-meta-box-order-notes.php and modified
-						remove_filter( 'comments_clauses', array( 'WC_Comments', 'exclude_order_comments' ), 10, 1 );
-						$note = get_comments(array(
-							'post_id'   => $product->order_id,
-							'orderby'   => 'comment_date',
-							'order'     => 'DESC',
-							'approve'   => 'approve',
-							'type'      => 'order_note',
-							'number'    => 1
-						));
-						add_filter( 'comments_clauses', array( 'WC_Comments', 'exclude_order_comments' ), 10, 1 );
-						$rowValue = (empty($note[0]->comment_content) ? '' : $note[0]->comment_content);
-						break;
-					case 'builtin::order_notes_user':
-						// Copied from woocommerce/includes/admin/meta-boxes/class-wc-meta-box-order-notes.php and modified
-						remove_filter( 'comments_clauses', array( 'WC_Comments', 'exclude_order_comments' ), 10, 1 );
-						$notes = get_comments(array(
-							'post_id'   => $product->order_id,
-							'orderby'   => 'comment_date',
-							'order'     => 'DESC',
-							'approve'   => 'approve',
-							'type'      => 'order_note',
-						));
-						add_filter( 'comments_clauses', array( 'WC_Comments', 'exclude_order_comments' ), 10, 1 );
-						
-						$rowValue = '';
-						foreach ( $notes as $note ) {
-							if ($note->comment_author !== 'WooCommerce' && $note->comment_content) {
-								$rowValue .= ($rowValue ? "\n\n" : '').'['.$note->comment_date.' - '.$note->comment_author.']'."\n".$note->comment_content;
-							}
-						}
+					case 'builtin::shipping_country':
+						$rowValue = $product->shipping_country;
 						break;
 					case 'builtin::order_shipping_methods':
-					case 'builtin::order_shipping_cost':
-					case 'builtin::order_shipping_tax':
-					case 'builtin::order_shipping_cost_with_tax':
-						if ($field == 'builtin::order_shipping_methods' && isset($product->order_shipping_methods)) {
+	                    if (!$isShipping && isset($product->order_shipping_methods)) {
 							$rowValueDelimiter = ', ';
 							$rowValue = array_unique(explode(',', $product->order_shipping_methods));
 						} else {
-							if (!isset($orderShippingCache[$product->order_id])) {
-								$orderShippingCache[$product->order_id] = ninjalytics_get_order_shipping_fields_values($product->order_id, array_map('sanitize_text_field', wp_unslash($_POST['fields'] ?? [])));
-							}
-							$rowValue = ($orderShippingCache[$product->order_id] ? $orderShippingCache[$product->order_id][$field] : 'Error');
+							$rowValue = '';
 						}
 						break;
 					case 'builtin::order_total_qty':
@@ -1545,52 +1847,10 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 						}
 						$rowValue = (empty($orders[$product->order_id]) ? '' : $orders[$product->order_id]->get_item_count());
 						break;
-					case 'builtin::order_total_fees':
-						 if (!isset($orders[$product->order_id])) {
-							if (!isset($orders)) {
-								$orders = array();
-							}
-							$orders[$product->order_id] = wc_get_order($product->order_id);
-						}
-						if ( $orders[$product->order_id] ) {
-							$fees = $orders[$product->order_id]->get_items('fee');
-							if (is_array($fees)) {
-								$rowValue = 0;
-								foreach ( $fees as $feeItem) {
-									$rowValue += $feeItem->get_total();
-								}
-							} else {
-								$rowValue = '';
-							}
-						} else {
-							$rowValue = '';
-						}
-						break;
-					case 'builtin::order_total_fees_with_tax':
-						if (!isset($orders[$product->order_id])) {
-							if (!isset($orders)) {
-								$orders = array();
-							}
-							$orders[$product->order_id] = wc_get_order($product->order_id);
-						}
-						if ( $orders[$product->order_id] ) {
-							$fees = $orders[$product->order_id]->get_items('fee');
-							if (is_array($fees)) {
-								$rowValue = 0;
-								foreach ( $fees as $feeItem) {
-									$rowValue += $feeItem->get_total() + $feeItem->get_total_tax();
-								}
-							} else {
-								$rowValue = '';
-							}
-						} else {
-							$rowValue = '';
-						}
-						break;
-					case 'builtin::customer_roles':
-					case 'builtin::creator_roles':
-						$user = get_userdata( $field == 'builtin::customer_roles' ? $product->$customerIdField : $product->order_creator_id );
-                        $rowValue = empty($user->roles) ? '' : implode(', ', array_map('translate_user_role', array_intersect_key( wp_roles()->get_names(), array_combine( $user->roles, $user->roles ) ) ) );
+					case 'builtin::order_coupons':
+						// Aggregated mode: value is a GROUP_CONCAT'd list, may contain duplicates across grouped orders
+						$rowValueDelimiter = ', ';
+						$rowValue = array_values(array_unique(explode(',', $product->order_coupons ?? '')));
 						break;
 					case 'builtin::order_item_id':
 						$rowValue = $product->order_item_id;
@@ -1606,33 +1866,15 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 				
 			}
 			
-			$formatAmount = !empty($_POST['format_amounts']) && isset($_POST['round_fields']) && in_array($field, $_POST['round_fields']);
 			
 			if (is_array($rowValue)) {
 				$rowValue = implode(
 					empty($rowValueDelimiter) ? ', ' : $rowValueDelimiter,
-					$formatAmount
-						? array_map(function($val) {
-							return is_numeric($val) ? number_format($val, 2, '.', '') : $val;
-						}, $rowValue)
-						: $rowValue
+					$rowValue
 				);
-			} else if ($formatAmount && is_numeric($rowValue)) {
-				$rowValue = number_format($rowValue, 2, '.', '');
 			}
 			
 			$row[] = apply_filters('ninjalytics_row_value', $rowValue, $field);
-		
-		if (isset($totals[$field])) {
-			$newValue = end($row);
-			if (empty($newValue)) {
-				
-			} else if (is_numeric($newValue)) {
-				$totals[$field] += (float) $newValue;
-			} else {
-				unset($totals[$field]);
-			}
-		}
 	}
 	
 	return $row;
@@ -1640,10 +1882,22 @@ function ninjalytics_get_product_row($product, $fields, &$totals)
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
 }
 
+function ninjalytics_get_variation_or_product_ids($product_ids, $variation_ids) {
+	if (!$variation_ids) {
+		return $product_ids;
+	}
+	return array_merge($variation_ids, array_diff($product_ids, array_map('wp_get_post_parent_id', $variation_ids)));
+}
+
 function ninjalytics_get_order_item_tax($orderItemId, $taxTypeId, $rounded=false) {
 	global $ninjalytics_order_tax_rate_ids;
 	
 	$item = \WC_Order_Factory::get_order_item($orderItemId);
+	
+	if (!is_a($item, 'WC_Order_Item_Product') && !is_a($item, 'WC_Order_Item_Shipping')) {
+		return '';
+	}
+	
 	$orderId = $item->get_order_id();
 	
 	if (!isset($ninjalytics_order_tax_rate_ids[$orderId])) {
@@ -1669,7 +1923,10 @@ function ninjalytics_get_order_item_tax($orderItemId, $taxTypeId, $rounded=false
 		$taxes = $item->get_taxes();
 		
 		if (isset($taxes['total'][$ninjalytics_order_tax_rate_ids[$orderId][$taxTypes[$taxTypeId]]])) {
-			$amount = $taxes['total'][$ninjalytics_order_tax_rate_ids[$orderId][$taxTypes[$taxTypeId]]];
+			// WC can store an empty string here for a rate with no tax charged
+			// on this line, rather than "0" -- normalize so downstream math
+			// (array_sum, etc.) doesn't choke on a non-numeric value.
+			$amount = (float) $taxes['total'][$ninjalytics_order_tax_rate_ids[$orderId][$taxTypes[$taxTypeId]]];
 			return $rounded ? round($amount, 2) : $amount;
 		}
 	}
@@ -1677,21 +1934,27 @@ function ninjalytics_get_order_item_tax($orderItemId, $taxTypeId, $rounded=false
 	return 0;
 }
 
-function ninjalytics_get_nil_product_row($productId, $fields, $variationId = null, &$totals = null)
+function ninjalytics_get_nil_product_row($productId, $fields, $variationId = null)
 {
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- This is a helper function, to be called after nonce is checked as needed, no persistent changes
     $row = array();
 	
     foreach ($fields as $field) {
-        if (substr($field, 0, 15) == 'builtin::taxes_') {
-			$row[] = empty($_POST['format_amounts']) || empty($_POST['round_fields']) || !in_array($field, $_POST['round_fields']) ? 0 : '0.00';
+		if (substr($field, 0, 15) == 'builtin::taxes_') {
+			$row[] = 0;
         } else {
             switch ($field) {
                 case 'builtin::product_id':
                     $rowValue = $productId;
                     break;
+                case 'builtin::product_image':
+                    $rowValue = ninjalytics_get_product_image_cell([empty($variationId) ? $productId : $variationId]);
+                    break;
                 case 'builtin::product_sku':
                     $rowValue = get_post_meta($productId, '_sku', true);
+					break;
+                case 'builtin::item_sku':
+                    $rowValue = get_post_meta(empty($variationId) ? $productId : $variationId, '_sku', true);
                     break;
                 case 'builtin::product_name':
                     $rowValue = html_entity_decode(get_the_title($productId));
@@ -1702,7 +1965,6 @@ function ninjalytics_get_nil_product_row($productId, $fields, $variationId = nul
                 case 'builtin::gross_sales':
                 case 'builtin::gross_after_discount':
                 case 'builtin::taxes':
-                case 'builtin::discount':
                 case 'builtin::total_with_tax':
                     $rowValue = 0;
                     break;
@@ -1751,7 +2013,7 @@ function ninjalytics_get_nil_product_row($productId, $fields, $variationId = nul
                     $rowValue = (empty($variationId) ? '' : ninjalytics_getFormattedVariationAttributes($variationId));
                     break;
                 case 'builtin::publish_time':
-                    $rowValue = get_the_time('Y-m-d H:i:s', $productId);
+                    $rowValue = get_the_time('Y-m-d H:i:s', empty($variationId) ? $productId : $variationId);
                     break;
 				case 'builtin::item_cogs':
 					$rowValue = get_post_meta($variationId ? $variationId : $productId, '_cogs_total_value', true);
@@ -1782,23 +2044,9 @@ function ninjalytics_get_nil_product_row($productId, $fields, $variationId = nul
                     $rowValue = '';
             }
 			
-			if (!empty($_POST['format_amounts']) && isset($_POST['round_fields']) && in_array($field, $_POST['round_fields']) && is_numeric($rowValue)) {
-				$rowValue = number_format($rowValue, 2, '.', '');
-			}
-			
 			$row[] = apply_filters('ninjalytics_row_value', $rowValue, $field);
         }
 		
-		if (isset($totals[$field])) {
-			$newValue = end($row);
-			if (empty($newValue)) {
-				
-			} else if (is_numeric($newValue)) {
-				$totals[$field] += (float) $newValue;
-			} else {
-				unset($totals[$field]);
-			}
-		}
 	}
 	
 	return $row;
@@ -1806,7 +2054,7 @@ function ninjalytics_get_nil_product_row($productId, $fields, $variationId = nul
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
 }
 
-function ninjalytics_get_shipping_row($shipping, $fields, &$totals)
+function ninjalytics_get_shipping_row($shipping, $fields)
 {	
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- This is a helper function, to be called after nonce is checked as needed, no persistent changes
 	
@@ -1821,11 +2069,8 @@ function ninjalytics_get_shipping_row($shipping, $fields, &$totals)
 			$taxAmounts = explode(',', $shipping->order_item_ids);
 			$taxId = substr($field, 15);
 			$rowValue = array_sum(array_map(function($orderItemId) use ($taxId) {
-				return ninjalytics_get_order_item_tax($orderItemId, $taxId, !empty($_POST['intermediate_rounding']));
+				return (float) ninjalytics_get_order_item_tax($orderItemId, $taxId, !empty($_POST['intermediate_rounding']));
 			}, $taxAmounts));
-			if (!empty($_POST['format_amounts']) && isset($_POST['round_fields']) && in_array($field, $_POST['round_fields'])) {
-				$rowValue = number_format($rowValue, 2, '.', '');
-			}
 			$row[] = $rowValue;
 		} else {
 			switch ($field) {
@@ -1882,23 +2127,9 @@ function ninjalytics_get_shipping_row($shipping, $fields, &$totals)
 					$rowValue = '';
 			}
 			
-			if (!empty($_POST['format_amounts']) && isset($_POST['round_fields']) && in_array($field, $_POST['round_fields']) && is_numeric($rowValue)) {
-				$rowValue = number_format($rowValue, 2, '.', '');
-			}
-			
 			$row[] = apply_filters('ninjalytics_row_value', $rowValue, $field);
 		}
 		
-		if (isset($totals[$field])) {
-			$newValue = end($row);
-			if (empty($newValue)) {
-				
-			} else if (is_numeric($newValue)) {
-				$totals[$field] += (float) $newValue;
-			} else {
-				unset($totals[$field]);
-			}
-		}
 	}
 	return $row;
 	
@@ -1906,26 +2137,39 @@ function ninjalytics_get_shipping_row($shipping, $fields, &$totals)
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
 }
 
-function ninjalytics_get_totals_row($totals, $fields)
+function ninjalytics_get_totals_row($totals, $fields, $dest)
 {
-	$row = array();
+	$totalsByType = !empty($_POST['export_orders']) && !empty($_POST['totals_by_type']);
+	ksort($totals);
 	
-	foreach ($fields as $field) {
-		if (!isset($totals[$field]) && $field != 'builtin::product_name') {
-			$row[] = '';
-		} else {
-			switch ($field) {
-				case 'builtin::product_name':
-					$row[] = 'TOTALS';
-					break;
-				default:
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing -- This is a helper function, to be called after nonce is checked as needed, no persistent changes
-					$row[] = !empty($_POST['format_amounts']) && !empty($_POST['round_fields']) && in_array($field, $_POST['round_fields']) ? number_format($totals[$field], 2, '.', '') : $totals[$field];
+	foreach ($totals as $totalsRowId => $totalsRow) {
+		if (!$totalsByType || $totalsRowId != 'default') {
+			$row = array();
+			
+			foreach ($fields as $field) {
+				if (!isset($totalsRow[$field]) && $field != 'builtin::product_name') {
+					$row[] = '';
+				} else {
+					switch ($field) {
+						case 'builtin::product_name':
+							$row[] = 'TOTALS';
+							break;
+						case 'builtin::order_item_type':
+							if ($totalsByType) {
+								$row[] = substr($totalsRowId, 1); // remove "t" prefix
+								break;
+							}
+							// no break
+						default:
+							// phpcs:ignore WordPress.Security.NonceVerification.Missing -- This is a helper function, to be called after nonce is checked as needed, no persistent changes
+							$row[] = !empty($_POST['format_amounts']) && !empty($_POST['round_fields']) && in_array($field, $_POST['round_fields']) ? number_format($totalsRow[$field], 2, '.', '') : $totalsRow[$field];
+					}
+				}
 			}
+			
+			$dest->putRow($row, false, true);
 		}
 	}
-	
-	return $row;
 }
 
 function ninjalytics_fill_shipping_order_item_taxes($shipping) {
@@ -1967,6 +2211,11 @@ function ninjalytics_admin_global_enqueue_scripts() {
 
 function ninjalytics_admin_enqueue_scripts()
 {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- just checking which page we're on for enqueues
+	if ( isset( $_GET["page"] ) &&  $_GET["page"] == "ninjalytics-free" ) {
+			
+		wp_register_script('berrypress-nj-common', plugins_url('js/ninjalytics-common.js', __FILE__), ['jquery'], NINJALYTICS_FREE_VERSION, true);
+		
 		// Enqueue BerryPress Admin Framework styles
 		wp_enqueue_style('berrypress-nj-admin-page-free', plugins_url('includes/berrypress-admin-framework/assets/css/global-admin-page.css', __FILE__), ['berrypress-nj-global-admin-free'], NINJALYTICS_FREE_VERSION);
 
@@ -1974,9 +2223,13 @@ function ninjalytics_admin_enqueue_scripts()
 		wp_enqueue_script('jquery-ui-sortable');
 		wp_enqueue_script('ags-psr-datatables-free', plugins_url('js/datatables/datatables.min.js', __FILE__), [], NINJALYTICS_FREE_VERSION, true);
 		wp_enqueue_style('ags-psr-datatables-free', plugins_url('js/datatables/datatables.min.css', __FILE__), [], NINJALYTICS_FREE_VERSION);
-		
-		wp_enqueue_script('ninjalytics-free', plugins_url('js/ninjalytics.js', __FILE__), ['jquery', 'selectWoo', 'wp-i18n'], NINJALYTICS_FREE_VERSION, true);
+
+		wp_enqueue_script('berrypress-nj-common');
+		wp_enqueue_script('ninjalytics-free', plugins_url('js/ninjalytics.js', __FILE__), ['jquery', 'selectWoo', 'wp-i18n', 'berrypress-nj-common'], NINJALYTICS_FREE_VERSION, true);
 		wp_enqueue_script('ninjalytics-tooltips-free', plugins_url('js/bp-tooltip.js', __FILE__), [], NINJALYTICS_FREE_VERSION, true);
+
+		wp_enqueue_script('ninjalytics-splitjs', plugins_url('js/splitjs/split.min.js', __FILE__), [], '1.6.5', true);
+
 		wp_localize_script(
 			'ninjalytics-free',
 			'ninjalyticsProductSelect',
@@ -1985,11 +2238,39 @@ function ninjalytics_admin_enqueue_scripts()
 				'nonce'          => wp_create_nonce( 'wp_rest' )
 			]
 		);
-		
+
 		wp_enqueue_script('ninjalytics-chart-free', plugins_url('js/chartjs/chart.umd.js', __FILE__), [], NINJALYTICS_FREE_VERSION, true);
+		
+		ninjalytics_common_js_data();
+	}
 }
+
+function ninjalytics_common_js_data() {
+	wp_localize_script(
+		'berrypress-nj-common',
+		'ninjalyticsConfig',
+		[
+			'linkOrderIdInPreview' => (bool) get_option( 'ninjalytics_link_order_id_in_preview', true ),
+			'linkProductIdInPreview' => (bool) get_option( 'ninjalytics_link_product_id_in_preview', true ),
+			'linkProductNameInPreview' => (bool) get_option( 'ninjalytics_link_product_name_in_preview', true ),
+			'styleOrderStatusInPreview' => (bool) get_option( 'ninjalytics_style_order_status_in_preview', true ),
+			'highlightNegativeValuesInPreview' => (bool) get_option( 'ninjalytics_preview_negative_numbers_red', true ),
+			'orderEditUrlTemplates' => [
+				'woocommerce' => admin_url( 'admin.php?page=wc-orders&action=edit&id=%d' ),
+				'woocommerce-legacy' => admin_url( 'post.php?post=%d&action=edit' ),
+				'edd' => admin_url( 'edit.php?post_type=download&page=edd-payment-history&view=view-order-details&id=%d' ),
+			],
+			'productEditUrlTemplate' => admin_url( 'post.php?post=%d&action=edit' ),
+		]
+	);
+}
+
 function ninjalytics_admin_add_body_classes($classes) {
 	$classes .= ' berrypress-page';
+	// Report editor (split layout): lock document scroll; panes scroll internally.
+	if ( isset( $_GET['page'], $_GET['preset'] ) && 'ninjalytics-free' === sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
+		$classes .= ' ninjalytics-report-view';
+	}
 	return $classes;
 }
 
@@ -2064,7 +2345,11 @@ function ninjalytics_run_scheduled_report($reportId, $start, $end, $args = array
 		$_REQUEST['_reporter'] = $savedReportSettings[$presetIndex]['_reporter'];
 	}
 	
-	$reporterId = ninjalytics_get_active_reporter_id();
+	try {
+		$reporterId = ninjalytics_get_active_reporter_id();
+	} catch (\Exception $e) {
+		return false;
+	}
 	
 	if ($reporterId != 'woocommerce' && $reporterId != 'woocommerce-legacy') {
 		return false;
@@ -2073,7 +2358,11 @@ function ninjalytics_run_scheduled_report($reportId, $start, $end, $args = array
 	$reporter = ninjalytics_get_reporter_by_id($reporterId);
 	
 	$prevPost = $_POST;
-	$_POST = array_merge($reporter->getDefaultSettings($savedReportSettings[$presetIndex]['export_orders'] ?? 0), $savedReportSettings[$presetIndex]);
+    $_POST = array_merge(
+            $reporter->getDefaultSettings($savedReportSettings[$presetIndex]['export_orders'] ?? 0),
+            $savedReportSettings[$presetIndex],
+            json_decode(get_option('ninjalytics_report_dates_'.((int) $presetIndex), '{}'), true)
+    );
 	$_POST = array_merge($_POST, array_intersect_key($args, $_POST));
 	
 	if ($start === null && $end === null) {
@@ -2127,7 +2416,8 @@ function ninjalytics_run_scheduled_report($reportId, $start, $end, $args = array
 		include_once(__DIR__.'/includes/Ninjalytics_CSV_Export.php');
 // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- No equivalent function in WP_Filesystem
 		$out = fopen($output ? 'php://output' : $filepath, 'w');
-		$dest = new \Ninjalytics_CSV_Export($out);
+		$formatClass = $_POST['format'] == 'csv-ascii' ? '\Ninjalytics_CSV_ASCII_Export' : '\Ninjalytics_CSV_Export';
+		$dest = new $formatClass($out);
 	}
 	
 	if (!empty($_POST['report_title_on'])) {
@@ -2219,7 +2509,13 @@ function ninjalytics_get_nil_products($reporter, $product_ids, $sold_products, $
 			$sold_product_ids = array_merge($sold_product_ids, explode(',', $product->product_id));
 		}
 		foreach (array_diff($product_ids, $sold_product_ids) as $product_id) {
-			$rows[] = ninjalytics_get_nil_product_row($product_id, $selectedReportFields, null, $totals);
+			if (!empty($_POST['exclude_unmanaged_stock']) && $reporter->supports(PlatformFeatures::ITEM_STOCK)) {
+				$stub = (object) ['product_id' => (string) $product_id, 'variation_id' => ''];
+				if (!$reporter->reportRowTracksInventory($stub)) {
+					continue;
+				}
+			}
+			$rows[] = ninjalytics_get_nil_product_row($product_id, $selectedReportFields);
 		}
 		
 	} else { // Variations separately
@@ -2235,10 +2531,22 @@ function ninjalytics_get_nil_products($reporter, $product_ids, $sold_products, $
 			if (ninjalytics_is_variable_product($product_id)) {
 				$variation_ids = ninjalytics_get_variation_ids( $product_id, !empty($_POST['include_unpublished']) );
 				foreach (array_diff($variation_ids, $sold_variation_ids) as $variation_id) {
-					$rows[] = ninjalytics_get_nil_product_row($product_id, $selectedReportFields, $variation_id, $totals);
+					if (!empty($_POST['exclude_unmanaged_stock']) && $reporter->supports(PlatformFeatures::ITEM_STOCK)) {
+						$stub = (object) ['product_id' => (string) $product_id, 'variation_id' => (string) $variation_id];
+						if (!$reporter->reportRowTracksInventory($stub)) {
+							continue;
+						}
+					}
+					$rows[] = ninjalytics_get_nil_product_row($product_id, $selectedReportFields, $variation_id);
 				}
 			} else if (array_search($product_id, $sold_product_ids) === false) { // Not variable
-				$rows[] = ninjalytics_get_nil_product_row($product_id, $selectedReportFields, null, $totals);
+				if (!empty($_POST['exclude_unmanaged_stock']) && $reporter->supports(PlatformFeatures::ITEM_STOCK)) {
+					$stub = (object) ['product_id' => (string) $product_id, 'variation_id' => ''];
+					if (!$reporter->reportRowTracksInventory($stub)) {
+						continue;
+					}
+				}
+				$rows[] = ninjalytics_get_nil_product_row($product_id, $selectedReportFields);
 			}
 		}
 	
@@ -2258,11 +2566,17 @@ function ninjalytics_get_active_reporter_id()
 		if ($reporters[$reporter]['active'] ?? false) {
 			return $reporter;
 		}
+		if ($_REQUEST['_reporter'] == 'woocommerce-legacy' && ($reporters['woocommerce']['active'] ?? false)) {
+			return 'woocommerce';
+		}
+		if ($_REQUEST['_reporter'] == 'woocommerce' && ($reporters['woocommerce-legacy']['active'] ?? false)) {
+			return 'woocommerce-legacy';
+		}
 		throw new \Exception();
 	}
 	
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Just checking the active reporter flag for this request, no persistent change
-	if (($reporters['livecarts']['active'] ?? false) && isset($_REQUEST['ninjalytics_reporter']) && $_REQUEST['ninjalytics_reporter'] == 'livecarts') {
+	if (($reporters['livecarts']['active'] ?? false) && ($_REQUEST['_reporter'] ?? '') == 'livecarts') {
 		return 'livecarts';
 	}
 	if (($reporters['woocommerce']['active'] ?? false)) {
@@ -2555,27 +2869,40 @@ function ninjalytics_getReportData($reporter, $baseFields, $product_ids, $startD
 		}
 	}
 	if ($supportsChildItems && !empty($_POST['exclude_free'])) {
-		$where_meta[] = array(
-// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-			'meta_key' => $standardFields['line_total'][1],
-// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-			'meta_value' => 0,
-			'operator' => '!=',
-			'type' => $standardFields['line_total'][0]
-		);
+		$zeroAmountFilterField = (empty($_POST['exclude_free_after_discount']) ? 'line_subtotal' : 'line_total');
+		if (empty($_POST['export_orders']) || empty($_POST['include_shipping'])) {
+			$where_meta[] = array(
+	// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_key' => $standardFields[$zeroAmountFilterField][1],
+	// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'meta_value' => 0,
+				'operator' => '!=',
+				'type' => $standardFields[$zeroAmountFilterField][0]
+			);
+		} else {
+			$zeroAmountPostFilter = true;
+		}
 	}
 	
 	// Date range filtering
-	$where[] = array(
-		'key' => $reporter->ordersDateColumn,
-		'operator' => '>=',
-		'value' => get_gmt_from_date(gmdate('Y-m-d H:i:s', $startDate))
-	);
-	$where[] = array(
-		'key' => $reporter->ordersDateColumn,
-		'operator' => '<=',
-		'value' => get_gmt_from_date(gmdate('Y-m-d H:i:s', $endDate))
-	);
+		$where[] = array(
+			'key' => 'posts.'.$reporter->ordersDateColumn,
+			'operator' => '>=',
+			'value' => get_gmt_from_date(gmdate('Y-m-d H:i:s', $startDate))
+		);
+		$where[] = array(
+			'key' => 'posts.'.$reporter->ordersDateColumn,
+			'operator' => '<=',
+			'value' => get_gmt_from_date(gmdate('Y-m-d H:i:s', $endDate))
+		);
+	
+	if (!empty($_POST['export_orders']) && $supportsChildItems) {
+		$where[] = array(
+            'key' => 'order_items.'.$reporter->orderItemsTypeColumn,
+            'operator' => 'IN',
+            'value' => array_intersect(empty($_POST['include_shipping']) ? ['line_item'] : ['line_item', 'shipping'], $reporter->getOrderItemTypes())
+        );
+	}
 	
 	$groupBy = [];
 	
@@ -2592,7 +2919,9 @@ function ninjalytics_getReportData($reporter, $baseFields, $product_ids, $startD
 		}
 	}
 	
-	if (!empty($_POST['enable_custom_segments']) && !empty($_POST['groupby'])) {
+	if (!empty($_POST['export_orders'])) {
+		$groupBy[] = $reporter->getExportGroupingField();
+	} else if (!empty($_POST['enable_custom_segments']) && !empty($_POST['groupby'])) {
 		switch ($_POST['groupby']) {
 			case 'i_builtin::item_price':
 				$groupBy[] = 'ROUND(order_item_meta__line_subtotal.meta_value / order_item_meta__qty.meta_value, 2)';
@@ -2688,10 +3017,14 @@ function ninjalytics_getReportData($reporter, $baseFields, $product_ids, $startD
 	$result = $reporter->get_order_report_data($reportOptions);
 	remove_filter('sanitize_key', __NAMESPACE__.'\\ninjalytics_fixSanitizeKey');
 	
-	// Do post-query product ID filtering, if necessary
-	if (!empty($result) && !empty($productIdsPostFilter)) {
+	// Do post-query product ID and zero amount filtering, if necessary
+	if (!empty($result) && (!empty($productIdsPostFilter) || !empty($zeroAmountPostFilter))) {
+		$zeroAmountResultField = ($zeroAmountFilterField ?? '') == 'line_total' ? 'gross_after_discount' : 'gross';
 		foreach ($result as $key => $product) {
-			if (!in_array($product->product_id, $product_ids)) {
+			$rowAmount = ($product->order_item_type ?? '') == 'shipping' ? ($product->shipping_cost ?? 0) : ($product->$zeroAmountResultField ?? 0);
+			if ( (!empty($productIdsPostFilter) && !in_array($product->product_id, $product_ids) )
+				|| (!empty($zeroAmountPostFilter) && $rowAmount == 0)
+			) {
 				unset($result[$key]);
 			}
 		}
@@ -2724,7 +3057,7 @@ function ninjalytics_fixSanitizeKey($sanitized) {
 }
 
 /*
-	The following function contains code copied from from WooCommerce; see license/woocommerce-license.txt for copyright and licensing information
+	The following function contains code copied from WooCommerce; see license/woocommerce-license.txt for copyright and licensing information
 */
 function ninjalytics_getShippingReportData($reporter, $baseFields, $startDate, $endDate, $taxes = false, $refundOrders = false)
 {
@@ -2805,7 +3138,7 @@ function ninjalytics_getShippingReportData($reporter, $baseFields, $startDate, $
 			$groupByField = sanitize_text_field(wp_unslash($_POST['groupby'] ?? ''));
 			
 			if (!empty($groupByField) && $groupByField != 'i_builtin::item_price') {
-				if (in_array($groupByField, array('o_builtin::order_month', 'o_builtin::order_quarter', 'o_builtin::order_year', 'o_builtin::order_date', 'o_builtin::order_day'))) {
+				if (in_array($groupByField, array('o_builtin::order_month', 'o_builtin::order_quarter', 'o_builtin::order_year', 'o_builtin::order_date', 'o_builtin::order_day', 'o_builtin::order_week'), true)) {
 					switch ($groupByField) {
 						case 'o_builtin::order_month':
 							$sqlFunction = 'MONTH';
@@ -2819,16 +3152,23 @@ function ninjalytics_getShippingReportData($reporter, $baseFields, $startDate, $
 						case 'o_builtin::order_day':
 							$sqlFunction = 'DAY';
 							break;
+						case 'o_builtin::order_week':
+							$sqlFunction = 'YEARWEEK';
+							break;
 						default:
 							$sqlFunction = 'DATE';
 					}
-					$dataParams[$sqlFunction.'.'.$standardFields['order_date'][1]] = array(
+					$shipping_period_spec = array(
 						'type' => $standardFields['order_date'][0],
 						'order_item_type' => 'shipping',
 						'function' => $sqlFunction,
 						'join_type' => 'LEFT',
 						'name' => 'groupby_field'
 					);
+					if ( 'YEARWEEK' === $sqlFunction ) {
+						$shipping_period_spec['function_args_after'] = [3 => '%d'];
+					}
+					$dataParams[$sqlFunction.'.'.$standardFields['order_date'][1]] = $shipping_period_spec;
 				} else if ($reporter->supports(PlatformFeatures::ORDER_SOURCE) && $groupByField == 'o_builtin::order_source') {
 					// Replicated in non-shipping data function above
 					$dataParams['_wc_order_attribution_source_type'] = array(
@@ -2901,18 +3241,18 @@ function ninjalytics_getShippingReportData($reporter, $baseFields, $startDate, $
 	}
 	
 	// Date range filtering
-	$reportParams['where'] = array(
-		array(
-			'key' => $reporter->ordersDateColumn,
-			'operator' => '>=',
-			'value' => get_gmt_from_date(gmdate('Y-m-d H:i:s', $startDate))
-		),
-		array(
-			'key' => $reporter->ordersDateColumn,
-			'operator' => '<=',
-			'value' => get_gmt_from_date(gmdate('Y-m-d H:i:s', $endDate))
-		)
-	);
+		$reportParams['where'] = array(
+			array(
+				'key' => 'posts.'.$reporter->ordersDateColumn,
+				'operator' => '>=',
+				'value' => get_gmt_from_date(gmdate('Y-m-d H:i:s', $startDate))
+			),
+			array(
+				'key' => 'posts.'.$reporter->ordersDateColumn,
+				'operator' => '<=',
+				'value' => get_gmt_from_date(gmdate('Y-m-d H:i:s', $endDate))
+			)
+		);
 	
 	// Order status filtering
 	$statusesStr = '';
@@ -3096,4 +3436,18 @@ add_action('admin_notices', __NAMESPACE__.'\\ninjalytics_admin_notice');
 // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce check would be done before setting the screen option, this is just for performance to avoid adding the hook unnecessarily
 if (!empty($_POST['wp_screen_options'])) {
 	add_filter('set_screen_option_ninjalytics_admin_notice_hide', function() { return 1; });
+}
+
+function ninjalytics_savePresetField()
+{
+	echo('<table class="form-table">
+			<tr valign="top">
+				<th scope="row">
+					<label for="ninjalytics_field_save_preset">Create New Preset:</label>
+				</th>
+				<td>
+					<input type="text" name="save_preset" id="ninjalytics_field_save_preset" placeholder="Preset Name" />
+				</td>
+			</tr>
+		</table>');
 }

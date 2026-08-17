@@ -13,8 +13,7 @@
   }
 }
 .berrypress-page button,
-.berrypress-page .button,
-.berrypress-page .wp-core-ui .button,
+.berrypress-page .button, .berrypress-page.wp-core-ui .button,
 .berrypress-page input[type=submit],
 .berrypress-page input[type=button],
 .berrypress-page input[type=reset],
@@ -26,6 +25,10 @@
   padding: 0;
   font-family: inherit;
   cursor: pointer;
+}
+.berrypress-page p.search-box input[type=search], .berrypress-page.wp-core-ui .tablenav select {
+  min-height: unset;
+  line-height: 28px;
 }
 .berrypress-page button:disabled,
 .berrypress-page .button:disabled {
@@ -114,6 +117,7 @@
   border: 1px solid #d7dbec;
   text-align: center;
   transition: background 0.3s ease, opacity 0.3s ease;
+  min-height: 24px;
 }
 .berrypress-page input[type=submit].berrypress-btn-primary,
 .berrypress-page .berrypress-btn-primary {
@@ -146,11 +150,11 @@
 }
 .berrypress-page input[type=submit].berrypress-btn-secondary i,
 .berrypress-page .berrypress-btn-secondary i {
-  line-height: 18px;
+  line-height: 19px;
   font-size: 18px;
   vertical-align: middle;
-  position: relative;
-  left: -4px;
+  margin-right: 4px;
+  margin-top: 1px;
 }
 .berrypress-page a.berrypress-btn {
   display: inline-block;
@@ -262,6 +266,7 @@
 }
 
 .berrypress-page select,
+.berrypress-page p.search-box input[type=search],
 .berrypress-page input[type=search],
 .berrypress-page input[type=email],
 .berrypress-page input[type=number],
@@ -269,6 +274,7 @@
 .berrypress-page input[type=time],
 .berrypress-page input[type=text] {
   height: 30px;
+  min-height: unset;
   padding: 0 12px;
   line-height: 28px;
   border: 1px solid #d7dbec;
@@ -276,6 +282,7 @@
   font-size: 14px;
 }
 .berrypress-page select:focus,
+.berrypress-page p.search-box input[type=search]:focus,
 .berrypress-page input[type=search]:focus,
 .berrypress-page input[type=email]:focus,
 .berrypress-page input[type=number]:focus,
@@ -447,8 +454,29 @@
 .berrypress-page .tablenav.bottom button {
   margin-bottom: 4px;
 }
+.berrypress-page .berrypress-table-wrapper {
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid #e6e9f4;
+}
+.berrypress-page .berrypress-table-wrapper table.berrypress-table {
+  width: 100%;
+  margin-top: 0;
+  border: 0;
+  border-radius: 0;
+}
+.berrypress-page .berrypress-table-scroll {
+  overflow-x: auto;
+}
+@media screen and (max-width: 782px) {
+  .berrypress-page .berrypress-table-wrapper .form-table td,
+  .berrypress-page .berrypress-table-wrapper .form-table th,
+  .berrypress-page .berrypress-table-wrapper .label-responsive {
+    display: table-cell;
+  }
+}
 .berrypress-page table.berrypress-table {
-  width: calc(100% - 20px);
+  width: 100%;
   border-radius: 5px;
   overflow: hidden;
   border: 1px solid #e6e9f4;
@@ -485,6 +513,9 @@
   text-align: left;
   border-bottom: 1px solid #e6e9f4;
   vertical-align: middle;
+}
+.berrypress-page table.berrypress-table tbody tr:last-of-type td {
+  border-bottom: unset;
 }
 .berrypress-page table.berrypress-table tbody h2 {
   font-size: 14px;
@@ -537,11 +568,55 @@
   border: 8px solid #F3F5F9;
 }
 
+.berrypress-page .berrypress-top-bar {
+  text-align: center;
+  background-color: #e6e9f4;
+  padding: 0 0.5rem;
+}
+.berrypress-page .berrypress-top-bar h2 {
+  font-size: 13px;
+  font-weight: 500;
+}
+.berrypress-page .berrypress-top-bar a.berrypress-link {
+  font-size: 13px;
+  color: #0070F0;
+}
+.berrypress-page .berrypress-top-bar a.berrypress-link i {
+  vertical-align: middle;
+}
+
+.berrypress-page .berrypress-settings-container .berrypress-top-bar {
+  position: relative;
+  box-sizing: border-box;
+  padding-right: 40px;
+  padding-left: 40px;
+}
+
+.berrypress-page .berrypress-top-bar-dismiss {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  padding: 6px;
+  color: #5A607F;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+.berrypress-page .berrypress-top-bar-dismiss:hover, .berrypress-page .berrypress-top-bar-dismiss:focus {
+  color: #131523;
+}
+.berrypress-page .berrypress-top-bar-dismiss i {
+  font-size: 18px;
+}
+
+.berrypress-page .berrypress-top-bar-dismissed .berrypress-top-bar {
+  display: none;
+}
+
 .berrypress-header {
   display: flex;
   align-items: center;
   gap: 15px;
-  min-height: 90px;
+  min-height: 80px;
   background: #fafbfd;
   padding: 15px 20px;
   width: 100%;

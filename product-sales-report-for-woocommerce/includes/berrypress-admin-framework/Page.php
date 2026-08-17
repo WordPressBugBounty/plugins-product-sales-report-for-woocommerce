@@ -60,6 +60,7 @@ abstract class Page {
 	$product_url          = $this->getProductUrl();
 	$header_text          = $this->getHeaderText();
 	$display_above_header = $this->getAboveHeaderHtml();
+	$top_bar_dismissed    = !empty( $_COOKIE['berrypress_top_bar_dismissed'] );
 
 
 	$display_sidebar   = apply_filters( 'berrypress_admin_page_display_sidebar', true , '' );
@@ -67,7 +68,7 @@ abstract class Page {
 	$display_top_right_nav   = apply_filters( 'berrypress_admin_page_display_top_right_nav', true , '' );
 
 ?>
-    <div class="berrypress-settings-container">
+    <div class="berrypress-settings-container<?php echo $top_bar_dismissed ? ' berrypress-top-bar-dismissed' : ''; ?>">
         <?php echo(wp_kses_post($display_above_header)); ?>
 
         <header class="berrypress-header">
@@ -179,6 +180,24 @@ abstract class Page {
         const $bpToggleBtn = $(".berrypress-toggle-sidebar");
         const $bpSidebar   = $("#berrypress-sidebar");
         const $mobileButton = $("#berrypress-toggle-menu-mobile");
+		const $topBars = $(".berrypress-top-bar");
+
+		$topBars.append(
+			$("<button>", {
+				type: "button",
+				class: "berrypress-top-bar-dismiss",
+				"aria-label": <?php echo json_encode(__( 'Dismiss this notice', 'product-sales-report-for-woocommerce' ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>
+			}).append($("<i>", {
+				class: "berrypress-icon-close",
+				"aria-hidden": "true"
+			}))
+		);
+
+		$topBars.on("click", ".berrypress-top-bar-dismiss", function() {
+			document.cookie = "berrypress_top_bar_dismissed=1; Max-Age=86400; Path=/; SameSite=Lax" +
+				(window.location.protocol === "https:" ? "; Secure" : "");
+			$(".berrypress-settings-container").addClass("berrypress-top-bar-dismissed");
+		});
 
         $bpToggleBtn.on("click", function() {
             $bpSidebar.toggleClass("collapsed");
@@ -252,7 +271,7 @@ abstract class Page {
 			}
 
 			berrypress_adjustSidebarHeight();
-			$(window).on('resize scroll', berrypress_adjustSidebarHeight); // scroll też!
+			$(window).on('resize scroll', berrypress_adjustSidebarHeight); // re-run on scroll as well
 
 
 			// Plugin Specific

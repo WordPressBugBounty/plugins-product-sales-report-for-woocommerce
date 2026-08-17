@@ -11,8 +11,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Define plugin base path for icons - use same method as logo in header
-$plugin_url = plugin_dir_url(dirname(dirname(dirname(__FILE__))) . '/hm-product-sales-report.php');
+// Define plugin base path for icons
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- template variable in included file, not global scope
+$plugin_url = plugin_dir_url( dirname( dirname( __FILE__ ) ) );
+
 ?>
 
 <div class="berrypress-addons-page">

@@ -31,20 +31,24 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
 
 #ninjalytics-breadcrumbs {
   list-style: none;
-  padding: 10px 15px 20px 0;
+  padding: 5px 0;
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
 }
 #ninjalytics-breadcrumbs li {
   color: #131523;
   display: inline;
+  margin-bottom: 0;
+}
+#ninjalytics-breadcrumbs li:last-child {
+  flex: 0 0 auto;
 }
 #ninjalytics-breadcrumbs li:not(:last-child)::after {
   content: "/";
-  margin-left: 3px;
+  margin-left: 5px;
   color: #5A607F;
 }
 #ninjalytics-breadcrumbs li:last-child a {
@@ -58,6 +62,37 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
 }
 #ninjalytics-breadcrumbs a:focus {
   box-shadow: none;
+}
+#ninjalytics-breadcrumbs .ninjalytics-breadcrumb-editable {
+  color: #0070F0;
+  font-weight: 600;
+  cursor: text;
+  padding: 5px 10px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  outline: none;
+  min-width: 80px;
+  display: inline-block;
+  vertical-align: middle;
+  box-sizing: border-box;
+  margin-left: -5px;
+  white-space: nowrap;
+}
+#ninjalytics-breadcrumbs .ninjalytics-breadcrumb-editable:hover {
+  background-color: rgba(0, 112, 240, 0.08);
+  border-color: rgba(0, 112, 240, 0.25);
+}
+#ninjalytics-breadcrumbs .ninjalytics-breadcrumb-editable.is-editing, #ninjalytics-breadcrumbs .ninjalytics-breadcrumb-editable:focus {
+  background-color: #fff;
+  border-color: #0070F0;
+  box-shadow: 0 0 0 2px rgba(0, 112, 240, 0.2);
+}
+#ninjalytics-breadcrumbs .ninjalytics-breadcrumb-editable:empty::before {
+  content: attr(data-placeholder);
+  color: #5A607F;
+  font-weight: 400;
+  font-style: italic;
 }
 
 #ninjalytics_output_container.ninjalytics-output-loading .dt-container,
@@ -144,6 +179,11 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
   position: relative;
 }
 
+#ninjalytics-date-range-basic:has(select[name=report_time_basic_from_unit] option:checked:not([value*=d]):not([value*=cm])) #ninjalytics-date-range-basic-from,
+#ninjalytics-date-range-basic:has(select[name=report_time_basic_to_unit] option:checked:not([value*=d]):not([value*=cm])) #ninjalytics-date-range-basic-to {
+  display: none;
+}
+
 #ninjalytics-date-range-dropdown {
   border-radius: 7px;
   background-color: #fff;
@@ -157,7 +197,7 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
 }
 @media (min-width: 1200px) {
   #ninjalytics-date-range-dropdown {
-    width: 480px;
+    width: 510px;
   }
 }
 #ninjalytics-date-range-dropdown .ninjalytics-date-range-tabs {
@@ -194,7 +234,8 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
   padding: 10px;
 }
 #ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body input[type=number] {
-  max-width: 60px;
+  max-width: 66px;
+  vertical-align: middle;
 }
 #ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body select,
 #ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body input {
@@ -246,9 +287,12 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
 }
 
 .ninjalytics-group-title {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
-  margin-bottom: 1rem;
+  margin-bottom: 0.7rem;
+  letter-spacing: 0.2px;
+  color: #5A607F;
+  text-transform: uppercase;
   display: flex;
   align-items: center;
   gap: 0.2rem;
@@ -283,12 +327,12 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
   margin-bottom: 1.2rem;
 }
 
-#ninjalytics-settings .berrypress-field select {
+#ninjalytics-report-sidebar .berrypress-field select {
   font-size: 13px;
 }
 
-#ninjalytics-settings .berrypress-field .label,
-#ninjalytics-settings .berrypress-field label {
+#ninjalytics-report-sidebar .berrypress-field .label,
+#ninjalytics-report-sidebar .berrypress-field label {
   font-size: 13px;
   line-height: 18px;
 }
@@ -370,6 +414,10 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
 .berrypress-field select[name=orderdir] {
   min-width: 110px;
   max-width: 180px;
+}
+
+.berrypress-field.ninjalytics-product-exclude-free-field .ninjalytics-field-child {
+  grid-column: 1/-1;
 }
 
 #ninjalytics-date-range-dropdown #ninjalytics-date-range-dropdown-body .ninjalytics-date-range-dropdown-tab-content {
@@ -470,6 +518,23 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
   gap: 10px;
   margin-bottom: 15px;
 }
+@media (max-width: 481px) {
+  .ninjalytics-modal-templates .ninjalytics-template-modal-filters button {
+    background-color: unset !important;
+    color: #131523;
+    border-top: unset;
+    border-left: unset;
+    border-right: unset;
+    border-radius: 0;
+    border-bottom-width: 2px;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    font-size: 13px;
+  }
+  .ninjalytics-modal-templates .ninjalytics-template-modal-filters button.berrypress-btn-primary {
+    color: #0070F0;
+  }
+}
 .ninjalytics-modal-templates .ninjalytics-template-modal-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
@@ -477,12 +542,53 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
   overflow: hidden;
   margin: 0;
 }
+.ninjalytics-modal-templates .ninjalytics-template-modal-grid .ninjalytics-template-modal-section-header {
+  grid-column: 1/-1;
+  margin-top: 1.7rem;
+}
+.ninjalytics-modal-templates .ninjalytics-template-modal-grid .ninjalytics-template-modal-section-header .ninjalytics-template-modal-section-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ninjalytics-modal-templates .ninjalytics-template-modal-grid .ninjalytics-template-modal-section-header .ninjalytics-template-modal-section-description {
+  margin: 0 0 4px;
+  color: #5A607F;
+  font-size: 13px;
+}
+.ninjalytics-modal-templates .ninjalytics-template-modal-grid.is-single-reporter .ninjalytics-template-modal-section-reporter {
+  display: none;
+}
+.ninjalytics-modal-templates .ninjalytics-template-modal-grid[data-ninjalytics-active-filter=woocommerce] .ninjalytics-template-modal-section-reporter[data-ninjalytics-template-section-reporter=woocommerce] {
+  display: none;
+}
+.ninjalytics-modal-templates .ninjalytics-template-modal-grid[data-ninjalytics-active-filter=woocommerce-legacy] .ninjalytics-template-modal-section-reporter[data-ninjalytics-template-section-reporter=woocommerce-legacy] {
+  display: none;
+}
+.ninjalytics-modal-templates .ninjalytics-template-modal-grid[data-ninjalytics-active-filter=edd] .ninjalytics-template-modal-section-reporter[data-ninjalytics-template-section-reporter=edd] {
+  display: none;
+}
+.ninjalytics-modal-templates .ninjalytics-template-modal-grid[data-ninjalytics-active-filter=livecarts] .ninjalytics-template-modal-section-reporter[data-ninjalytics-template-section-reporter=livecarts] {
+  display: none;
+}
 .ninjalytics-modal-templates .ninjalytics-template-modal-grid .ninjalytics-template-card {
   padding: 20px;
   margin: 0;
 }
 .ninjalytics-modal-templates .ninjalytics-template-modal-grid .ninjalytics-template-card-disabled {
   opacity: 0.55;
+}
+.ninjalytics-modal-templates .ninjalytics-template-modal-grid .ninjalytics-template-card-pro {
+  opacity: 0.65;
+  filter: grayscale(40%);
+}
+.ninjalytics-modal-templates .ninjalytics-template-modal-grid .ninjalytics-template-card-blank {
+  background: #F3F5F9;
+  border: 1px dashed #d7dbec;
+}
+.ninjalytics-modal-templates .ninjalytics-template-modal-grid .ninjalytics-template-card-blank .ninjalytics-template-icon-wrapper {
+  background-color: #fff;
 }
 .ninjalytics-modal-templates .ninjalytics-template-modal-grid .ninjalytics-template-card-action-hidden {
   display: none !important;
@@ -809,6 +915,8 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
 
 .berrypress-page .berrypress-sidebar.collapsed {
   width: 0;
+  height: 0;
+  min-height: 0;
   border: 0;
   padding: 0;
 }
@@ -831,6 +939,10 @@ i.berrypress-icon-edit::before {
 
 i.berrypress-icon-download::before {
   content: "\e2c4";
+}
+
+i.berrypress-icon-export::before {
+  content: "\f3b2";
 }
 
 i.berrypress-icon-email::before {
@@ -881,6 +993,38 @@ i.berrypress-icon-drag-indicator::before {
   content: "\e945";
 }
 
+i.berrypress-icon-ai::before {
+  content: "\e65f";
+}
+
+i.berrypress-icon-database-search::before {
+  content: "\f38e";
+}
+
+i.berrypress-icon-package::before {
+  content: "\f569";
+}
+
+i.berrypress-icon-layer::before {
+  content: "\e53b";
+}
+
+i.berrypress-icon-database::before {
+  content: "\f20e";
+}
+
+i.berrypress-icon-face::before {
+  content: "\e87c";
+}
+
+i.berrypress-icon-debug::before {
+  content: "\e868";
+}
+
+i.berrypress-icon-mobile::before {
+  content: "\eb72";
+}
+
 .berrypress-page .berrypress-field input[type=radio] ~ label > a.berrypress-doc-note.ninjalytics-doc-note {
   left: -8px;
 }
@@ -895,6 +1039,9 @@ i.berrypress-icon-drag-indicator::before {
 }
 .berrypress-page .bp-tooltip {
   font-size: 11px !important;
+}
+.berrypress-page .berrypress-field label:has(.ninjalytics-doc-note) {
+  text-wrap: pretty;
 }
 .berrypress-page a.berrypress-doc-note.ninjalytics-doc-note-text {
   display: inline-flex;
@@ -920,6 +1067,14 @@ i.berrypress-icon-drag-indicator::before {
 
 .berrypress-mt-2 {
   margin-top: 10px;
+}
+
+.berrypress-mt-0 {
+  margin-top: 0;
+}
+
+.berrypress-mb-0 {
+  margin-bottom: 0;
 }
 
 .ninjalytics-card-reports {
@@ -981,6 +1136,29 @@ i.berrypress-icon-drag-indicator::before {
   padding: 0.9rem 0.5rem;
 }
 
+#ninjalytics-display-primary-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 0.2rem;
+  align-items: center;
+  padding: 0 0 0.8rem;
+  flex-shrink: 0;
+  background: #FEFEFE;
+  margin-bottom: 0;
+}
+#ninjalytics-display-primary-toolbar #ninjalytics-breadcrumbs {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-wrap: nowrap;
+  scrollbar-width: thin;
+}
+#ninjalytics-display-primary-toolbar .ninjalytics-toolbar-buttons {
+  flex-shrink: 0;
+}
+
 #ninjalytics-display-toolbar {
   display: flex;
   flex-direction: row;
@@ -988,8 +1166,20 @@ i.berrypress-icon-drag-indicator::before {
   gap: 0.5rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
+  padding-top: 0.8rem;
 }
 
+@media (min-width: 1101px) {
+  body.ninjalytics-report-view #ninjalytics-settings-settings .ninjalytics-settings-data #ninjalytics-display-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    background-color: #FEFEFE;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid #e6e9f4;
+  }
+}
 #ninjalytyics-display-mode {
   display: flex;
   flex-direction: row;
@@ -1044,54 +1234,131 @@ i.berrypress-icon-drag-indicator::before {
 }
 
 #ninjalytics-settings-settings {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 32px;
-  align-items: start;
+  border-top: 1px solid #e6e9f4 !important;
+  width: calc(100% + 20px);
+  margin-right: -20px;
 }
 #ninjalytics-settings-settings .ninjalytics-settings-panel {
   width: 100%;
-  max-width: 480px;
-  min-width: 320px;
-  justify-self: end;
   box-sizing: border-box;
   container-type: inline-size;
   container-name: ninjalytics-settings-panel;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
 }
 #ninjalytics-settings-settings .ninjalytics-settings-data {
   min-width: 0;
   box-sizing: border-box;
 }
 
-@media (min-width: 1550px) {
-  #ninjalytics-settings-settings {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-}
 @media (max-width: 1100px) {
-  #ninjalytics-settings-settings {
-    grid-template-columns: 1fr;
-  }
   #ags-psr-display-toolbar {
     display: flex;
     flex-direction: column-reverse;
-  }
-  #ninjalytics-settings-settings > .ninjalytics-settings-panel {
-    justify-self: stretch;
-    max-width: none;
-    min-width: 0;
-    padding-top: 20px;
   }
 }
 #ninjalytics_output_container {
   position: relative;
   min-height: 300px;
+  padding-right: 1rem;
 }
 
 #ninjalytics_output_container.ninjalytics-output-chart .dt-container {
   display: none;
 }
 
+#ninjalytics_output_container .berrypress-link {
+  font-size: 13px;
+}
+#ninjalytics_output_container img.ninjalytics-product-image-thumb {
+  display: inline-block;
+  vertical-align: middle;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+#ninjalytics_output_container .ninjalytics-fulfillment-status,
+#ninjalytics_output_container .ninjalytics-order-status {
+  display: inline-flex;
+  line-height: 2.5em;
+  color: #454545;
+  background: #e5e5e5;
+  border-radius: 4px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  margin: -0.25em 0;
+  cursor: inherit !important;
+  white-space: nowrap;
+  max-width: 100%;
+  padding: 0 0.85em;
+  font-size: 11px;
+}
+#ninjalytics_output_container .ninjalytics-fulfillment-status.ninjalytics-status-completed,
+#ninjalytics_output_container .ninjalytics-order-status.ninjalytics-status-completed {
+  background: #c8d7e1;
+  color: #003d66;
+}
+#ninjalytics_output_container .ninjalytics-fulfillment-status.ninjalytics-status-on-hold,
+#ninjalytics_output_container .ninjalytics-order-status.ninjalytics-status-on-hold {
+  background: #f8dda7;
+  color: #573b00;
+}
+#ninjalytics_output_container .ninjalytics-fulfillment-status.ninjalytics-status-failed,
+#ninjalytics_output_container .ninjalytics-order-status.ninjalytics-status-failed {
+  background: #eba3a3;
+  color: #570000;
+}
+#ninjalytics_output_container .ninjalytics-fulfillment-status.ninjalytics-status-processing,
+#ninjalytics_output_container .ninjalytics-order-status.ninjalytics-status-processing {
+  background: #c6e1c6;
+  color: #2c4700;
+}
+#ninjalytics_output_container .ninjalytics-fulfillment-status.ninjalytics-status-trash,
+#ninjalytics_output_container .ninjalytics-order-status.ninjalytics-status-trash {
+  background: #eba3a3;
+  color: #550202;
+}
+#ninjalytics_output_container th[data-ninjalytics-field="builtin::product_image"],
+#ninjalytics_output_container td[data-ninjalytics-field="builtin::product_image"] {
+  width: 60px;
+  min-width: 60px;
+  max-width: 60px;
+  text-align: center;
+}
+#ninjalytics_output_container th[data-ninjalytics-field="builtin::product_image"] {
+  white-space: normal;
+  line-height: 1.2;
+}
+#ninjalytics_output_container th[data-ninjalytics-field="builtin::product_image"] .dt-column-title {
+  display: none;
+}
+#ninjalytics_output_container td[data-ninjalytics-field="builtin::product_image"] {
+  white-space: nowrap;
+}
+#ninjalytics_output_container td[data-ninjalytics-field="builtin::product_image"] img {
+  display: inline-block;
+  vertical-align: middle;
+}
+#ninjalytics_output_container th[data-ninjalytics-field="builtin::product_id"],
+#ninjalytics_output_container td[data-ninjalytics-field="builtin::product_id"] {
+  text-align: left !important;
+}
+#ninjalytics_output_container td[data-ninjalytics-field="builtin::order_date_only"],
+#ninjalytics_output_container td[data-ninjalytics-field="builtin::order_paid_date_only"],
+#ninjalytics_output_container td[data-ninjalytics-field="builtin::order_completed_date_only"] {
+  white-space: nowrap;
+}
+#ninjalytics_output_container tbody td.ninjalytics-preview-negative-value,
+#ninjalytics_output_container tfoot td.ninjalytics-preview-negative-value {
+  color: #b32d2e;
+  font-weight: 500;
+}
+#ninjalytics_output_container tbody td.ninjalytics-preview-negative-value .berrypress-link,
+#ninjalytics_output_container tfoot td.ninjalytics-preview-negative-value .berrypress-link {
+  color: inherit;
+  text-decoration-thickness: 1px;
+}
 #ninjalytics_output_container input[type=search] {
   height: 30px;
   padding: 0 24px 0 12px;
@@ -1190,6 +1457,66 @@ i.berrypress-icon-drag-indicator::before {
 #ninjalytics_output_container.ninjalytics-output-table canvas {
   display: none !important;
 }
+#ninjalytics_output_container.ninjalytics-output-table #ninjalytics-chart-duplicate-series {
+  display: none;
+}
+
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable > thead > tr > th,
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable > tbody > tr:not(.child) > td,
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable > tfoot > tr > td {
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable th[data-ninjalytics-field="builtin::product_image"] {
+  white-space: nowrap !important;
+}
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable .dt-column-title,
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable tbody tr:not(.child) td .berrypress-link {
+  white-space: inherit !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable > tbody > tr.child > td {
+  max-width: 100%;
+  overflow-x: auto;
+  box-sizing: border-box;
+  vertical-align: top;
+}
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable > tbody > tr.child ul.dtr-details {
+  display: block !important;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable > tbody > tr.child ul.dtr-details > li {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  gap: 0.35em;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap !important;
+  word-break: normal !important;
+}
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable > tbody > tr.child span.dtr-title {
+  flex-shrink: 0;
+  white-space: nowrap !important;
+  word-break: normal !important;
+}
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable > tbody > tr.child span.dtr-data {
+  flex-shrink: 0;
+  white-space: nowrap !important;
+  word-break: normal !important;
+  max-width: none;
+}
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable > tbody > tr.child span.dtr-data .berrypress-link,
+#ninjalytics_output_container.ninjalytics-preview-nowrap table.dataTable > tbody > tr.child span.dtr-data .order-status {
+  flex-shrink: 0;
+  white-space: nowrap !important;
+  word-break: normal !important;
+}
 
 #ninjalytics_output_container #hm_psr_chart {
   max-height: 80vh;
@@ -1212,86 +1539,190 @@ i.berrypress-icon-drag-indicator::before {
   height: 100%;
 }
 
-#ninjalytics-settings {
+#ninjalytics-report-sidebar-tabs {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  gap: 8px;
+  margin: 0;
+  padding: 0.4rem;
+  background-color: #F3F5F9;
+  border-left: 1px solid #e6e9f4;
+  box-sizing: border-box;
+}
+#ninjalytics-report-sidebar-tabs .ninjalytics-tab-line {
+  width: 100%;
+  border-top: 1px solid #e6e9f4;
+}
+@media (min-height: 1000px) {
+  #ninjalytics-report-sidebar-tabs .ninjalytics-tab-line {
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+  }
+}
+#ninjalytics-report-sidebar-tabs .ninjalytics-report-sidebar-tab {
+  flex: 0 0 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 5px 5px 7px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: #5A607F;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+#ninjalytics-report-sidebar-tabs .ninjalytics-report-sidebar-tab i {
+  font-size: 18px;
+  font-weight: normal;
+}
+#ninjalytics-report-sidebar-tabs .ninjalytics-report-sidebar-tab:hover {
+  color: #0070F0;
+  background-color: rgba(0, 112, 240, 0.06);
+  border: 1px solid #e6e9f4;
+}
+#ninjalytics-report-sidebar-tabs .ninjalytics-report-sidebar-tab:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(0, 112, 240, 0.35);
+}
+#ninjalytics-report-sidebar-tabs .ninjalytics-report-sidebar-tab.ninjalytics-report-sidebar-tab-active, #ninjalytics-report-sidebar-tabs .ninjalytics-report-sidebar-tab[aria-selected=true] {
+  color: #0070F0;
+  border: 1px solid #e6e9f4;
+  border-bottom-color: #0070F0;
+  font-weight: 600;
+  background: #fff;
+}
+
+#ninjalytics-report-sidebar {
   font-size: 13px;
 }
-#ninjalytics-settings .ninjalytics-settings-toggle {
-  border: 1px solid #e6e9f4;
-  margin-bottom: 10px;
-  border-radius: 10px;
+#ninjalytics-report-sidebar .ninjalytics-sidebar-header {
+  grid-row: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 12px;
+  border-bottom: 1px solid #e6e9f4;
+  background: #FEFEFE;
 }
-#ninjalytics-settings .ninjalytics-section-title {
+#ninjalytics-report-sidebar .ninjalytics-sidebar-header.ninjalytics-sidebar-header-no-border {
+  border-bottom: unset;
+}
+#ninjalytics-report-sidebar .ninjalytics-sidebar-title {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #131523;
+}
+#ninjalytics-report-sidebar .ninjalytics-sidebar-subtitle {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #5A607F;
+}
+#ninjalytics-report-sidebar .ninjalytics-sidebar-body {
+  padding: 1rem;
+}
+#ninjalytics-report-sidebar .ninjalytics-settings-toggle {
+  border-bottom: 1px solid #e6e9f4;
+  margin-left: 1rem;
+  margin-right: 0.7rem;
+  display: grid;
+  grid-template-rows: min-content 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+#ninjalytics-report-sidebar .ninjalytics-settings-toggle.ninjalytics-active {
+  grid-template-rows: min-content 1fr;
+}
+#ninjalytics-report-sidebar .ninjalytics-section-title {
   cursor: pointer;
   margin: 0;
-  padding: 0 10px 0 0;
+  padding: 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
 }
-#ninjalytics-settings .ninjalytics-section-title h3 {
-  padding: 15px;
+#ninjalytics-report-sidebar .ninjalytics-section-title h3 {
+  padding: 15px 5px 15px 0;
   margin: 0;
   font-size: 14px;
   flex-grow: 1;
+  font-weight: bold;
 }
-#ninjalytics-settings .ninjalytics-section-title label {
+#ninjalytics-report-sidebar .ninjalytics-section-title h3 i {
+  font-weight: normal;
+  font-size: 18px;
+  color: #7e84a3;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+#ninjalytics-report-sidebar .ninjalytics-section-title label {
   visibility: hidden;
   opacity: 0;
+  pointer-events: none;
   align-items: center;
   font-weight: normal;
   transition: all ease-in 0.2s;
   display: flex;
   gap: 0.4rem;
-  font-size: 13px;
+  font-size: 11px;
   margin-right: 0.2rem;
 }
-#ninjalytics-settings .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-body {
-  max-height: 75vh;
-  height: auto;
-  overflow: auto;
-  overflow-x: hidden;
-  opacity: 1;
-  padding: 20px 10px 10px 15px;
-  border-top: 1px solid #e6e9f4;
-  box-sizing: border-box;
-  transition: padding 0.3s step-start, max-height 0.3s ease, opacity 0.3s ease;
+@media (max-width: 480px) {
+  #ninjalytics-report-sidebar .ninjalytics-section-title label span {
+    max-width: 19px;
+    text-overflow: clip;
+    overflow: hidden;
+    white-space: nowrap;
+  }
 }
-#ninjalytics-settings .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-body * {
-  box-sizing: border-box;
+#ninjalytics-report-sidebar .ninjalytics-section-title .berrypress-btn-icon i,
+#ninjalytics-report-sidebar .ninjalytics-section-title .berrypress-icon-expand_more {
+  display: inline-flex;
+  transform: rotate(0deg);
+  transform-origin: center;
+  transition: transform 0.25s ease;
 }
-#ninjalytics-settings .ninjalytics-section-body {
-  max-height: 0;
+#ninjalytics-report-sidebar .ninjalytics-section-body {
   overflow: hidden;
+  min-height: 0;
   box-sizing: border-box;
   opacity: 0;
-  padding: 0;
-  transition: padding 0.3s step-end, max-height 0.3s ease, opacity 0.3s ease;
+  padding: 0 5px 0 2px;
+  transition: padding 0.3s ease, opacity 0.3s ease;
 }
-#ninjalytics-settings .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-title label {
+#ninjalytics-report-sidebar .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-body {
+  overflow-x: hidden;
+  opacity: 1;
+  padding: 5px 5px 5px 2px;
+}
+#ninjalytics-report-sidebar .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-body * {
+  box-sizing: border-box;
+}
+#ninjalytics-report-sidebar .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-title h3 i,
+#ninjalytics-report-sidebar .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-title h3 {
+  color: #0070F0;
+}
+#ninjalytics-report-sidebar .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-title label {
   visibility: visible;
   opacity: 1;
+  pointer-events: auto;
 }
-#ninjalytics-settings .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-title .berrypress-icon-expand_more {
+#ninjalytics-report-sidebar .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-title .berrypress-btn-icon i,
+#ninjalytics-report-sidebar .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-title .berrypress-icon-expand_more {
   transform: rotate(180deg);
 }
 
-#ags-psr-report-meta {
-  margin-bottom: 1rem;
-}
-#ags-psr-report-meta label {
-  display: flex;
-  flex-direction: row;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-#ags-psr-report-meta input {
-  flex-grow: 1;
-  min-height: 30px;
-}
-
-#ninjalytics-settings > .ninjalytics-settings-toggle:not(:has(input.ninjalytics-no-update:checked)) .ninjalytics-setting-advanced {
+#ninjalytics-report-sidebar > #ninjalytics-report-sidebar-settings > .ninjalytics-settings-toggle:not(:has(input.ninjalytics-no-update:checked)) .ninjalytics-setting-advanced {
   display: none;
 }
 
@@ -1310,6 +1741,7 @@ i.berrypress-icon-drag-indicator::before {
 .berrypress-page .ninjalytics-add-report-field select {
   padding: 2px 12px;
   height: 34px;
+  min-height: 34px;
   flex-grow: 1;
   max-width: unset;
 }
@@ -1457,27 +1889,600 @@ i.berrypress-icon-drag-indicator::before {
   vertical-align: middle;
 }
 
-.ninjalytics-debug-sql-box {
-  grid-template-columns: 1fr;
-  gap: 0;
-  margin-top: 1.5em;
+.berrypress-page #ninjalytics-form {
+  --ninjalytics-wp-admin-bar-height: 0px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
-.ninjalytics-debug-sql-box .ninjalytics-debug-sql-content {
-  max-width: 95%;
-  padding: 10px 12px;
-  line-height: 1.3em;
-  border: 1px solid #d7dbec;
-  border-radius: 5px;
-  font-size: 12px;
+.admin-bar .berrypress-page #ninjalytics-form {
+  --ninjalytics-wp-admin-bar-height: 32px;
+}
+
+@media screen and (max-width: 782px) {
+  .admin-bar .berrypress-page #ninjalytics-form {
+    --ninjalytics-wp-admin-bar-height: 46px;
+  }
+}
+.berrypress-page:not(.ninjalytics-report-view) #ninjalytics-form {
+  --ninjalytics-report-chrome-offset: 7.5rem;
+  --ninjalytics-report-viewport-offset: calc(
+    var(--ninjalytics-report-chrome-offset) + var(--ninjalytics-wp-admin-bar-height)
+  );
+  min-height: calc(100dvh - var(--ninjalytics-report-viewport-offset));
+  max-height: calc(100dvh - var(--ninjalytics-report-viewport-offset));
+}
+
+#ninjalytics-settings-settings {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-top: 0;
+}
+
+#ninjalytics-settings-settings .ninjalytics-settings-split {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+@media (min-width: 1101px) {
+  #ninjalytics-settings-settings .ninjalytics-settings-split {
+    height: 100%;
+    max-height: 100%;
+  }
+}
+.ninjalytics-settings-sidebar {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+#ninjalytics-report-sidebar {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#ninjalytics-report-sidebar > [role=tabpanel] {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#ninjalytics-report-sidebar #ninjalytics-report-sidebar-settings,
+#ninjalytics-report-sidebar #ninjalytics-report-sidebar-email:not([hidden]) {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+#ninjalytics-report-sidebar #ninjalytics-report-sidebar-debug:not([hidden]),
+#ninjalytics-report-sidebar #ninjalytics-report-sidebar-mobileapp:not([hidden]) {
+  overflow: hidden;
+}
+
+@media (max-width: 1100px) {
+  .ninjalytics-settings-sidebar {
+    border: 1px solid #e6e9f4;
+    border-radius: 5px;
+  }
+}
+@media (min-width: 1101px) {
+  html:has(body.ninjalytics-report-view) {
+    overflow: hidden;
+    box-sizing: border-box;
+    height: 100vh;
+  }
+  .admin-bar html:has(body.ninjalytics-report-view) {
+    padding-top: 32px;
+  }
+}
+@media screen and (min-width: 1101px) and (max-width: 782px) {
+  .admin-bar html:has(body.ninjalytics-report-view) {
+    padding-top: 46px;
+  }
+}
+@media (min-width: 1101px) {
+  body.ninjalytics-report-view.berrypress-page {
+    overflow: hidden;
+    box-sizing: border-box;
+    height: 100%;
+    max-height: 100%;
+  }
+  body.ninjalytics-report-view.berrypress-page #wpwrap,
+  body.ninjalytics-report-view.berrypress-page #wpcontent,
+  body.ninjalytics-report-view.berrypress-page #wpbody,
+  body.ninjalytics-report-view.berrypress-page #wpbody-content {
+    height: 100%;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  body.ninjalytics-report-view.berrypress-page #wpbody-content {
+    display: flex;
+    flex-direction: column;
+  }
+  body.ninjalytics-report-view.berrypress-page .berrypress-settings-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  body.ninjalytics-report-view.berrypress-page .berrypress-header {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 100;
+  }
+  body.ninjalytics-report-view.berrypress-page .berrypress-main {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+  }
+  body.ninjalytics-report-view.berrypress-page #berrypress-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 20px 0;
+    box-sizing: border-box;
+  }
+  body.ninjalytics-report-view.berrypress-page #berrypress-content > .wrap {
+    display: none;
+  }
+  body.ninjalytics-report-view.berrypress-page #ninjalytics-form {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+  }
+}
+@media (max-width: 1100px) {
+  .berrypress-page #ninjalytics-form {
+    min-height: 0;
+    max-height: none;
+  }
+  #ninjalytics-settings-settings {
+    overflow: visible;
+  }
+  .ninjalytics-settings-sidebar {
+    min-height: 0;
+  }
+  #ninjalytics-report-sidebar {
+    overflow: visible;
+    min-height: 0;
+  }
+  #ninjalytics-report-sidebar > #ninjalytics-report-sidebar-settings {
+    overflow: visible;
+  }
+  #ninjalytics-report-sidebar > #ninjalytics-report-sidebar-ai:not([hidden]),
+  #ninjalytics-report-sidebar > #ninjalytics-report-sidebar-email:not([hidden]),
+  #ninjalytics-report-sidebar > #ninjalytics-report-sidebar-debug:not([hidden]),
+  #ninjalytics-report-sidebar > #ninjalytics-report-sidebar-mobileapp:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 280px;
+    max-height: min(75dvh, 640px);
+    -webkit-overflow-scrolling: touch;
+  }
+}
+#ninjalytics-settings-settings .ninjalytics-settings-split {
   width: 100%;
-  max-height: 15em;
-  overflow: auto;
-  font-family: ui-monospace, monospace;
-  white-space: pre-wrap;
-  word-break: break-all;
+  box-sizing: border-box;
+  min-height: 0;
 }
 
+@media (max-width: 1100px) {
+  #ninjalytics-settings-settings .ninjalytics-settings-split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+}
+@media (min-width: 1101px) {
+  #ninjalytics-settings-settings .ninjalytics-settings-split {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+    min-height: 0;
+    height: 100%;
+    max-height: 100%;
+  }
+  #ninjalytics-settings-settings .ninjalytics-settings-split > .ninjalytics-settings-data,
+  #ninjalytics-settings-settings .ninjalytics-settings-split > .ninjalytics-settings-sidebar {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: none;
+    align-self: stretch;
+    min-height: 0;
+    max-height: 100%;
+  }
+  #ninjalytics-settings-settings .ninjalytics-settings-split > .ninjalytics-settings-data {
+    overflow: auto;
+  }
+  #ninjalytics-settings-settings .ninjalytics-settings-split > .ninjalytics-settings-sidebar {
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    min-height: 0;
+  }
+  #ninjalytics-settings-settings .ninjalytics-settings-split .ninjalytics-settings-panel {
+    border-left: 1px solid #e6e9f4;
+  }
+  #ninjalytics-settings-settings .ninjalytics-settings-split .ninjalytics-settings-panel {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  body.ninjalytics-report-view #ninjalytics-settings-settings .ninjalytics-settings-split > .ninjalytics-settings-sidebar {
+    height: 100%;
+  }
+  #ninjalytics-settings-settings .ninjalytics-settings-split > .gutter.gutter-horizontal {
+    align-self: stretch;
+    height: auto !important;
+    min-height: 0;
+  }
+  #ninjalytics-settings-settings:not(.ninjalytics-layout-enabled) .ninjalytics-settings-split > .ninjalytics-settings-data {
+    flex: 1 1 0;
+  }
+  #ninjalytics-settings-settings:not(.ninjalytics-layout-enabled) .ninjalytics-settings-split > .ninjalytics-settings-sidebar {
+    flex: 0 0 auto;
+    width: auto;
+  }
+  #ninjalytics-settings-settings:not(.ninjalytics-layout-enabled) .ninjalytics-settings-split .ninjalytics-settings-panel {
+    flex: 0 0 380px;
+    width: 380px;
+    min-width: 320px;
+    max-width: 480px;
+  }
+  #ninjalytics-settings-settings.ninjalytics-layout-enabled .ninjalytics-settings-split > .ninjalytics-settings-data,
+  #ninjalytics-settings-settings.ninjalytics-layout-enabled .ninjalytics-settings-split > .ninjalytics-settings-sidebar {
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+  #ninjalytics-settings-settings.ninjalytics-sidebar-collapsed .ninjalytics-settings-split > .ninjalytics-settings-data {
+    flex: 1 1 auto !important;
+    width: auto !important;
+  }
+  #ninjalytics-settings-settings.ninjalytics-sidebar-collapsed .ninjalytics-settings-split > .ninjalytics-settings-sidebar {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+  #ninjalytics-settings-settings.ninjalytics-layout-enabled .gutter {
+    background: transparent;
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    touch-action: none;
+  }
+  #ninjalytics-settings-settings.ninjalytics-layout-enabled .gutter::before {
+    content: "";
+    border-radius: 999px;
+    background: rgba(196, 204, 217, 0.7);
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  #ninjalytics-settings-settings.ninjalytics-layout-enabled .gutter.gutter-horizontal {
+    cursor: col-resize;
+    width: 8px !important;
+  }
+  #ninjalytics-settings-settings.ninjalytics-layout-enabled .gutter.gutter-horizontal::before {
+    width: 2px;
+    height: 48px;
+    align-self: center;
+  }
+  #ninjalytics-settings-settings.ninjalytics-layout-enabled .gutter.gutter-vertical {
+    cursor: row-resize;
+    height: 12px !important;
+    width: 100%;
+  }
+  #ninjalytics-settings-settings.ninjalytics-layout-enabled .gutter.gutter-vertical::before {
+    width: 40px;
+    height: 2px;
+  }
+  #ninjalytics-settings-settings.ninjalytics-layout-enabled .gutter:hover, #ninjalytics-settings-settings.ninjalytics-layout-enabled .gutter:focus-visible {
+    background: rgba(0, 112, 240, 0.1);
+  }
+  #ninjalytics-settings-settings.ninjalytics-layout-enabled .gutter:hover::before, #ninjalytics-settings-settings.ninjalytics-layout-enabled .gutter:focus-visible::before {
+    background: #0070F0;
+    transform: scale(1.2);
+  }
+}
+.ninjalytics-schedule {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: #FEFEFE;
+}
+
+.ninjalytics-schedule-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+@media (max-width: 1100px) {
+  #ninjalytics-report-sidebar-email:not([hidden]) .ninjalytics-schedule {
+    height: 100%;
+    max-height: min(75dvh, 640px);
+    min-height: 280px;
+  }
+}
+.ninjalytics-schedule-lead {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #131523;
+}
+
+.ninjalytics-schedule-note {
+  margin: 0 0 16px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #5A607F;
+}
+
+.ninjalytics-schedule-cta {
+  display: inline-block;
+}
+
+.ninjalytics-schedule-upsell {
+  margin: 0;
+}
+.ninjalytics-schedule-upsell > div {
+  text-align: left;
+  padding: 0 12px 20px;
+}
+.ninjalytics-schedule-upsell h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  text-align: center;
+}
+.ninjalytics-schedule-upsell .berrypress-icon-email {
+  display: inline-block;
+  font-size: 24px;
+  color: #0070F0;
+  background-color: #fff;
+  padding: 18px;
+  border-radius: 50%;
+  position: relative;
+  margin: -8px auto 8px;
+  border: 8px solid #f3f5f9;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ninjalytics-schedule-upsell-offer-discount {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0070F0;
+  margin: 0;
+  text-align: center;
+}
+
+.ninjalytics-schedule-upsell-tagline {
+  margin: 0 0 14px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #5A607F;
+  text-align: center;
+}
+
+.ninjalytics-schedule-features {
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.ninjalytics-schedule-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #131523;
+}
+.ninjalytics-schedule-features li i {
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-size: 16px;
+  color: #0070F0;
+}
+
+.ninjalytics-schedule-upsell .berrypress-btn-primary {
+  display: block;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.ninjalytics-debug {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: #FEFEFE;
+}
+.ninjalytics-debug > .ninjalytics-sidebar-header {
+  flex-shrink: 0;
+}
+
+.ninjalytics-debug-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+
+.ninjalytics-debug-sql-box {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex-shrink: 0;
+}
+
+.ninjalytics-debug-sql-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #131523;
+}
+
+.ninjalytics-debug-sql-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: #5A607F;
+}
+
+.ninjalytics-debug-sql-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ninjalytics-debug-sql-query {
+  border: 1px solid #e6e9f4;
+  border-radius: 6px;
+  background: #F3F5F9;
+  overflow: hidden;
+}
+
+.ninjalytics-debug-sql-query-label {
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #5A607F;
+  background: rgba(0, 112, 240, 0.06);
+  border-bottom: 1px solid #e6e9f4;
+}
+
+.ninjalytics-debug-sql-query-code {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 11px;
+  line-height: 1.45;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #131523;
+  background: #FEFEFE;
+  white-space: pre-wrap;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  overflow-x: auto;
+  tab-size: 2;
+}
+
+@media (max-width: 1100px) {
+  #ninjalytics-report-sidebar-debug:not([hidden]) .ninjalytics-debug {
+    height: 100%;
+    max-height: min(75dvh, 640px);
+    min-height: 280px;
+  }
+}
+.ninjalytics-mobile-app {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: #FEFEFE;
+}
+.ninjalytics-mobile-app > .ninjalytics-sidebar-header {
+  flex-shrink: 0;
+}
+
+.ninjalytics-mobile-app-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  padding: 0 1rem 1rem;
+}
+
+.ninjalytics-mobile-app-video {
+  margin-top: 1rem;
+}
+
+.ninjalytics-mobile-app-video-label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #131523;
+}
+
+.ninjalytics-mobile-app-video-embed {
+  max-width: 280px;
+  margin: 0 auto;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e6e9f4;
+  background: #000;
+}
+.ninjalytics-mobile-app-video-embed iframe {
+  display: block;
+  width: 100% !important;
+  max-width: 100%;
+  height: auto !important;
+  aspect-ratio: 9/16;
+  min-height: 320px;
+  border: 0;
+}
+
+@media (max-width: 1100px) {
+  #ninjalytics-report-sidebar-mobileapp:not([hidden]) .ninjalytics-mobile-app {
+    height: 100%;
+    max-height: min(75dvh, 640px);
+    min-height: 280px;
+  }
+}
 .ninjalytics-new-report-hero {
   border-color: rgba(0, 112, 240, 0.3);
   border-width: 1px;
@@ -1509,6 +2514,7 @@ i.berrypress-icon-drag-indicator::before {
 .ninjalytics-new-report-subtitle {
   margin: 0 auto 24px;
   color: #5A607F;
+  max-width: 620px;
 }
 .ninjalytics-new-report-actions {
   display: flex;
@@ -1616,13 +2622,16 @@ i.berrypress-icon-drag-indicator::before {
   align-self: flex-end;
 }
 
+#berrypress-content .wrap {
+  margin-left: 0;
+}
 #berrypress-content .wrap > h2 {
   margin-bottom: 0;
+  padding: 0;
 }
 
 #ninjalytics-settings-page .ninjalytics-settings-header {
-  padding-bottom: 1.5rem;
-  margin-bottom: 2rem;
+  padding-bottom: 1.2rem;
   border-bottom: 1px solid #e6e9f4;
   font-size: 20px;
 }
@@ -2180,6 +3189,29 @@ body:has(.berrypress-modal.berrypress-active)::before {
   z-index: 9998;
 }
 
+.berrypress-modal.berrypress-loading {
+  pointer-events: none;
+}
+.berrypress-modal.berrypress-loading > * {
+  opacity: 0.5;
+  filter: blur(0.7px);
+  transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
+}
+.berrypress-modal.berrypress-loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  border: 3px solid #d7dbec;
+  border-top-color: #0070F0;
+  border-radius: 50%;
+  animation: berrypress-spin 0.8s linear infinite;
+  z-index: 1;
+}
+
 .berrypress-modal .berrypress-modal-close.berrypress-modal-close-top {
   padding: 0.3rem;
   border-radius: 5px;
@@ -2203,6 +3235,8 @@ body:has(.berrypress-modal.berrypress-active)::before {
   .berrypress-modal-xl {
     max-width: 98%;
     max-height: 98%;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }
 .berrypress-page {
@@ -2326,6 +3360,9 @@ body:has(.berrypress-modal.berrypress-active)::before {
   display: none !important;
 }
 
+/*!
+This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCommerce). For licensing and copyright notices, please see ../license.txt.
+*/
 .ninjalytics-nj-reports-container {
   display: flex;
   flex-wrap: wrap;
@@ -2351,13 +3388,19 @@ body:has(.berrypress-modal.berrypress-active)::before {
     flex-basis: 70%;
   }
 }
+.ninjalytics-nj-reports-container .berrypress-upgrade-box-list {
+  text-align: left;
+}
 .ninjalytics-nj-reports-container .berrypress-upgrade-box-list i {
   vertical-align: middle;
   margin-right: 5px;
   color: #0070F0;
 }
 .ninjalytics-nj-reports-container .berrypress-coupon {
-  padding: 0.5rem 1rem;
+  padding: 0.7rem 1.2rem;
+  border: 1px dashed #d7dbec;
+  display: inline-block;
+  border-radius: 8px;
 }
 
 .berrypress-page span.ninjalytics-pro-badge {
@@ -2415,9 +3458,23 @@ body:has(.berrypress-modal.berrypress-active)::before {
   opacity: 0.7;
 }
 
+#ninjalytics-date-range-dropdown .ninjalytics-date-range-tabs label[for=report_time_mode_dynamic] {
+  background-color: #F3F5F9;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+#ninjalytics-date-range-dropdown .ninjalytics-date-range-tabs label[for=report_time_mode_dynamic] .ninjalytics-pro-badge {
+  margin-left: 3px;
+}
+#ninjalytics-date-range-dropdown .ninjalytics-date-range-tabs label[for=report_time_mode_dynamic]:hover {
+  background-color: #F3F5F9;
+  color: #5A607F;
+}
+
 .berrypress-page .berrypress-top-bar {
   text-align: center;
   background-color: #e6e9f4;
+  padding: 0 0.5rem;
 }
 .berrypress-page .berrypress-top-bar h2 {
   font-size: 13px;
@@ -2429,4 +3486,31 @@ body:has(.berrypress-modal.berrypress-active)::before {
 }
 .berrypress-page .berrypress-top-bar a.berrypress-link i {
   vertical-align: middle;
+}
+
+.berrypress-page .berrypress-settings-container .berrypress-top-bar {
+  position: relative;
+  box-sizing: border-box;
+  padding-right: 40px;
+  padding-left: 40px;
+}
+
+.berrypress-page .berrypress-top-bar-dismiss {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  padding: 6px;
+  color: #5A607F;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+.berrypress-page .berrypress-top-bar-dismiss:hover, .berrypress-page .berrypress-top-bar-dismiss:focus {
+  color: #131523;
+}
+.berrypress-page .berrypress-top-bar-dismiss i {
+  font-size: 18px;
+}
+
+.berrypress-page .berrypress-top-bar-dismissed .berrypress-top-bar {
+  display: none;
 }

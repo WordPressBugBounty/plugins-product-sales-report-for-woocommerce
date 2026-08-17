@@ -4,6 +4,9 @@
  * License:     GNU General Public License version 3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
  */
+if ( !defined( 'ABSPATH' ) ) {
+	exit;
+}
 if (!class_exists('Ninjalytics_JSON_Export')) {
 	class Ninjalytics_JSON_Export {
 

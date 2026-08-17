@@ -1,0 +1,250 @@
+= 2.1.1, 2026-08-18 =
+- Fix: Download, Remove action buttons in the report list
+
+= 2.1.0, 2026-08-17 =
+- Add: Date range presets, plus relative and absolute date range modes
+- Add: Redesigned "Create Report" page with a searchable, grouped template library ("Product Reports" vs. "Order Reports" per integration) and integrations overview
+- Add: Report preview quick links (order ID, product ID, product name) and preview styling (order status colors, negative numbers in red)
+- Add: Resizable split layout for the report editor, "Refresh report data" button, and editable report name directly in the breadcrumb
+- Add: Exclude products without WooCommerce stock management from stock reports
+- Add: Exclude free items (before/after discount) option
+- Add: Custom order item types (fees, coupons, etc.) and shipping product name template on order exports
+- Add: One line per order grouping option for order exports, plus related totals options (separate totals by line item type, totals/fields/shipping calculated once per order, blank separator rows between orders)
+- Add: Line Item Tax and Taxes fields now available in the free version
+- Add: Product image thumbnail field, clickable through to the product edit screen
+- Add: "Allow multiple lines inside preview table cells" option
+- Add: Redesigned Debug tab with a structured, labeled list of report queries
+- Update: Clarified several report template names and descriptions to better reflect their fields, sorting, and default view in the template picker
+- Update: Consolidated report creation into a single "Create Report" page instead of a separate blank-report shortcut
+- Update: Only one report settings section can be open at a time
+- Fix: Issues with the separate order item name field in export mode
+- Fix: Logic error in Cost of Goods Sold (COGS) calculations
+- Fix: Zero-amount filter not applying correctly
+- Fix: Report dates were not restored correctly when opening a saved preset via a direct link
+- Fix: A misconfigured or missing e-commerce plugin caused a fatal error when running, exporting, or emailing a report; now shows a clear message instead
+- Fix: Debug mode could corrupt the downloaded report file by printing PHP errors into the output; errors are now logged instead
+- Fix: Order/line item tax amounts were not consistently treated as numbers, which could throw off tax totals
+- Fix: Incorrect SQL parameter order in custom segment filtering could misalign filter values
+- Fix: An empty product/order type filter was silently ignored instead of correctly matching no rows
+- Fix: PHP warning in report totals when a field key had an unexpected format
+- Fix: Deleting a saved report could reindex other presets' IDs, breaking previously bookmarked or linked report URLs
+- Fix: The saved reports list could show presets for reporters that are inactive or that the current user doesn't have permission for
+- Fix: Opening a preset link saved under a different reporter could silently apply the wrong settings; now shows a clear error (WooCommerce and WooCommerce legacy remain interchangeable)
+- Fix: PHP notice when checking segment settings on a report with no saved group-by field
+- Fix: Settings nonce verification now properly sanitizes the submitted value
+- Fix: A timing issue where the product/variation search box could stop responding right after the report editor loaded
+- Fix: Clicking a checkbox inside a settings section header could unintentionally toggle the wrong section
+
+
+= 2.0.15, 2026-07-06 =
+- Fix: Display mode doesn't save
+- Fix: running a chart overwrites the date
+- Fix: for live carts report, show only carts type
+- Fix: in export mode, set display mode to table
+- Fix: sorting issues
+
+= 2.0.14, 2026-03-29 =
+- Re-ordering fields in the list automatically changes table column order without ajax refresh
+- Change the sort order field or direction settings automatically re-orders the table without an ajax refresh
+- Changing a field name renames the column without an ajax refresh
+- Clicking a table column heading to sort the table automatically updates the sort order and/or direction dropdown
+- Dragging columns in the table to change order automatically updates the order of the fields list
+
+= 2.0.13, 2026-03-27 =
+- Fix: Date range selector now correctly includes refund orders when calculating available year ranges
+- Fix: Import settings from Export Order Items plugin
+- Fix: PHP errors related to namespaces in some configurations
+- Fix: Shipping methods field filtering and ordering
+- Update: WooCommerce tested up to 10.6
+
+= 2.0.12, 2026-02-22 =
+- Add: field order count field
+- Add: this year and last year date options to quick date
+
+= 2.0.11, 2026-02-05 =
+- Add: Quick Dates (last X days, etc) to report dates
+- Fix: Order source issue
+- Fix: "Other" (custom) report fields should have disabled state
+
+= 2.0.10, 2026-01-23 =
+- Fix: Enable custom segments toggle not working
+
+= 2.0.9, 2026-01-08 =
+- Add: New Live Carts templates and improvements to existing ones
+- Fix: Issues when Ninjalytics Pro is active
+- Add: Notice on charts when duplicate series values are detected
+- Fix: The berrypress-page body class being added to other admin pages, which could cause styling issues
+- Fix: Potential JavaScript error on the report page
+- Fix: Add a seconds component to absolute time when missing
+- Improvement: Remove unused files ahead of the redesign
+- Other: Miscellaneous minor improvements and fixes
+
+= 2.0.8, 2025-12-30 =
+- Styling Improvements
+- Add: new report page
+- Add: filtering for report templates
+- Miscellaneous improvements: translatable strings, accessibility, etc.
+- Fix and improvements: capability checks
+- Improvement: product search select
+- Add: Order export and Live Carts reports
+
+= 2.0.7, 2025-12-15 =
+- Fix issue after deleting report preset
+
+= 2.0.6, 2025-12-09 =
+- Add message when trying to connecting to Ninjalytics App Beta
+
+= 2.0.5, 2025-11-18 =
+- Add support for Cost of Goods
+- Add new fields:
+    - Cost of Goods Sold
+    - Profit
+    - Gross Margin
+    - Current COGS per item
+
+= 2.0.4, 2025-11-11 =
+- Fix php warning
+- Licenses update
+- Licenses update
+- Admin framework hooks changes
+- Fix scroll issue
+- Fix issue with month based date offset in start date
+- Improvement: update start/end time defaults
+- Minor styling changes
+
+= 2.0.3, 2025-10-16 =
+- Miscellaneous back end improvements
+
+= 2.0.2 =
+- Add addons tab
+- Change tooltip styling
+-Fix: Resolved an issue where the report templates - Sales by US State, Sales by Payment Method, Sales by Currency, and Sales by Country - were not functioning correctly
+
+= 2.0.1 =
+- Fix toggle issues
+- Fix report templates
+
+= 2.0.0 =
+- Rebrand to Ninjalytics
+New features:
+- Live report table and chart previews
+- Expanded report fields and data options
+- Quick report creation from pre-built templates
+- Detailed product sales reports including variations and shipping data
+- Modern, intuitive reporting interface
+- Interactive line and bar charts for data visualization
+- Save and reuse multiple custom report configurations
+- Flexible date range selection with relative and absolute time ranges
+- Custom data segmentation and grouping options
+- Row count limits - show only the top X results
+- Customizable CSV export settings (delimiters, quotes, escape characters)
+- Support for both WooCommerce and Easy Digital Downloads (beta)
+
+= 1.5.6 =
+* Revert: "Limit Gross Sales and Gross Sales (After Discounts) fields to 10 decimal places (amounts are rounded if more than 10 decimal places)"
+
+= 1.5.5 =
+April 26, 2023
+* Add High Performance Order Tables support (beta)
+
+= 1.5.4 =
+April 17, 2023
+* Security update
+* Limit Gross Sales and Gross Sales (After Discounts) fields to 10 decimal places (amounts are rounded if more than 10 decimal places)
+
+= 1.5.3 =
+March 12, 2023
+* Fix: The option to use the report preset's date range settings wasn't working in Scheduled Email Reports
+
+= 1.5.2 =
+September 23, 2022
+* Display reporting presets list in alphabetical order
+
+= 1.5.1 =
+* Fix: Removed incorrect/outdated note regarding line item refund creation when the order status is changed to Refunded (WooCommerce 2.4+ should automatically create line-item refunds when the status of an order is set to Refunded)
+* Feature: Added intermediate rounding option
+* Feature: Added debug mode option
+
+= 1.5.0 =
+* Security fix: Improve browser caching disabling headers
+* Load styles and js only on the plugin admin page
+* Updated WP and WooCommerce tested up to
+* Rebranded admin page
+* Added a link to plugin settings page
+* Updated links
+* Added addons tab
+* Updated readme and assets
+
+= 1.4.10 =
+* Added messaging on admin page about line item refunds
+
+= 1.4.9 =
+* Updated license (GPLv3+)
+* Removed social media embeds from admin page
+
+= 1.4.8 =
+* Fixed review/donate notification not being hidden
+
+= 1.4.7 =
+* Fixed incorrect date ranges when using the "Last 7 days", "Last 30 days", "Next 7 days", or "Next 30 days" options
+* Added calendar month date range options
+* Fixed conflict with Product Sales Report Pro
+
+= 1.4.6 =
+* Fixed potential incompatibility with order status plugin(s)
+
+= 1.4.5 =
+* Fixed potential incompatibility with custom order statuses
+
+= 1.4 =
+* Added the ability to select multiple product categories
+* Added an option to limit the report to specified product IDs
+* Added an option to limit the report to orders with specified statuses
+
+= 1.3.2 =
+* Added an option to exclude free products
+
+= 1.3 =
+* Added a View Report option
+
+= 1.2.4 =
+* Added a date picker for browsers without support for the HTML5 date input
+
+= 1.2.2 =
+* Removed anonymous function to improve compatibility with old versions of PHP
+
+= 1.2.1 =
+* Fixed bug affecting products with no categories
+
+= 1.2 =
+* Added Product Categories field
+
+= 1.1.7 =
+* Added Variation SKU field
+
+= 1.1.6 =
+* Added Gross Sales (After Discounts) as sort field
+
+= 1.1.5 =
+* Added field for gross sales after discounts
+
+= 1.1.4 =
+* Added Pro version info
+
+= 1.1.2 =
+* Made report settings persistent (options are saved when a report is generated)
+
+= 1.1.1 =
+* Fixed timezone issue affecting the report period
+
+= 1.1 =
+* Added checkboxes to select which fields to include in the report
+* Added the Product SKU field
+
+= 1.0 =
+* Initial release
+
+== Upgrade Notice ==
+
+= 1.4.7 =
+When using the "Last 7 days", "Last 30 days", "Next 7 days", or "Next 30 days" options in previous versions of the plugin, the computed date range included one too many days. We recommend updating immediately to ensure data accuracy.

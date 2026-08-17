@@ -202,6 +202,10 @@ i.berrypress-icon-keyboard_double_arrow_right::before {
   color: #131523;
   border: 1px solid #F3F5F9;
   margin-left: 0;
+  margin-bottom: 10px;
+}
+.berrypress-notice p {
+  margin: 0;
 }
 .berrypress-notice h3 {
   margin-top: 10px;

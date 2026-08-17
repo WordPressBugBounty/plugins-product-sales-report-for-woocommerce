@@ -1,6 +1,8 @@
 <?php
 namespace NinjalyticsFree\Reporters\WooCommerce;
 
+use NinjalyticsFree\Reporters\PlatformFeatures;
+
 if ( !defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -31,10 +33,14 @@ class Legacy extends Base {
 		$fields = parent::getStandardFields();
 		$fields['order_date'] = ['post_data', 'post_date'];
 		$fields['status'] = ['post_data', 'post_status'];
-		$fields['customer_id'] = ['post_data', 'post_author'];
+		$fields['customer_id'] = ['meta', '_customer_user'];
 		$fields['customer_note'] = ['post_data', 'post_excerpt'];
 		$fields['order_parent'] = ['post_data', 'post_parent'];
+		$fields['order_creator_id'] = ['post_data', 'post_author'];
 		return $fields;
 	}
 	
+	public function getPlatformFeatures() {
+		return array_merge(parent::getPlatformFeatures(), [PlatformFeatures::ORDER_CREATOR]);
+	}
 }

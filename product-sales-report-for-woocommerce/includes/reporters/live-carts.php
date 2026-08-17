@@ -50,7 +50,7 @@ class LiveCarts extends \NinjalyticsFree\Reporters\Base {
 				'display_mode' => 'table',
 			],
 			'live_carts_status' => [
-				'preset_name' => __( 'Carts by Status', 'product-sales-report-for-woocommerce' ),
+				'preset_name' => __( 'Carts By Status', 'product-sales-report-for-woocommerce' ),
 				'_description' => __( 'See total cart value segmented by status.', 'product-sales-report-for-woocommerce' ),
 				'icon'        => 'icon_3',
 				'fields' => ['builtin::groupby_field', 'builtin::cart_value'],
@@ -69,6 +69,10 @@ class LiveCarts extends \NinjalyticsFree\Reporters\Base {
 				'chart_series_name' => 'builtin::cart_count',
 			],
 		];
+	}
+	
+	function getExportGroupingField() {
+		return $this->ordersIdColumn;
 	}
 	
 	public function getPrimaryItemsName() {
@@ -351,7 +355,7 @@ class LiveCarts extends \NinjalyticsFree\Reporters\Base {
 		return $fields;
 	}
 	
-	function getRow($product, $fields, &$totals, $fieldbuilderFields, $fieldbuilderDependencies) {
+	function getRow($product, $fields) {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- This is a helper function, to be called after nonce is checked as needed, no persistent changes
 		global $wpdb;
 		$row = array();
@@ -442,35 +446,16 @@ class LiveCarts extends \NinjalyticsFree\Reporters\Base {
 							$rowValue = '';
 					}
 				
-				$formatAmount = !empty($_POST['format_amounts']) && isset($_POST['round_fields']) && in_array($field, $_POST['round_fields']);
-				
 				if (is_array($rowValue)) {
 					$rowValue = implode(
 						empty($rowValueDelimiter) ? ', ' : $rowValueDelimiter,
-						$formatAmount
-							? array_map(function($val) {
-								return is_numeric($val) ? number_format($val, 2, '.', '') : $val;
-							}, $rowValue)
-							: $rowValue
+						$rowValue
 					);
-				} else if ($formatAmount && is_numeric($rowValue)) {
-					$rowValue = number_format($rowValue, 2, '.', '');
 				}
 				
 				$row[] = apply_filters('ninjalytics_row_value', $rowValue, $field);
 				
 				
-			}
-			
-			if (isset($totals[$field])) {
-				$newValue = end($row);
-				if (empty($newValue)) {
-					
-				} else if (is_numeric($newValue)) {
-					$totals[$field] += (float) $newValue;
-				} else {
-					unset($totals[$field]);
-				}
 			}
 		
 		return $row;
@@ -512,6 +497,12 @@ class LiveCarts extends \NinjalyticsFree\Reporters\Base {
 		];
 		
 		return parent::get_order_report_data($args);
+	}
+
+	function getAllowedWhereColumns() {
+		$whereColumns = parent::getAllowedWhereColumns();
+		$whereColumns[] = 'posts.type';
+		return $whereColumns;
 	}
 }
 	
