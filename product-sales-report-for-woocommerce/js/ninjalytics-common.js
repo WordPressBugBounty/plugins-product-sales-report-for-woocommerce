@@ -181,6 +181,8 @@ jQuery(document).ready(function($) {
 					}
 				},
 				dataType: 'text'
+			}).fail(function() {
+				alert('Something went wrong while running the report. Your site\'s PHP memory limit or timeout may be too low for the amount of data needing to be processed for this report, or something else may be malfunctioning. Try running the report on a smaller date range in case it is a memory or timeout issue, or enable debug mode and check your server\'s error log for clues. Contact BerryPress support for assistance in troubleshooting this issue.');
 			});
 		}
 

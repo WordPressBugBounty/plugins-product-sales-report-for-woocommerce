@@ -28,9 +28,16 @@ trait NewReportPageTrait {
 					<button type="button" class="berrypress-btn berrypress-btn-primary js-ninjalytics-modal-trigger" data-ninjalytics-template-filter="all">
 						<?php esc_html_e( 'New Report', 'product-sales-report-for-woocommerce' ); ?>
 					</button>
-<!--					<a class="berrypress-btn berrypress-btn-secondary" href="--><?php //echo esc_url( $blankReportUrl ); ?><!--">-->
-<!--						--><?php //esc_html_e( 'Create Blank', 'product-sales-report-for-woocommerce' ); ?>
-<!--					</a>-->
+                    <div class="ninjalytics-import-wrapper">
+                        <?php
+							printf(
+								// translators: open + close link tag
+								esc_html__( 'or create a new report by %1$simporting report settings%2$s', 'product-sales-report-for-woocommerce' ),
+								'<a href="#" class="berrypress-link" data-ninjalytics-open-modal="ninjalytics-import-modal">',
+								'</a>'
+							);
+						?>
+                    </div>
 				</div>
 			</div>
 		</div>
@@ -114,6 +121,7 @@ trait NewReportPageTrait {
 
 
 		<?php $this->renderTemplateModal(); ?>
+		<?php include __DIR__ . '/views/import-modal.php'; ?>
 		<?php
 	}
 

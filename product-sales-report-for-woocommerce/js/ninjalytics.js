@@ -253,11 +253,180 @@ jQuery(document).ready(function($) {
 			$('#ninjalytics-date-range-dropdown .ninjalytics-alt-dates-toggle-btn').text('Change');
 		}
 	});
+	// Generic focus management for .berrypress-modal (dialog semantics,
+	// focus trap while open, focus returned to whatever opened it on close).
+	// Only one modal is ever active at a time in this UI, so a single
+	// namespaced document handler is enough for the Tab trap.
+	var FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+	var $lastModalTrigger = null;
+	var $lastDropdownTrigger = null;
+
+	function trapModalTab(e, $modal) {
+		if (e.key !== 'Tab' && e.keyCode !== 9) {
+			return;
+		}
+		var $focusable = $modal.find(FOCUSABLE_SELECTOR).filter(':visible');
+		if (!$focusable.length) {
+			return;
+		}
+		var first = $focusable[0];
+		var last = $focusable[$focusable.length - 1];
+		if (e.shiftKey && document.activeElement === first) {
+			e.preventDefault();
+			last.focus();
+		} else if (!e.shiftKey && document.activeElement === last) {
+			e.preventDefault();
+			first.focus();
+		}
+	}
+
+	// If the trigger lives inside a dropdown menu, that menu closes as soon as
+	// the modal opens (see closeAllDropdowns() below) — so by the time we'd
+	// restore focus to it, it's display:none and unfocusable. Resolve to the
+	// dropdown's own trigger button instead, since that's what's actually
+	// still visible/focusable once the menu auto-closes.
+	function resolveFocusTarget($trigger) {
+		if ($trigger && $trigger.length && $trigger.closest('.berrypress-dropdown-menu').length) {
+			var $dropdownTrigger = $trigger.closest('.berrypress-dropdown').find('.berrypress-dropdown-trigger');
+			if ($dropdownTrigger.length) {
+				return $dropdownTrigger;
+			}
+		}
+		return $trigger;
+	}
+
+	function openModalA11y($modal, $trigger) {
+		if (!$modal.length) {
+			return;
+		}
+		$lastModalTrigger = resolveFocusTarget($trigger && $trigger.length ? $trigger : $(document.activeElement));
+		$modal.addClass('berrypress-active');
+		$modal.find(FOCUSABLE_SELECTOR).filter(':visible').first().trigger('focus');
+		$(document).on('keydown.bpModalTrap', function(e) {
+			trapModalTab(e, $modal);
+		});
+	}
+
+	function closeModalA11y($modal) {
+		if (!$modal.length) {
+			return;
+		}
+		$modal.removeClass('berrypress-active');
+		$(document).off('keydown.bpModalTrap');
+		if ($lastModalTrigger && $lastModalTrigger.length && document.contains($lastModalTrigger[0]) && $lastModalTrigger.is(':visible')) {
+			$lastModalTrigger.trigger('focus');
+		}
+		$lastModalTrigger = null;
+	}
+
 	$('.berrypress-modal-close').on('click', function() {
-		$(this).closest('.berrypress-modal').removeClass('berrypress-active');
+		closeModalA11y($(this).closest('.berrypress-modal'));
 		if ($(this).closest('.ninjalytics-templates').length) {
 			$('#ninjalytics-template-search').val('');
 		}
+	});
+
+	function closeAllDropdowns() {
+		var focusWasInMenu = $lastDropdownTrigger && $(document.activeElement).closest('.berrypress-dropdown-menu').length;
+		$('.berrypress-dropdown-menu').addClass('berrypress-hidden');
+		$('.berrypress-dropdown-trigger').attr('aria-expanded', 'false');
+		if (focusWasInMenu && $lastDropdownTrigger) {
+			$lastDropdownTrigger.trigger('focus');
+		}
+		$lastDropdownTrigger = null;
+	}
+
+	function closeReportSidebarPanel() {
+		if (!window.ninjalyticsReportSidebarTabs || !window.ninjalyticsReportSidebarTabs.getSelectedTabId) {
+			return;
+		}
+		var selectedId = window.ninjalyticsReportSidebarTabs.getSelectedTabId();
+		if (!selectedId) {
+			return;
+		}
+		window.ninjalyticsReportSidebarTabs.unselect();
+		$('#' + selectedId).trigger('focus');
+	}
+
+	$(document).on('click', '[data-ninjalytics-sidebar-close]', function(e) {
+		e.preventDefault();
+		closeReportSidebarPanel();
+	});
+
+	$(document).on('keydown', function(e) {
+		if (e.key === 'Escape' || e.keyCode === 27) {
+			var hadOpenModal = $('.berrypress-modal.berrypress-active').length > 0;
+			$('.berrypress-modal.berrypress-active').each(function() {
+				closeModalA11y($(this));
+			});
+			closeAllDropdowns();
+			if (!hadOpenModal) {
+				closeReportSidebarPanel();
+			}
+		}
+	});
+
+	$(document).on('click', '[data-ninjalytics-open-modal]', function(e) {
+		e.preventDefault();
+		openModalA11y($('#' + $(this).data('ninjalytics-open-modal')), $(this));
+		closeAllDropdowns();
+	});
+
+	// Keep the menu within the viewport — same problem/approach as the
+	// tooltip's Tooltip.adjustPosition: prefer below+right-aligned, but flip
+	// above the trigger if there's no room below, and clamp horizontally so
+	// it never runs off either edge. position:fixed also sidesteps clipping
+	// by any scrolling/overflow:hidden ancestor between the trigger and body.
+	function positionDropdownMenu($trigger, $menu) {
+		var padding = 8;
+		var gap = 5;
+		var triggerRect = $trigger[0].getBoundingClientRect();
+
+		$menu.css({ position: 'fixed', top: '-9999px', left: '-9999px', right: 'auto' });
+		var menuRect = $menu[0].getBoundingClientRect();
+
+		var top = triggerRect.bottom + gap;
+		if (top + menuRect.height > window.innerHeight - padding) {
+			var above = triggerRect.top - menuRect.height - gap;
+			top = above >= padding ? above : Math.max(padding, window.innerHeight - menuRect.height - padding);
+		}
+
+		var left = triggerRect.right - menuRect.width;
+		if (left < padding) {
+			left = padding;
+		}
+		if (left + menuRect.width > window.innerWidth - padding) {
+			left = window.innerWidth - menuRect.width - padding;
+		}
+
+		$menu.css({ top: top + 'px', left: left + 'px' });
+	}
+
+	// Generic dropdown: any .berrypress-dropdown-trigger toggles the
+	// .berrypress-dropdown-menu inside its .berrypress-dropdown wrapper.
+	$(document).on('click', '.berrypress-dropdown-trigger', function(e) {
+		e.preventDefault();
+		var $dropdown = $(this).closest('.berrypress-dropdown');
+		var $menu = $dropdown.find('.berrypress-dropdown-menu');
+		var isOpen = !$menu.hasClass('berrypress-hidden');
+		closeAllDropdowns();
+		if (!isOpen) {
+			$lastDropdownTrigger = $(this);
+			$menu.removeClass('berrypress-hidden');
+			positionDropdownMenu($(this), $menu);
+			$(this).attr('aria-expanded', 'true');
+		}
+	});
+
+	$(document.body).on('click', function(ev) {
+		if (!$(ev.target).closest('.berrypress-dropdown').length) {
+			closeAllDropdowns();
+		}
+	});
+
+	$(document).on('change', '.ninjalytics-modal-import input[type="file"]', function() {
+		var fileName = this.files[0] ? this.files[0].name : wp.i18n.__( 'No file chosen', 'product-sales-report-for-woocommerce' );
+		$(this).siblings('.berrypress-file-name').text(fileName);
 	});
 
 	(function() {
@@ -374,27 +543,27 @@ jQuery(document).ready(function($) {
 		// "WooCommerce - " prefix should be hidden before the modal is opened).
 		applyTemplateFilters();
 
-		function openTemplateModal(filter) {
+		function openTemplateModal(filter, $trigger) {
 			if (filter) {
 				activeFilter = filter;
 			}
 			if ($searchInput.length) {
 				$searchInput.val('');
 			}
-			$templateModal.addClass('berrypress-active');
+			openModalA11y($templateModal, $trigger);
 			setFilterButtonState();
 			applyTemplateFilters();
 		}
 
 		$('#ags-psr-template-modal').on('click', function(e) {
 			e.preventDefault();
-			openTemplateModal();
+			openTemplateModal(undefined, $(this));
 		});
 
 		$(document).on('click', '.js-ninjalytics-modal-trigger', function(e) {
 			e.preventDefault();
 			var filter = $(this).data('ninjalytics-template-filter');
-			openTemplateModal(filter.toString());
+			openTemplateModal(filter.toString(), $(this));
 		});
 
 		$templateFilters.on('click', function() {

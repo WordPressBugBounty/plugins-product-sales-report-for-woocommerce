@@ -3,8 +3,8 @@ Contributors:      berrypress, kurowskanna, berrypressjonhall
 Tags:              woocommerce, sales report, order export, reporting, product sales analytics
 Requires at least: 6.2
 Requires PHP:      8.1
-Tested up to:      7.0
-Stable tag:        2.1.1
+Tested up to:      7.1
+Stable tag:        2.1.2
 License:           GPLv3 or later
 License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -37,6 +37,7 @@ Previously using "Product Sales Report for WooCommerce" and "Export Order Items 
 - **CSV export** - export in versatile CSV format for universal spreadsheet compatibility
 - **High Performance Order Storage (HPOS)** - full support for WooCommerce's modern order storage system
 - **Customizable live preview** - link order and product IDs directly to their pages, color-code order status, and highlight negative numbers in the preview table
+- **Import & Export Report Settings** —- save a report's configuration to a file and load it back in seconds. Great for backups, moving between stores, or sharing setups.
 - Works with [WooCommerce](https://wordpress.org/plugins/woocommerce/), [Live Carts for WooCommerce](https://wordpress.org/plugins/live-carts-for-woocommerce/) and [Easy Digital Downloads](https://wordpress.org/plugins/easy-digital-downloads/) (beta)
 
 
@@ -328,6 +329,11 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 19. Chart settings - choose chart type and the field used for series/labels
 
 == Changelog ==
+
+= 2.1.2, 2026-09-04 =
+- Add: import/export report settings
+- Improvements: accessibility
+- Add: close button to report sidebars
 
 = 2.1.1, 2026-08-18 =
 - Fix: Download, Remove action buttons in the report list

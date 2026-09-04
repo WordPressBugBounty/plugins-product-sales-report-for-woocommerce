@@ -3,8 +3,8 @@
  * Plugin Name:          Ninjalytics: Sales Reports & Order Export for WooCommerce and EDD
  * Description:          Generates a report on individual WooCommerce products sold during a specified time period.
  * Plugin URI:           https://berrypress.com/product/woocommerce/ninjalytics/?utm_campaign=wordpressorg&source=ninjalytics-free-plugin
- * Version:              2.1.1
- * WC tested up to:      11.0
+ * Version:              2.1.2
+ * WC tested up to:      11.1
  * WC requires at least: 7.0
  * Requires PHP:         8.1
  * Author:               BerryPress
@@ -51,7 +51,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use NinjalyticsFree\Reporters\PlatformFeatures;
 
-define('NINJALYTICS_FREE_VERSION', '2.1.0');
+define('NINJALYTICS_FREE_VERSION', '2.1.2');
 
 add_filter('default_option_ninjalytics_settings', __NAMESPACE__.'\\ninjalytics_psr_import');
 function ninjalytics_psr_import($default) {
@@ -228,6 +228,107 @@ function ninjalytics_maybe_run_report()
 		nocache_headers();
 		
 		switch ($ninjalytics_action) {
+			case 'export':
+				if (empty($_REQUEST['hm-psr-nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['hm-psr-nonce'])), 'hm-psr-run') || empty($_GET['preset'])) {
+					wp_die('The current request is invalid. Please go back and try again.');
+				}
+				
+				$reportersInfo = ninjalytics_get_reporters_info();
+				try {
+					$reporterId = ninjalytics_get_active_reporter_id();
+				} catch (\Exception $e) {
+					wp_die(esc_html__('No active reporting source was found. Please make sure a supported e-commerce plugin (such as WooCommerce) is installed and active, then try again.', 'product-sales-report-for-woocommerce'));
+				}
+				
+				if ( !current_user_can($reportersInfo[$reporterId]['capability']) ) {
+					return;
+				}
+				
+				$presetId = (int) $_GET['preset'];
+					
+				$savedReportSettings = get_option('ninjalytics_settings', array());
+				
+				if ( !empty( $savedReportSettings[$presetId]['_reporter'] ) && $savedReportSettings[$presetId]['_reporter'] != $reporterId ) {
+					if ( ($savedReportSettings[$presetId]['_reporter'] == 'woocommerce-legacy' && $reporterId == 'woocommerce') || ($savedReportSettings[$presetId]['_reporter'] == 'woocommerce' && $reporterId == 'woocommerce-legacy') ) {
+						$savedReportSettings[$presetId]['_reporter'] = $reporterId;
+					} else {
+						wp_die(esc_html__( 'Preset and active reporter do not match.', 'product-sales-report-for-woocommerce' ));
+					}
+				}
+				
+				unset($savedReportSettings[$presetId]['preset'], $savedReportSettings[$presetId]['key'], $savedReportSettings[$presetId]['email_to']);
+				
+				header('Content-Disposition: attachment; filename="'.sanitize_file_name( ($savedReportSettings[$presetId]['preset_name'] ?? __('Untitled Report', 'product-sales-report-for-woocommerce')).'.json' ).'"');
+				wp_send_json( [array_merge($savedReportSettings[$presetId], json_decode(get_option('ninjalytics_report_dates_'.$presetId, '{}'), true))] );
+				
+				break;
+				
+			case 'import':
+				if (empty($_REQUEST['hm-psr-nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['hm-psr-nonce'])), 'hm-psr-run') || empty($_FILES['import_file']['tmp_name']) || !is_uploaded_file($_FILES['import_file']['tmp_name'])) {
+					wp_die('The current request is invalid. Please go back and try again.');
+				}
+				
+				$importedJson = json_decode( file_get_contents( $_FILES['import_file']['tmp_name'] ), true );
+				unlink($_FILES['import_file']['tmp_name']);
+				
+				if (!$importedJson || !is_array($importedJson)) {
+					wp_die(esc_html__( 'Import failed. Please ensure the import file you selected is a valid JSON export from Ninjalytics', 'product-sales-report-for-woocommerce' ));
+				}
+				
+				$savedReportSettings = get_option('ninjalytics_settings', array());
+				$overwritePresetId = empty($_REQUEST['preset']) ? 0 : (int) $_REQUEST['preset'];
+				$dateKeys = ninjalytics_date_field_keys();
+				$reportersInfo = ninjalytics_get_reporters_info();
+				$dateOptions = [];
+				
+				foreach ($importedJson as $importedReport) {
+					$reporterId = $importedReport['_reporter'] ?? ninjalytics_get_active_reporter_id();
+					$importedReport['_reporter'] = $reporterId;
+					
+					unset($importedReport['preset'], $importedReport['key'], $importedReport['email_to']);
+					
+					if ( empty($reportersInfo[$reporterId]['active']) || !current_user_can($reportersInfo[$reporterId]['capability']) ) {
+						// TODO: Better error handling
+						wp_die(esc_html__( 'These settings are for a Ninjalytics integration that is inactive, or for which you do not have sufficient permissions.', 'product-sales-report-for-woocommerce' ));
+					}
+
+					if ($overwritePresetId ) {
+						if (empty($savedReportSettings[$overwritePresetId])) {
+							wp_die(esc_html__( 'The report you are trying to overwrite could not be found.', 'product-sales-report-for-woocommerce' ));
+						}
+						
+						$overwritePresetReporterId = $savedReportSettings[$overwritePresetId]['_reporter'] ?? ninjalytics_get_active_reporter_id();
+						if ( $overwritePresetReporterId !== $reporterId && array_diff( [$overwritePresetReporterId, $reporterId], ['woocommerce', 'woocommerce-legacy'] ) ) {
+							wp_die(esc_html__( 'The report you are trying to overwrite uses a different reporting integration than the report you are importing.', 'product-sales-report-for-woocommerce' ));
+						}
+					}
+
+					$targetPresetId = $overwritePresetId ?: ninjalytics_next_preset_id( $savedReportSettings );
+
+					// When overwriting an existing report, keep its current name rather than
+					// silently renaming it to whatever is in the imported file.
+					if ( $overwritePresetId && isset( $savedReportSettings[ $overwritePresetId ]['preset_name'] ) ) {
+						$importedReport['preset_name'] = $savedReportSettings[ $overwritePresetId ]['preset_name'];
+					}
+					
+					// The report_css setting isn't supported in Ninjalytics Free, but let's block import anyway (to be safe, for security reasons) in case the user is importing settings from Pro
+					unset($importedReport['report_css']);
+					
+					$dateOptions['ninjalytics_report_dates_'.$targetPresetId] = wp_json_encode(array_intersect_key($importedReport, $dateKeys));
+					$savedReportSettings[ $targetPresetId ] = array_diff_key($importedReport, $dateKeys);
+					
+					if ($overwritePresetId) {
+						break;
+					}
+				}
+				
+				update_option('ninjalytics_settings', $savedReportSettings, false);
+				foreach($dateOptions as $dateOptionName => $dateOptionValue) {
+					update_option($dateOptionName, $dateOptionValue, false);
+				}
+				
+				wp_safe_redirect(add_query_arg(['preset' => $targetPresetId, '_reporter' => $reporterId], remove_query_arg(['ninjalytics_action_free', 'hm-psr-nonce', 'preset'])));
+				exit;
 			case 'run':
 			
 			if (empty($_REQUEST['hm-psr-nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['hm-psr-nonce'])), 'hm-psr-run') ) {

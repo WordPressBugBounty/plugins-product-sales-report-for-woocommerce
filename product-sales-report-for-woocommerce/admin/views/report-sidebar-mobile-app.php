@@ -28,6 +28,9 @@ if ( false === $mobile_app_embed ) {
 			<h2 class="ninjalytics-sidebar-title"><?php esc_html_e( 'Mobile App', 'product-sales-report-for-woocommerce' ); ?></h2>
 			<p class="ninjalytics-sidebar-subtitle"><?php esc_html_e( 'View reports on the go with Ninjalytics App.', 'product-sales-report-for-woocommerce' ); ?></p>
 		</div>
+		<button type="button" class="ninjalytics-sidebar-close" data-ninjalytics-sidebar-close aria-label="<?php esc_attr_e( 'Close panel', 'product-sales-report-for-woocommerce' ); ?>">
+			<i class="berrypress-icon-close" aria-hidden="true"></i>
+		</button>
 	</header>
 
 	<div class="ninjalytics-sidebar-body ninjalytics-mobile-app-body">

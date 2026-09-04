@@ -20,6 +20,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<h2 class="ninjalytics-sidebar-title"><?php esc_html_e( 'Debug', 'product-sales-report-for-woocommerce' ); ?></h2>
 			<p class="ninjalytics-sidebar-subtitle"><?php esc_html_e( 'Enable debug mode and inspect report SQL after each run.', 'product-sales-report-for-woocommerce' ); ?></p>
 		</div>
+		<button type="button" class="ninjalytics-sidebar-close" data-ninjalytics-sidebar-close aria-label="<?php esc_attr_e( 'Close panel', 'product-sales-report-for-woocommerce' ); ?>">
+			<i class="berrypress-icon-close" aria-hidden="true"></i>
+		</button>
 	</header>
 
 	<div class="ninjalytics-sidebar-body ninjalytics-debug-body">
@@ -35,7 +38,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="ninjalytics-debug-sql-box berrypress-hidden"
 		     id="ninjalytics-debug-sql-box"
 		     aria-hidden="true"
-		     data-query-label-template="<?php echo esc_attr__( 'Query %d', 'product-sales-report-for-woocommerce' ); ?>">
+		     data-query-label-template="<?php /* translators: %d: query number */ echo esc_attr__( 'Query %d', 'product-sales-report-for-woocommerce' ); ?>">
 			<div class="ninjalytics-debug-sql-heading">
 				<span class="ninjalytics-debug-sql-heading-text"><?php esc_html_e( 'MySQL queries', 'product-sales-report-for-woocommerce' ); ?></span>
 				<span class="ninjalytics-debug-sql-count" id="ninjalytics-debug-sql-count" hidden></span>

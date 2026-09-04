@@ -211,6 +211,8 @@
 				
 				// Create tooltip element
 				const tooltip = document.createElement('div');
+				const tooltipId = 'bp-tooltip-' + Math.random().toString(36).slice(2);
+				tooltip.id = tooltipId;
 				tooltip.className = 'bp-tooltip';
 				tooltip.setAttribute('role', 'tooltip');
 				
@@ -337,13 +339,14 @@
 					}, 10);
 					
 					// Update aria
-					trigger.setAttribute('aria-describedby', 'bp-tooltip-' + Date.now());
+					trigger.setAttribute('aria-describedby', tooltipId);
 				};
 
 				const hideTooltip = () => {
 					timeout = setTimeout(() => {
 						tooltip.classList.remove('is-visible');
 						tooltip.style.visibility = 'hidden';
+						trigger.removeAttribute('aria-describedby');
 					}, 100);
 				};
 

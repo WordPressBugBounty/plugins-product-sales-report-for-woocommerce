@@ -30,8 +30,8 @@ $plugin_url = plugin_dir_url( dirname( dirname( __FILE__ ) ) );
         <div class="berrypress-addon-item">
             <span class="berrypress-product-badge berrypress-product-badge-highlight">NEW!</span>
             <div class="berrypress-addon-icon">
-                <img src="<?php echo $plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app.png'; ?>"
-                     srcset="<?php echo $plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app.png'; ?> 1x, <?php echo $plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app-2x.png'; ?> 2x"
+                <img src="<?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app.png'); ?>"
+                     srcset="<?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app.png'); ?> 1x, <?php echo esc_url($plugin_url . 'includes/berrypress-admin-framework/assets/addons-icons/mobile-app-2x.png'); ?> 2x"
                      alt="<?php esc_attr_e('Mobile App Icon', 'product-sales-report-for-woocommerce'); ?>" />
             </div>
             <h3><?php esc_html_e('Ninjalytics App', 'product-sales-report-for-woocommerce'); ?></h3>

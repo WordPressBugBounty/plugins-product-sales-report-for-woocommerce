@@ -463,6 +463,17 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
   font-size: 13px;
 }
 
+.ninjalytics-kebab-icon {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentcolor;
+  box-shadow: -5px 0 0 currentcolor, 5px 0 0 currentcolor;
+}
+
 .berrypress-modal.ninjalytics-modal-templates.berrypress-active {
   display: flex;
   overflow: hidden;
@@ -889,6 +900,35 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
   max-width: unset;
 }
 
+.ninjalytics-modal-import,
+.ninjalytics-modal-export {
+  width: 480px;
+}
+.ninjalytics-modal-import .berrypress-card-content,
+.ninjalytics-modal-export .berrypress-card-content {
+  padding-bottom: 0;
+}
+.ninjalytics-modal-import h2,
+.ninjalytics-modal-export h2 {
+  margin-top: 0;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+.ninjalytics-modal-import > .berrypress-card,
+.ninjalytics-modal-export > .berrypress-card {
+  border: none;
+  padding: 0;
+}
+
+.ninjalytics-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #F3F5F9;
+}
+
 .berrypress-sidebar.collapsed > .berrypress-btn {
   opacity: 0;
   visibility: hidden;
@@ -1112,6 +1152,10 @@ i.berrypress-icon-mobile::before {
   white-space: nowrap;
   width: 110px;
   text-align: right;
+}
+
+#hm_psr-buttons-wrapper .ninjalytics-import-wrapper {
+  padding-top: 10px;
 }
 
 #ninjalytics_presets_panel {
@@ -1615,6 +1659,28 @@ i.berrypress-icon-mobile::before {
 #ninjalytics-report-sidebar .ninjalytics-sidebar-header.ninjalytics-sidebar-header-no-border {
   border-bottom: unset;
 }
+#ninjalytics-report-sidebar .ninjalytics-sidebar-close {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: #5A607F;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+#ninjalytics-report-sidebar .ninjalytics-sidebar-close i {
+  font-size: 16px;
+}
+#ninjalytics-report-sidebar .ninjalytics-sidebar-close:hover {
+  background-color: #F3F5F9;
+  color: #131523;
+}
 #ninjalytics-report-sidebar .ninjalytics-sidebar-title {
   margin: 0 0 4px;
   font-size: 14px;
@@ -1677,6 +1743,9 @@ i.berrypress-icon-mobile::before {
   font-size: 11px;
   margin-right: 0.2rem;
 }
+#ninjalytics-report-sidebar .ninjalytics-section-title label span {
+  padding-top: 4px;
+}
 @media (max-width: 480px) {
   #ninjalytics-report-sidebar .ninjalytics-section-title label span {
     max-width: 19px;
@@ -1687,7 +1756,6 @@ i.berrypress-icon-mobile::before {
 }
 #ninjalytics-report-sidebar .ninjalytics-section-title .berrypress-btn-icon i,
 #ninjalytics-report-sidebar .ninjalytics-section-title .berrypress-icon-expand_more {
-  display: inline-flex;
   transform: rotate(0deg);
   transform-origin: center;
   transition: transform 0.25s ease;
@@ -1698,12 +1766,15 @@ i.berrypress-icon-mobile::before {
   box-sizing: border-box;
   opacity: 0;
   padding: 0 5px 0 2px;
-  transition: padding 0.3s ease, opacity 0.3s ease;
+  visibility: hidden;
+  transition: padding 0.3s ease, opacity 0.3s ease, visibility 0s linear 0.3s;
 }
 #ninjalytics-report-sidebar .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-body {
   overflow-x: hidden;
   opacity: 1;
   padding: 5px 5px 5px 2px;
+  visibility: visible;
+  transition-delay: 0s;
 }
 #ninjalytics-report-sidebar .ninjalytics-settings-toggle.ninjalytics-active .ninjalytics-section-body * {
   box-sizing: border-box;
@@ -2011,6 +2082,11 @@ i.berrypress-icon-mobile::before {
   body.ninjalytics-report-view.berrypress-page #wpbody-content {
     display: flex;
     flex-direction: column;
+  }
+  body.ninjalytics-report-view.berrypress-page #wpbody-content > .notice,
+  body.ninjalytics-report-view.berrypress-page #wpbody-content > .updated,
+  body.ninjalytics-report-view.berrypress-page #wpbody-content > .error {
+    flex-shrink: 0;
   }
   body.ninjalytics-report-view.berrypress-page .berrypress-settings-container {
     flex: 1 1 auto;
@@ -2516,12 +2592,10 @@ i.berrypress-icon-mobile::before {
   color: #5A607F;
   max-width: 620px;
 }
-.ninjalytics-new-report-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
+.ninjalytics-new-report-actions .ninjalytics-import-wrapper {
+  display: block;
+  padding-top: 8px;
+  color: #5A607F;
 }
 .ninjalytics-new-report-section {
   margin: 25px 10px;
@@ -3136,6 +3210,68 @@ i.berrypress-icon-mobile::before {
   outline: unset;
 }
 
+.berrypress-page .berrypress-file-upload {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: inherit;
+}
+.berrypress-page .berrypress-file-upload input[type=file] {
+  display: none;
+}
+.berrypress-page .berrypress-file-upload .berrypress-file-name {
+  font-size: 14px;
+  color: #131523;
+}
+
+.berrypress-page .berrypress-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.berrypress-page .berrypress-dropdown-trigger:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #0070F0;
+}
+.berrypress-page .berrypress-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 200px;
+  background-color: #FEFEFE;
+  border: 1px solid #e6e9f4;
+  border-radius: 7px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  z-index: 997;
+  padding: 6px;
+  box-sizing: border-box;
+}
+.berrypress-page .berrypress-dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.berrypress-page .berrypress-dropdown-item:hover, .berrypress-page .berrypress-dropdown-item:focus {
+  background-color: #F3F5F9;
+}
+.berrypress-page .berrypress-dropdown-item[aria-disabled=true] {
+  color: #5A607F;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.berrypress-page .berrypress-dropdown-item[aria-disabled=true]:hover, .berrypress-page .berrypress-dropdown-item[aria-disabled=true]:focus {
+  background-color: transparent;
+}
+
 .berrypress-modal {
   display: none;
   padding: 20px;
@@ -3229,6 +3365,16 @@ body:has(.berrypress-modal.berrypress-active)::before {
 }
 .berrypress-modal .berrypress-modal-close.berrypress-modal-close-top:hover {
   background-color: #F3F5F9;
+}
+
+.berrypress-modal a:focus,
+.berrypress-modal button:focus,
+.berrypress-modal input:focus,
+.berrypress-modal select:focus,
+.berrypress-modal textarea:focus,
+.berrypress-modal [tabindex]:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #0070F0;
 }
 
 @media (max-width: 481px) {
@@ -3360,9 +3506,16 @@ body:has(.berrypress-modal.berrypress-active)::before {
   display: none !important;
 }
 
-/*!
-This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCommerce). For licensing and copyright notices, please see ../license.txt.
-*/
+.berrypress-page a:focus-visible,
+.berrypress-page button:focus-visible,
+.berrypress-page input:not([type=hidden]):focus-visible,
+.berrypress-page select:focus-visible,
+.berrypress-page textarea:focus-visible,
+.berrypress-page [tabindex]:not([role=tabpanel]):focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #0070F0;
+}
+
 .ninjalytics-nj-reports-container {
   display: flex;
   flex-wrap: wrap;

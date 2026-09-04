@@ -22,6 +22,9 @@ $ser_admin_url   = $ser_active ? admin_url( 'edit.php?post_type=wc_email_report'
 			<h2 class="ninjalytics-sidebar-title"><?php esc_html_e( 'Schedule Report', 'product-sales-report-for-woocommerce' ); ?></h2>
 			<p class="ninjalytics-sidebar-subtitle"><?php esc_html_e( 'Automate delivery of this report via email.', 'product-sales-report-for-woocommerce' ); ?></p>
 		</div>
+		<button type="button" class="ninjalytics-sidebar-close" data-ninjalytics-sidebar-close aria-label="<?php esc_attr_e( 'Close panel', 'product-sales-report-for-woocommerce' ); ?>">
+			<i class="berrypress-icon-close" aria-hidden="true"></i>
+		</button>
 	</header>
 
 	<div class="ninjalytics-sidebar-body ninjalytics-schedule-body">

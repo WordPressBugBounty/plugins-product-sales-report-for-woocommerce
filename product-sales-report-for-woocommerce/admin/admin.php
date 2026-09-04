@@ -831,6 +831,11 @@ class AdminPage extends BerryPressPage {
 			}
 			
 			$openPreset = sanitize_text_field(wp_unslash($_GET['preset'] ?? '0'));
+			
+			if (!$openPreset || $openPreset[0] != '_') {
+				$openPreset = (string) ((int) $openPreset);
+			}
+			
 			$savedSettings = ($openPreset && $openPreset[0] == '_') ? (($reporter->getReportTemplates())[substr($openPreset, 1)] ?? []) : ($savedReportSettings[ $openPreset ] ?? []);
 			
 			$reportSettings = array_merge(
@@ -860,6 +865,7 @@ class AdminPage extends BerryPressPage {
 			$reportDateMode = $reportSettings['report_time_mode'] ?? 'basic';
 
 
+			$isSavedReport = (int) $openPreset && ctype_digit( (string) $openPreset ) && isset( $savedReportSettings[ (int) $openPreset ] );
 			?>
             <form action="" method="post" id="ninjalytics-form">
                 <input type="hidden" name="preset" value="<?php echo (int) $openPreset; ?>">
@@ -895,6 +901,30 @@ class AdminPage extends BerryPressPage {
                             <i class="berrypress-icon-reset" aria-hidden="true"></i>
                             <span class="berrypress-visually-hidden"><?php esc_html_e( 'Refresh report data', 'product-sales-report-for-woocommerce' ); ?></span>
                         </button>
+
+						<div class="berrypress-dropdown">
+							<button id="ninjalytics-report-options-button"
+									type="button"
+									class="berrypress-btn berrypress-btn-icon berrypress-dropdown-trigger"
+									aria-haspopup="true"
+									aria-expanded="false"
+									data-bp-tooltip="<?php esc_attr_e( 'More options', 'product-sales-report-for-woocommerce' ); ?>"
+									aria-label="<?php esc_attr_e( 'More options', 'product-sales-report-for-woocommerce' ); ?>">
+								<span class="ninjalytics-kebab-icon" aria-hidden="true"></span>
+								<span class="berrypress-visually-hidden"><?php esc_html_e( 'More options', 'product-sales-report-for-woocommerce' ); ?></span>
+							</button>
+							<div class="berrypress-dropdown-menu berrypress-hidden" role="menu" aria-label="<?php esc_attr_e( 'More options', 'product-sales-report-for-woocommerce' ); ?>">
+								<button type="button" role="menuitem"
+										class="berrypress-dropdown-item"
+										<?php echo $isSavedReport ? 'data-ninjalytics-open-modal="ninjalytics-export-modal"' : 'aria-disabled="true" data-bp-tooltip="' . esc_attr__( 'Save the report first to export it.', 'product-sales-report-for-woocommerce' ) . '"'; ?>>
+									<?php esc_html_e( 'Export Report Settings', 'product-sales-report-for-woocommerce' ); ?>
+								</button>
+								<button type="button" role="menuitem" class="berrypress-dropdown-item" data-ninjalytics-open-modal="ninjalytics-import-modal">
+									<?php esc_html_e( 'Import Report Settings', 'product-sales-report-for-woocommerce' ); ?>
+								</button>
+							</div>
+						</div>
+
                         <button id="ninjalytics-download-button" class="berrypress-btn berrypress-btn-secondary"
                                 type="submit"
                                 name="ninjalytics_action_free" value="run"
@@ -1106,7 +1136,7 @@ class AdminPage extends BerryPressPage {
                                                                     continue;
                                                                 }
                                                                 ?>
-                                                                <option disabled><?php echo esc_html( $orderField ); ?></option>
+                                                                <option disabled><?php echo esc_html( self::proBadgeSelectOption($orderField) ); ?></option>
                                                                 <?php
                                                             }
                                                             ?>
@@ -1159,6 +1189,9 @@ class AdminPage extends BerryPressPage {
                                         <h2 class="ninjalytics-sidebar-title"><?php esc_html_e( 'Report Settings', 'product-sales-report-for-woocommerce' ); ?></h2>
                                         <p class="ninjalytics-sidebar-subtitle"><?php esc_html_e( 'Set up fields, filters, grouping, and how this report is displayed.', 'product-sales-report-for-woocommerce' ); ?></p>
                                     </div>
+                                    <button type="button" class="ninjalytics-sidebar-close" data-ninjalytics-sidebar-close aria-label="<?php esc_attr_e( 'Close panel', 'product-sales-report-for-woocommerce' ); ?>">
+                                        <i class="berrypress-icon-close" aria-hidden="true"></i>
+                                    </button>
                                 </header>
 
                                 <?php if ( $reporter->supports( PlatformFeatures::CHILD_ITEMS ) ) { ?>
@@ -1806,7 +1839,7 @@ class AdminPage extends BerryPressPage {
                                                     <span id="field_desc_<?php echo esc_attr( $fieldId ); ?>" class="berrypress-visually-hidden">
                                                         <?php /* translators: %s: field name */ echo esc_html( sprintf( __( 'Options for field: %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>
                                                     </span>
-                                                    <div role="group" aria-label="<?php echo esc_attr( sprintf( __( 'Display options for %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>" class="ninjalytics-field-options">
+                                                    <div role="group" aria-label="<?php /* translators: %s: field name */ echo esc_attr( sprintf( __( 'Display options for %s', 'product-sales-report-for-woocommerce' ), $fieldValue ) ); ?>" class="ninjalytics-field-options">
                                                         <label class="hm_psr_total_field<?php echo in_array( $fieldId, $noTotalFields ) ? ' no-total' : ''; ?>">
                                                             <input type="checkbox"
                                                                    id="total_field_<?php echo esc_attr( $fieldId ); ?>"
@@ -2094,6 +2127,18 @@ class AdminPage extends BerryPressPage {
 
                 </div> <!-- /ninjalytics-settings-settings -->
             </form> <!-- /ninjalytics-form -->
+			<?php
+			$exportPresetId = (int) $openPreset;
+
+			if ( $isSavedReport ) {
+				$exportPresetName = $reportSettings['preset_name'] ?? __( 'Untitled Report', 'product-sales-report-for-woocommerce' );
+				$exportReporterId = $reportSettings['_reporter'] ?? $reporterId;
+				include __DIR__ . '/views/export-modal.php';
+			}
+
+			$importOverwritePresetId = $exportPresetId;
+			include __DIR__ . '/views/import-modal.php';
+			?>
 		<?php } else { ?>
             <div class="ninjalytics-nj-reports-container">
                 <div class="ninjalytics-card-reports ninjalytics-col-1">
@@ -2152,6 +2197,7 @@ class AdminPage extends BerryPressPage {
                                                target="_blank" class="berrypress-btn berrypress-btn-icon">
                                                 <i class="berrypress-icon-download" aria-hidden="true"></i>
                                             </a>
+
                                             <a href="?page=ninjalytics-free&amp;preset=<?php echo (int) $presetId; ?><?php if ( isset( $preset['_reporter'] ) ) { ?>&amp;_reporter=<?php echo esc_attr( $preset['_reporter'] );
 											} ?>" class="berrypress-btn berrypress-btn-icon"
                                                aria-label="<?php esc_attr_e( 'Edit', 'product-sales-report-for-woocommerce' ); ?>">
@@ -2181,7 +2227,26 @@ class AdminPage extends BerryPressPage {
                     </div>
                 </div>
 
+
+				<div id="hm_psr-buttons-wrapper" class="berrypress-mt-4">
+                    <a href="#" id="ags-psr-template-modal"
+                       class="berrypress-btn berrypress-btn-primary"><?php esc_html_e( 'New Report', 'product-sales-report-for-woocommerce' ); ?></a>
+
+					<div class="ninjalytics-import-wrapper">
+                        <?php
+							printf(
+								// translators: open + close link tag
+								esc_html__( 'or create a new report by %1$simporting report settings%2$s', 'product-sales-report-for-woocommerce' ),
+								'<a href="#" class="berrypress-link" data-ninjalytics-open-modal="ninjalytics-import-modal">',
+								'</a>'
+							);
+						?>
+                    </div>
+                </div>
+
+
             </div>
+			<?php include __DIR__ . '/views/import-modal.php'; ?>
 
             <div class="berrypress-upgrade-box ninjalytics-col-2">
                             <div>
