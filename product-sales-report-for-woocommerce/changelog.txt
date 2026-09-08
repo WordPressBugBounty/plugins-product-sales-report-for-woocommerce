@@ -1,3 +1,11 @@
+= 2.1.3, 2026-09-07 =
+- Fix: formatting in CSV file (don't output BOM for ASCII CSV)
+
+= 2.1.2, 2026-09-04 =
+- Add: import/export report settings
+- Improvements: accessibility
+- Add: close button to report sidebars
+
 = 2.1.1, 2026-08-18 =
 - Fix: Download, Remove action buttons in the report list
 

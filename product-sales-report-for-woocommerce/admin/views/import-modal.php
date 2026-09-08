@@ -30,14 +30,10 @@ $importActionUrl         = add_query_arg(
 
 			<form method="post" action="<?php echo esc_url( $importActionUrl ); ?>" enctype="multipart/form-data">
 				<div class="berrypress-field">
-					<label class="berrypress-file-upload">
-						<span class="berrypress-upload-button berrypress-btn berrypress-btn-secondary"><?php esc_html_e( 'Choose File', 'product-sales-report-for-woocommerce' ); ?></span>
-						<input type="file" name="import_file" id="ninjalytics-import-file" accept=".json"
-							   aria-label="<?php esc_attr_e( 'Settings file', 'product-sales-report-for-woocommerce' ); ?>"
-							   <?php echo $importOverwritePresetId ? 'aria-describedby="ninjalytics-import-overwrite-note"' : ''; ?>
-							   required>
-						<span class="berrypress-file-name"><?php esc_html_e( 'No file chosen', 'product-sales-report-for-woocommerce' ); ?></span>
-					</label>
+					<label class="berrypress-visually-hidden" for="ninjalytics-import-file"><?php esc_html_e( 'Settings file', 'product-sales-report-for-woocommerce' ); ?></label>
+					<input type="file" name="import_file" id="ninjalytics-import-file" accept=".json" class="berrypress-file-upload-input"
+						   <?php echo $importOverwritePresetId ? 'aria-describedby="ninjalytics-import-overwrite-note"' : ''; ?>
+						   required>
 				</div>
 
                 <p id="ninjalytics-import-overwrite-note" class="berrypress-text-secondary ninjalytics-import-overwrite-note<?php echo $importOverwritePresetId ? '' : ' berrypress-hidden'; ?>">

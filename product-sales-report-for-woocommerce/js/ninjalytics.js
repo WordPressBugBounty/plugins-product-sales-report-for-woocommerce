@@ -424,12 +424,7 @@ jQuery(document).ready(function($) {
 		}
 	});
 
-	$(document).on('change', '.ninjalytics-modal-import input[type="file"]', function() {
-		var fileName = this.files[0] ? this.files[0].name : wp.i18n.__( 'No file chosen', 'product-sales-report-for-woocommerce' );
-		$(this).siblings('.berrypress-file-name').text(fileName);
-	});
-
-	(function() {
+(function() {
 		var $templateModal = $('.ninjalytics-modal-templates');
 		if (!$templateModal.length) {
 			return;

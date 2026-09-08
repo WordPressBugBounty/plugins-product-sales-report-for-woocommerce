@@ -1,10 +1,7 @@
 @charset "UTF-8";
 /*!
-This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCommerce). For licensing and copyright notices, please see ../license.txt.
-*/
-/*!
  * BerryPress SCSS Framework
- * Copyright (c) 2025 BerryPress
+ * Copyright (c) 2026 BerryPress
  * Source code: https://github.com/BerryPress/scss-framework
  * License: https://github.com/BerryPress/scss-framework/blob/main/LICENSE
  */
@@ -470,8 +467,8 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
   width: 3px;
   height: 3px;
   border-radius: 50%;
-  background: currentcolor;
-  box-shadow: -5px 0 0 currentcolor, 5px 0 0 currentcolor;
+  background: currentColor;
+  box-shadow: -5px 0 0 currentColor, 5px 0 0 currentColor;
 }
 
 .berrypress-modal.ninjalytics-modal-templates.berrypress-active {
@@ -511,6 +508,9 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
 .ninjalytics-modal-templates .ninjalytics-template-modal-subtitle {
   color: #5A607F;
   margin: 0 0 24px;
+}
+.ninjalytics-modal-templates .ninjalytics-template-modal-search {
+  padding: 0 2px;
 }
 .ninjalytics-modal-templates #ninjalytics-template-search {
   width: 100%;
@@ -674,6 +674,7 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
 }
 .ninjalytics-modal-templates .ninjalytics-template-content-wrapper {
   flex: 1 1 auto;
+  padding: 2px;
 }
 
 @media (min-height: 701px) {
@@ -3210,18 +3211,43 @@ i.berrypress-icon-mobile::before {
   outline: unset;
 }
 
-.berrypress-page .berrypress-file-upload {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-family: inherit;
-}
-.berrypress-page .berrypress-file-upload input[type=file] {
-  display: none;
-}
-.berrypress-page .berrypress-file-upload .berrypress-file-name {
+.berrypress-page input[type=file].berrypress-file-upload-input {
   font-size: 14px;
   color: #131523;
+  font-family: inherit;
+  border-radius: 3px;
+  padding: 2px;
+}
+.berrypress-page input[type=file].berrypress-file-upload-input::file-selector-button {
+  color: #131523;
+  cursor: pointer;
+  padding: 2px 24px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+  border: 1px solid #d7dbec;
+  text-align: center;
+  transition: background 0.3s ease, opacity 0.3s ease;
+  min-height: 24px;
+  background-color: #F3F5F9;
+  color: #131523;
+  white-space: nowrap;
+  margin-right: 1rem;
+  font-family: inherit;
+}
+.berrypress-page input[type=file].berrypress-file-upload-input::file-selector-button:hover {
+  background-color: rgb(234.5, 237.9166666667, 244.75);
+}
+.berrypress-page input[type=file].berrypress-file-upload-input::file-selector-button i {
+  line-height: 19px;
+  font-size: 18px;
+  vertical-align: middle;
+  margin-right: 4px;
+  margin-top: 1px;
+}
+.berrypress-page input[type=file].berrypress-file-upload-input:focus-visible {
+  box-shadow: 0 0 0 2px #0070F0;
 }
 
 .berrypress-page .berrypress-dropdown {
@@ -3308,10 +3334,6 @@ i.berrypress-icon-mobile::before {
   width: 900px;
   max-width: 90%;
   max-height: 90%;
-}
-
-body:has(.berrypress-modal.berrypress-active) {
-  overflow: hidden;
 }
 
 body:has(.berrypress-modal.berrypress-active)::before {
@@ -3513,9 +3535,16 @@ body:has(.berrypress-modal.berrypress-active)::before {
 .berrypress-page textarea:focus-visible,
 .berrypress-page [tabindex]:not([role=tabpanel]):focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px #0070F0;
+  box-shadow: 0 0 0 2px #0070F0;
+}
+.berrypress-page a.berrypress-btn-primary:focus-visible,
+.berrypress-page button.berrypress-btn-primary:focus-visible {
+  box-shadow: 0 0 0 2px #131523;
 }
 
+/*!
+This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCommerce). For licensing and copyright notices, please see ../license.txt.
+*/
 .ninjalytics-nj-reports-container {
   display: flex;
   flex-wrap: wrap;

@@ -10,7 +10,7 @@ if ( !defined( 'ABSPATH' ) ) {
 if (!class_exists('Ninjalytics_CSV_Export')) {
 	class Ninjalytics_CSV_Export {
 
-		private $handle, $delimiter, $surround, $escapeSearch, $escapeReplace;
+		private $handle, $delimiter, $surround, $escapeSearch, $escapeReplace, $outputBom = true;
 		
 		public function __construct($handle, $options=array()) {
 			$this->handle = $handle;
@@ -28,6 +28,11 @@ if (!class_exists('Ninjalytics_CSV_Export')) {
 		}
 		
 		public function putRow($data, $header=false, $footer=false) {
+			if ($this->outputBom) {
+				require_once(__DIR__.'/../lib/League.Csv/ByteSequence.php');
+				fwrite($this->handle, \League\Csv\ByteSequence::BOM_UTF8);
+				$this->outputBom = false;
+			}
 			$row = '';
 			foreach ($data as $field) {
 				$row .= (empty($row) ? '' : $this->delimiter).$this->surround.(empty($this->escapeSearch) ? $field : str_replace($this->escapeSearch, $this->escapeReplace, $field)).$this->surround;
@@ -46,6 +51,7 @@ if (!class_exists('Ninjalytics_CSV_ASCII_Export')) {
 		public function putRow($data, $header=false, $footer=false) {
 			foreach ($data as $key => &$value)
 				$value = mb_convert_encoding($value, 'ISO-8859-1');
+			$this->outputBom = false;
 			return parent::putRow($data, $header, $footer);
 		}
 	}

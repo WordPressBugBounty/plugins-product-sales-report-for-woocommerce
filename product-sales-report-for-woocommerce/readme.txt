@@ -4,7 +4,7 @@ Tags:              woocommerce, sales report, order export, reporting, product s
 Requires at least: 6.2
 Requires PHP:      8.1
 Tested up to:      7.1
-Stable tag:        2.1.2
+Stable tag:        2.1.3
 License:           GPLv3 or later
 License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
 
@@ -330,6 +330,9 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 
 == Changelog ==
 
+= 2.1.3, 2026-09-07 =
+- Fix: formatting in CSV file
+
 = 2.1.2, 2026-09-04 =
 - Add: import/export report settings
 - Improvements: accessibility
@@ -338,38 +341,5 @@ Alternatively, you can manually upload the plugin to your wp-content/plugins dir
 = 2.1.1, 2026-08-18 =
 - Fix: Download, Remove action buttons in the report list
 
-= 2.1.0, 2026-08-17 =
-- Add: Date range presets, plus relative and absolute date range modes
-- Add: Redesigned "Create Report" page with a searchable, grouped template library ("Product Reports" vs. "Order Reports" per integration) and integrations overview
-- Add: Report preview quick links (order ID, product ID, product name) and preview styling (order status colors, negative numbers in red)
-- Add: Resizable split layout for the report editor, "Refresh report data" button, and editable report name directly in the breadcrumb
-- Add: Exclude products without WooCommerce stock management from stock reports
-- Add: Exclude free items (before/after discount) option
-- Add: Shipping product name template on order exports
-- Add: One line per order grouping option for order exports, plus related totals options (separate totals by line item type, totals/fields/shipping calculated once per order, blank separator rows between orders)
-- Add: Line Item Tax and Taxes fields now available in the free version
-- Add: Product image thumbnail field, clickable through to the product edit screen
-- Add: "Allow multiple lines inside preview table cells" option
-- Add: Redesigned Debug tab with a structured, labeled list of report queries
-- Update: Clarified several report template names and descriptions to better reflect their fields, sorting, and default view in the template picker
-- Update: Consolidated report creation into a single "Create Report" page instead of a separate blank-report shortcut
-- Update: Only one report settings section can be open at a time
-- Fix: Issues with the separate order item name field in export mode
-- Fix: Logic error in Cost of Goods Sold (COGS) calculations
-- Fix: Zero-amount filter not applying correctly
-- Fix: Report dates were not restored correctly when opening a saved preset via a direct link
-- Fix: A misconfigured or missing e-commerce plugin caused a fatal error when running, exporting, or emailing a report; now shows a clear message instead
-- Fix: Debug mode could corrupt the downloaded report file by printing PHP errors into the output; errors are now logged instead
-- Fix: Order/line item tax amounts were not consistently treated as numbers, which could throw off tax totals
-- Fix: Incorrect SQL parameter order in custom segment filtering could misalign filter values
-- Fix: An empty product/order type filter was silently ignored instead of correctly matching no rows
-- Fix: PHP warning in report totals when a field key had an unexpected format
-- Fix: Deleting a saved report could reindex other presets' IDs, breaking previously bookmarked or linked report URLs
-- Fix: The saved reports list could show presets for reporters that are inactive or that the current user doesn't have permission for
-- Fix: Opening a preset link saved under a different reporter could silently apply the wrong settings; now shows a clear error (WooCommerce and WooCommerce legacy remain interchangeable)
-- Fix: PHP notice when checking segment settings on a report with no saved group-by field
-- Fix: Settings nonce verification now properly sanitizes the submitted value
-- Fix: A timing issue where the product/variation search box could stop responding right after the report editor loaded
-- Fix: Clicking a checkbox inside a settings section header could unintentionally toggle the wrong section
 
 View full changelog in the plugin root directory: changelog.txt

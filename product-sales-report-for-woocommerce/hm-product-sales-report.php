@@ -3,7 +3,7 @@
  * Plugin Name:          Ninjalytics: Sales Reports & Order Export for WooCommerce and EDD
  * Description:          Generates a report on individual WooCommerce products sold during a specified time period.
  * Plugin URI:           https://berrypress.com/product/woocommerce/ninjalytics/?utm_campaign=wordpressorg&source=ninjalytics-free-plugin
- * Version:              2.1.2
+ * Version:              2.1.3
  * WC tested up to:      11.1
  * WC requires at least: 7.0
  * Requires PHP:         8.1
@@ -51,7 +51,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use NinjalyticsFree\Reporters\PlatformFeatures;
 
-define('NINJALYTICS_FREE_VERSION', '2.1.2');
+define('NINJALYTICS_FREE_VERSION', '2.1.3');
 
 add_filter('default_option_ninjalytics_settings', __NAMESPACE__.'\\ninjalytics_psr_import');
 function ninjalytics_psr_import($default) {
