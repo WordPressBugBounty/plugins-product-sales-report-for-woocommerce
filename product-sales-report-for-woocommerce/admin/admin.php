@@ -85,7 +85,7 @@ class AdminPage extends BerryPressPage {
 			],
 			[
 				'link'   => self::getUrl( [ 'tab' => 'about' ] ),
-				'icon'   => 'berrypress-icon-about',
+				'icon'   => 'berrypress-icon-info',
 				'title'  => __( 'About', 'product-sales-report-for-woocommerce' ),
 				'active' => ( $current_page === 'about' )
 			],

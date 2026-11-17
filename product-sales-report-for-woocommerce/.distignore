@@ -9,3 +9,6 @@ composer.lock
 phpunit.xml
 tests
 vendor
+
+# Sass source maps (dev only)
+*.map

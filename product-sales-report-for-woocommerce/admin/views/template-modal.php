@@ -35,7 +35,7 @@ $sectionMeta = [
 
 ?>
 <div id="ninjalytics-template-modal" class="berrypress-modal berrypress-modal-xl ninjalytics-modal-templates" role="dialog" aria-modal="true" aria-labelledby="ninjalytics-template-modal-title">
-	<button type="button" class="berrypress-modal-close berrypress-modal-close-top" aria-label="<?php esc_html_e( 'Close Dialog', 'product-sales-report-for-woocommerce' ); ?>"><i class="berrypress-icon-close"></i></button>
+	<button type="button" class="berrypress-modal-close berrypress-modal-close-top berrypress-btn-reset" aria-label="<?php esc_html_e( 'Close Dialog', 'product-sales-report-for-woocommerce' ); ?>"><i class="berrypress-icon-close"></i></button>
 	<div class="berrypress-card berrypress-card-100 ninjalytics-template-modal-card">
 		<div class="berrypress-card-content">
 			<h2 id="ninjalytics-template-modal-title" class="ninjalytics-template-modal-title"><?php esc_html_e( 'Choose Report Template', 'product-sales-report-for-woocommerce' ); ?></h2>

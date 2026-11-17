@@ -3,12 +3,12 @@
  * Plugin Name:          Ninjalytics: Sales Reports & Order Export for WooCommerce and EDD
  * Description:          Generates a report on individual WooCommerce products sold during a specified time period.
  * Plugin URI:           https://berrypress.com/product/woocommerce/ninjalytics/?utm_campaign=wordpressorg&source=ninjalytics-free-plugin
- * Version:              2.1.3
- * WC tested up to:      11.1
+ * Version:              2.1.4
+ * WC tested up to:      11.3
  * WC requires at least: 7.0
  * Requires PHP:         8.1
  * Author:               BerryPress
- * Author URI:           https://wpzone.co/?utm_source=product-sales-report-pro&utm_medium=link&utm_campaign=wp-plugin-author-uri
+ * Author URI:           https://berrypress.com/?utm_source=product-sales-report-pro&utm_medium=link&utm_campaign=wp-plugin-author-uri
  * License:              GNU General Public License version 3 or later
  * License URI:          https://www.gnu.org/licenses/gpl-3.0.en.html
  * GitHub Plugin URI:    https://github.com/BerryPress/product-sales-report-for-woocommerce
@@ -51,7 +51,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use NinjalyticsFree\Reporters\PlatformFeatures;
 
-define('NINJALYTICS_FREE_VERSION', '2.1.3');
+define('NINJALYTICS_FREE_VERSION', '2.1.4');
 
 add_filter('default_option_ninjalytics_settings', __NAMESPACE__.'\\ninjalytics_psr_import');
 function ninjalytics_psr_import($default) {
@@ -2513,6 +2513,12 @@ function ninjalytics_run_scheduled_report($reportId, $start, $end, $args = array
 		$out = fopen($output ? 'php://output' : $filepath, 'w');
 // phpcs:ignore WordPress.Security.NonceVerification.Missing -- This is a helper function, to be called after nonce is checked as needed
 		$dest = new \Ninjalytics_JSON_Export($out, $_POST['format'] == 'json-totals');
+	} else if ($output && isset($_POST['format']) && $_POST['format'] == 'html') {
+		// Inline table for reports rendered into a page (Frontend Reports for WooCommerce)
+		include_once(__DIR__.'/includes/Ninjalytics_HTML_Table_Export.php');
+// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- No equivalent function in WP_Filesystem
+		$out = fopen('php://output', 'w');
+		$dest = new \Ninjalytics_HTML_Table_Export($out);
 	} else {
 		include_once(__DIR__.'/includes/Ninjalytics_CSV_Export.php');
 // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- No equivalent function in WP_Filesystem

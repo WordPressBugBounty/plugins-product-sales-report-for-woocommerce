@@ -6,6 +6,13 @@ defined( 'ABSPATH' ) || exit;
 abstract class Page {
 	
 	protected $reviewUrl, $docsUrl, $supportUrl;
+	
+	public static function should_show_friday_notice() {
+		$current_date = current_time('Y-m-d');
+		$black_friday_start = '2026-11-19'; // Black Friday start date
+		$black_friday_end = '2026-11-30';   // End date
+		return $current_date >= $black_friday_start && $current_date <= $black_friday_end;
+	}
 
 	/**
 	 * Check if we're in Black Friday promotional period and return appropriate notice
@@ -15,11 +22,8 @@ abstract class Page {
 	 * @return string HTML for the promotional notice or empty string
 	 */
 	public static function get_black_friday_notice( $product_url, $product_name = 'Pro' ) {
-		$current_date = current_time('Y-m-d');
-		$black_friday_start = '2025-11-24'; // Black Friday start date
-		$black_friday_end = '2025-11-30';   // End date
 
-		if ( $current_date >= $black_friday_start && $current_date <= $black_friday_end ) {
+		if ( self::should_show_friday_notice() ) {
 			return sprintf(
 				'<div class="berrypress-top-bar berrypress-top-bar-promo"><h2><span class="berrypress-fw-bold">%s</span> %s <a target="_blank" class="berrypress-btn berrypress-btn-secondary" href="%s">%s<i class="berrypress-icon-filled berrypress-icon-keyboard_double_arrow_right"></i></a></h2></div>',
 				esc_html__( 'Our Black Friday sale is live!', 'product-sales-report-for-woocommerce' ),
@@ -35,6 +39,14 @@ abstract class Page {
 
 
 		return '';
+	}
+
+	/**
+	 * Separate dismissal cookies for the Black Friday bar and the default upgrade bar.
+	 */
+	protected function getTopBarCookieName() {
+		$prefix = 'ninjalytics_top_bar_dismissed';
+		return self::should_show_friday_notice() ? $prefix . '_bf' : $prefix;
 	}
 
 	function render() {
@@ -60,7 +72,8 @@ abstract class Page {
 	$product_url          = $this->getProductUrl();
 	$header_text          = $this->getHeaderText();
 	$display_above_header = $this->getAboveHeaderHtml();
-	$top_bar_dismissed    = !empty( $_COOKIE['berrypress_top_bar_dismissed'] );
+	$top_bar_cookie       = $this->getTopBarCookieName();
+	$top_bar_dismissed    = !empty( $_COOKIE[ $top_bar_cookie ] );
 
 
 	$display_sidebar   = apply_filters( 'berrypress_admin_page_display_sidebar', true , '' );
@@ -185,7 +198,7 @@ abstract class Page {
 		$topBars.append(
 			$("<button>", {
 				type: "button",
-				class: "berrypress-top-bar-dismiss",
+				class: "berrypress-top-bar-dismiss berrypress-btn-reset",
 				"aria-label": <?php echo json_encode(__( 'Dismiss this notice', 'product-sales-report-for-woocommerce' ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>
 			}).append($("<i>", {
 				class: "berrypress-icon-close",
@@ -194,7 +207,7 @@ abstract class Page {
 		);
 
 		$topBars.on("click", ".berrypress-top-bar-dismiss", function() {
-			document.cookie = "berrypress_top_bar_dismissed=1; Max-Age=86400; Path=/; SameSite=Lax" +
+			document.cookie = <?php echo json_encode( $this->getTopBarCookieName() ); ?> + "=1; Max-Age=86400; Path=/; SameSite=Lax" +
 				(window.location.protocol === "https:" ? "; Secure" : "");
 			$(".berrypress-settings-container").addClass("berrypress-top-bar-dismissed");
 		});

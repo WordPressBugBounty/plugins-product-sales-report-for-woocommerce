@@ -413,6 +413,10 @@
   max-width: 180px;
 }
 
+.ninjalytics-field-author-filter select {
+  margin-bottom: 5px;
+}
+
 .berrypress-field.ninjalytics-product-exclude-free-field .ninjalytics-field-child {
   grid-column: 1/-1;
 }
@@ -1022,10 +1026,6 @@ i.berrypress-icon-save::before {
   content: "\e161";
 }
 
-i.berrypress-icon-external-link::before {
-  content: "\e89e";
-}
-
 i.berrypress-icon-calculate::before {
   content: "\ea5f";
 }
@@ -1035,6 +1035,10 @@ i.berrypress-icon-drag-indicator::before {
 }
 
 i.berrypress-icon-ai::before {
+  content: "\e65f";
+}
+
+i.berrypress-icon-pro::before {
   content: "\e65f";
 }
 
@@ -1064,6 +1068,26 @@ i.berrypress-icon-debug::before {
 
 i.berrypress-icon-mobile::before {
   content: "\eb72";
+}
+
+i.berrypress-icon-cart::before {
+  content: "\f1cc";
+}
+
+i.berrypress-icon-bar-chart::before {
+  content: "\e26b";
+}
+
+i.berrypress-icon-add::before {
+  content: "\e145";
+}
+
+i.berrypress-icon-addons::before {
+  content: "\f102";
+}
+
+i.berrypress-icon-access_time::before {
+  content: "\e192";
 }
 
 .berrypress-page .berrypress-field input[type=radio] ~ label > a.berrypress-doc-note.ninjalytics-doc-note {
@@ -1137,6 +1161,10 @@ i.berrypress-icon-mobile::before {
 .ninjalytics-about-app-notice {
   margin-top: 1rem;
 }
+.ninjalytics-about-app-notice a {
+  color: inherit;
+  font-size: inherit;
+}
 
 #ninjalytics_presets_panel {
   width: 100%;
@@ -1157,6 +1185,10 @@ i.berrypress-icon-mobile::before {
 
 #hm_psr-buttons-wrapper .ninjalytics-import-wrapper {
   padding-top: 10px;
+}
+#hm_psr-buttons-wrapper .ninjalytics-import-wrapper a {
+  color: inherit;
+  font-size: inherit;
 }
 
 #ninjalytics_presets_panel {
@@ -1179,6 +1211,8 @@ i.berrypress-icon-mobile::before {
   width: 100%;
   display: inline-block;
   padding: 0.9rem 0.5rem;
+  color: inherit;
+  text-decoration: none;
 }
 
 #ninjalytics-display-primary-toolbar {
@@ -1315,6 +1349,7 @@ i.berrypress-icon-mobile::before {
 
 #ninjalytics_output_container .berrypress-link {
   font-size: 13px;
+  color: inherit;
 }
 #ninjalytics_output_container img.ninjalytics-product-image-thumb {
   display: inline-block;
@@ -1697,6 +1732,9 @@ i.berrypress-icon-mobile::before {
 }
 #ninjalytics-report-sidebar .ninjalytics-sidebar-body {
   padding: 1rem;
+}
+#ninjalytics-report-sidebar .ninjalytics-sidebar-body a {
+  font-size: inherit;
 }
 #ninjalytics-report-sidebar .ninjalytics-settings-toggle {
   border-bottom: 1px solid #e6e9f4;
@@ -2598,6 +2636,10 @@ i.berrypress-icon-mobile::before {
   padding-top: 8px;
   color: #5A607F;
 }
+.ninjalytics-new-report-actions .ninjalytics-import-wrapper a {
+  color: inherit;
+  font-size: inherit;
+}
 .ninjalytics-new-report-section {
   margin: 25px 10px;
 }
@@ -2908,7 +2950,7 @@ i.berrypress-icon-mobile::before {
  * Source: woocommerce/assets/css/select2.scss
  * License: See license.txt in the plugin root directory.
  */
-.berrypress-page .select2-container {
+.wp-core-ui.berrypress-page .select2-container {
   box-sizing: border-box;
   display: inline-block;
   margin: 0;
@@ -2916,7 +2958,7 @@ i.berrypress-icon-mobile::before {
   vertical-align: middle;
   min-width: 240px;
 }
-.berrypress-page .select2-container .select2-selection--multiple {
+.wp-core-ui.berrypress-page .select2-container .select2-selection--multiple {
   min-width: 240px;
   box-sizing: border-box;
   cursor: pointer;
@@ -2932,12 +2974,12 @@ i.berrypress-icon-mobile::before {
   background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E) no-repeat right 5px top 55%;
   background-size: 16px 16px;
 }
-.berrypress-page .select2-container .select2-selection--multiple:focus {
+.wp-core-ui.berrypress-page .select2-container .select2-selection--multiple:focus {
   border: 1px solid #a1a7c4;
   box-shadow: none;
   outline: none;
 }
-.berrypress-page .select2-container .select2-selection--single {
+.wp-core-ui.berrypress-page .select2-container .select2-selection--single {
   min-width: 240px;
   box-sizing: border-box;
   cursor: pointer;
@@ -2953,21 +2995,21 @@ i.berrypress-icon-mobile::before {
   background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%23555%22%2F%3E%3C%2Fsvg%3E) no-repeat right 5px top 55%;
   background-size: 16px 16px;
 }
-.berrypress-page .select2-container .select2-selection--single:focus {
+.wp-core-ui.berrypress-page .select2-container .select2-selection--single:focus {
   border: 1px solid #a1a7c4;
   box-shadow: none;
   outline: none;
 }
-.berrypress-page .select2-container .select2-selection--single .select2-selection__rendered {
+.wp-core-ui.berrypress-page .select2-container .select2-selection--single .select2-selection__rendered {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.berrypress-page .select2-container .select2-selection .select2-selection__clear {
+.wp-core-ui.berrypress-page .select2-container .select2-selection .select2-selection__clear {
   position: relative;
 }
-.berrypress-page .select2-dropdown {
+.wp-core-ui.berrypress-page .select2-dropdown {
   background-color: #fff;
   border: 1px solid #d7dbec;
   border-radius: 4px;
@@ -2979,76 +3021,76 @@ i.berrypress-icon-mobile::before {
   z-index: 1051;
   top: -4px;
 }
-.berrypress-page .select2-container--open .select2-dropdown {
+.wp-core-ui.berrypress-page .select2-container--open .select2-dropdown {
   left: 0;
 }
-.berrypress-page .select2-container--open .select2-dropdown--above {
+.wp-core-ui.berrypress-page .select2-container--open .select2-dropdown--above {
   border-bottom: none;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
-.berrypress-page .select2-container--open .select2-dropdown--below {
+.wp-core-ui.berrypress-page .select2-container--open .select2-dropdown--below {
   border-top: none;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-.berrypress-page .select2-container--open.select2-container--above .select2-selection--single {
+.wp-core-ui.berrypress-page .select2-container--open.select2-container--above .select2-selection--single {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-.berrypress-page .select2-container--open.select2-container--below .select2-selection--single {
+.wp-core-ui.berrypress-page .select2-container--open.select2-container--below .select2-selection--single {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
-.berrypress-page .select2-results {
+.wp-core-ui.berrypress-page .select2-results {
   display: block;
 }
-.berrypress-page .select2-results__options {
+.wp-core-ui.berrypress-page .select2-results__options {
   list-style: none;
   margin: 0;
   padding: 0;
   max-height: 240px;
   overflow-y: auto;
 }
-.berrypress-page .select2-results__options .select2-results__option {
+.wp-core-ui.berrypress-page .select2-results__options .select2-results__option {
   padding: 6px 6px 6px 10px;
   user-select: none;
   -webkit-user-select: none;
   cursor: pointer;
 }
-.berrypress-page .select2-results__options .select2-results__option[data-selected=true], .berrypress-page .select2-results__options .select2-results__option[aria-selected=true] {
+.wp-core-ui.berrypress-page .select2-results__options .select2-results__option[data-selected=true], .wp-core-ui.berrypress-page .select2-results__options .select2-results__option[aria-selected=true] {
   background-color: #e6e9f4;
 }
-.berrypress-page .select2-results__options .select2-results__option[data-selected=true] {
+.wp-core-ui.berrypress-page .select2-results__options .select2-results__option[data-selected=true] {
   cursor: default;
 }
-.berrypress-page .select2-results__options .select2-results__option--highlighted[data-selected] {
+.wp-core-ui.berrypress-page .select2-results__options .select2-results__option--highlighted[data-selected] {
   background-color: #0070F0;
   color: white;
 }
-.berrypress-page .select2-results__options .select2-results__option[role=group] {
+.wp-core-ui.berrypress-page .select2-results__options .select2-results__option[role=group] {
   padding: 0;
 }
-.berrypress-page .select2-results__options .select2-results__option .select2-results__option {
+.wp-core-ui.berrypress-page .select2-results__options .select2-results__option .select2-results__option {
   padding-left: 14px;
 }
-.berrypress-page .select2-results__options__group {
+.wp-core-ui.berrypress-page .select2-results__options__group {
   cursor: default;
   display: block;
   padding: 6px;
 }
-.berrypress-page .select2-results__options[aria-disabled=true] {
+.wp-core-ui.berrypress-page .select2-results__options[aria-disabled=true] {
   color: #7e84a3;
   background-color: #F3F5F9;
 }
-.berrypress-page .select2-search--dropdown {
+.wp-core-ui.berrypress-page .select2-search--dropdown {
   display: block;
   padding: 4px;
 }
-.berrypress-page .select2-search--dropdown.select2-search--hide {
+.wp-core-ui.berrypress-page .select2-search--dropdown.select2-search--hide {
   display: none;
 }
-.berrypress-page .select2-search--dropdown .select2-search__field {
+.wp-core-ui.berrypress-page .select2-search--dropdown .select2-search__field {
   width: 100%;
   box-sizing: border-box;
   padding: 4px 18px 4px 4px;
@@ -3056,10 +3098,10 @@ i.berrypress-icon-mobile::before {
   background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23a1a7c4"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM10 14a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>') no-repeat right 8px center;
   background-size: 16px 16px;
 }
-.berrypress-page .select2-selection__arrow {
+.wp-core-ui.berrypress-page .select2-selection__arrow {
   display: none;
 }
-.berrypress-page .select2-hidden-accessible {
+.wp-core-ui.berrypress-page .select2-hidden-accessible {
   border: 0 !important;
   clip: rect(0 0 0 0) !important;
   height: 1px !important;
@@ -3069,39 +3111,39 @@ i.berrypress-icon-mobile::before {
   position: absolute !important;
   width: 1px !important;
 }
-.berrypress-page .select2-container--default .select2-selection--single {
+.wp-core-ui.berrypress-page .select2-container--default .select2-selection--single {
   background-color: #fff;
   border: 1px solid #d7dbec;
   border-radius: 5px;
 }
-.berrypress-page .select2-container--default .select2-selection--single .select2-selection__clear {
+.wp-core-ui.berrypress-page .select2-container--default .select2-selection--single .select2-selection__clear {
   cursor: pointer;
   float: right;
   font-weight: bold;
 }
-.berrypress-page .select2-container--default .select2-selection--single .select2-selection__placeholder {
+.wp-core-ui.berrypress-page .select2-container--default .select2-selection--single .select2-selection__placeholder {
   color: #d7dbec;
 }
-.berrypress-page .select2-container--default .select2-search--inline .select2-search__field {
+.wp-core-ui.berrypress-page .select2-container--default .select2-search--inline .select2-search__field {
   background: transparent;
   border: none;
   outline: 0;
   box-shadow: none;
   -webkit-appearance: textfield;
 }
-.berrypress-page .select2-container--default .select2-search--dropdown .select2-search__field {
+.wp-core-ui.berrypress-page .select2-container--default .select2-search--dropdown .select2-search__field {
   border: 1px solid #d7dbec;
   padding-left: 4px;
   padding-right: 18px;
 }
-.berrypress-page .select2-container--default[dir=rtl] .select2-selection--single .select2-selection__clear {
+.wp-core-ui.berrypress-page .select2-container--default[dir=rtl] .select2-selection--single .select2-selection__clear {
   float: left;
 }
-.berrypress-page .select2-search--inline {
+.wp-core-ui.berrypress-page .select2-search--inline {
   float: left;
   padding: 0;
 }
-.berrypress-page .select2-search--inline .select2-search__field {
+.wp-core-ui.berrypress-page .select2-search--inline .select2-search__field {
   box-sizing: border-box;
   border: none;
   font-size: 100%;
@@ -3112,36 +3154,36 @@ i.berrypress-icon-mobile::before {
   box-shadow: none;
   -webkit-appearance: textfield;
 }
-.berrypress-page .berrypress-multiple-dropdown-container .select2-container {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown-container .select2-container {
   max-width: 400px;
   width: auto;
   display: block;
 }
-.berrypress-page .berrypress-multiple-dropdown-container .select2-container.select2-container--open.select2-container--below .select2-selection {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown-container .select2-container.select2-container--open.select2-container--below .select2-selection {
   border-radius: 5px 5px 0 0;
 }
-.berrypress-page .berrypress-multiple-dropdown-container .select2-container.select2-container--open.select2-container--above .select2-selection {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown-container .select2-container.select2-container--open.select2-container--above .select2-selection {
   border-radius: 0 0 5px 5px;
 }
-.berrypress-page .berrypress-multiple-dropdown-container .select2-selection__rendered {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown-container .select2-selection__rendered {
   margin: 4px 0 0;
   height: auto;
   position: relative;
 }
-.berrypress-page .berrypress-multiple-dropdown-container .select2-selection__clear {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown-container .select2-selection__clear {
   margin-right: 6px;
   font-size: 15px;
 }
-.berrypress-page .berrypress-multiple-dropdown-container .select2-search.select2-search--inline {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown-container .select2-search.select2-search--inline {
   float: unset;
   display: inline-block;
 }
-.berrypress-page .berrypress-multiple-dropdown-container .select2-search.select2-search--inline input {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown-container .select2-search.select2-search--inline input {
   min-width: unset;
   height: unset;
   min-height: unset;
 }
-.berrypress-page .berrypress-multiple-dropdown-container .select2-selection__choice {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown-container .select2-selection__choice {
   display: inline-block;
   gap: 10px;
   padding: 2px 12px 2px 8px;
@@ -3152,41 +3194,41 @@ i.berrypress-icon-mobile::before {
   color: #131523;
   font-size: 13px;
 }
-.berrypress-page .berrypress-multiple-dropdown-container .select2-selection__choice .select2-selection__choice__remove {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown-container .select2-selection__choice .select2-selection__choice__remove {
   color: #131523;
   cursor: pointer;
   font-size: 15px;
   margin-right: 5px;
 }
-.berrypress-page .berrypress-multiple-dropdown-container .select2-selection__choice .select2-selection__choice__remove:hover {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown-container .select2-selection__choice .select2-selection__choice__remove:hover {
   color: #f0142f;
 }
-.berrypress-page .berrypress-multiple-dropdown.select2-dropdown--below {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown.select2-dropdown--below {
   border-top: 1px solid #e6e9f4;
   padding-top: 5px;
   margin-top: 3px;
   border-radius: 0 0 5px 5px;
   top: -5px;
 }
-.berrypress-page .berrypress-multiple-dropdown.select2-dropdown--above {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown.select2-dropdown--above {
   border-bottom: 1px solid #e6e9f4;
   padding-bottom: 5px;
   border-radius: 5px 5px 0 0;
   top: 1px;
 }
-.berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option {
   cursor: pointer;
   padding-left: 25px;
   position: relative;
   margin-bottom: 0;
 }
-.berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option.loading-results, .berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option.select2-results__message {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option.loading-results, .wp-core-ui.berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option.select2-results__message {
   padding-left: 12px;
 }
-.berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option[data-selected=true][aria-selected=true]::before {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option[data-selected=true][aria-selected=true]::before {
   color: #fff;
 }
-.berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option[data-selected=true]::before {
+.wp-core-ui.berrypress-page .berrypress-multiple-dropdown .select2-results__options li.select2-results__option[data-selected=true]::before {
   content: "\e5ca";
   font-family: "Material Symbols Rounded BerryPress";
   position: absolute;
@@ -3199,7 +3241,7 @@ i.berrypress-icon-mobile::before {
 
 .berrypress-field textarea {
   padding: 10px 12px;
-  line-height: 1em;
+  line-height: 1.2em;
   border: 1px solid #d7dbec;
   border-radius: 5px;
   font-size: 14px;
@@ -3411,11 +3453,12 @@ body:has(.berrypress-modal.berrypress-active)::before {
   /* When tooltip is visible */
   /* Positioning classes generated by JS */
 }
-.berrypress-page a.berrypress-doc-note {
+.berrypress-page .berrypress-doc-note {
   position: relative;
   display: inline-block;
+  text-decoration: unset;
 }
-.berrypress-page a.berrypress-doc-note i {
+.berrypress-page .berrypress-doc-note i {
   font-size: 14px;
   display: inline-flex;
   align-items: center;
@@ -3653,6 +3696,29 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
   color: #5A607F;
 }
 
+.berrypress-page .berrypress-top-bar.berrypress-top-bar-promo {
+  background-color: #131523;
+  background-image: url("../../includes/berrypress-admin-framework/assets/img/bf-promobar.png");
+  background-repeat: repeat-x;
+  background-position: center;
+  background-size: auto;
+}
+.berrypress-page .berrypress-top-bar.berrypress-top-bar-promo h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 20px #131523;
+}
+.berrypress-page .berrypress-top-bar.berrypress-top-bar-promo a.berrypress-btn {
+  margin-left: 5px;
+}
+.berrypress-page .berrypress-top-bar.berrypress-top-bar-promo a.berrypress-btn i {
+  margin-left: 5px;
+}
+.berrypress-page .berrypress-top-bar.berrypress-top-bar-promo .berrypress-top-bar-dismiss i {
+  color: #fff;
+}
+
 .berrypress-page .berrypress-top-bar {
   text-align: center;
   background-color: #e6e9f4;
@@ -3695,4 +3761,8 @@ This file is part of Ninjalytics Free (formerly: Product Sales Report For WooCom
 
 .berrypress-page .berrypress-top-bar-dismissed .berrypress-top-bar {
   display: none;
+}
+
+.berrypress-page .berrypress-top-bar.berrypress-top-bar-promo {
+  background-image: url("../includes/berrypress-admin-framework/assets/img/bf-promobar.png");
 }

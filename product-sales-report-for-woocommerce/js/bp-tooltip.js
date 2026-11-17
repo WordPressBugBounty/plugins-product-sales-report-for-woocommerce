@@ -40,18 +40,14 @@
 				});
 				
 				// Remove data: and javascript: URLs from href/src
-				if (el.hasAttribute('href')) {
-					const href = el.getAttribute('href');
-					if (href && (href.startsWith('javascript:') || href.startsWith('data:'))) {
-						el.removeAttribute('href');
+				['href', 'src'].forEach(name => {
+					const value = el.getAttribute(name);
+					if (value === null) return;
+					const normalized = value.replace(/[\u0000-\u0020]/g, '').toLowerCase();
+					if (normalized.startsWith('javascript:') || normalized.startsWith('data:')) {
+						el.removeAttribute(name);
 					}
-				}
-				if (el.hasAttribute('src')) {
-					const src = el.getAttribute('src');
-					if (src && (src.startsWith('javascript:') || src.startsWith('data:'))) {
-						el.removeAttribute('src');
-					}
-				}
+				});
 			});
 			
 			return temp.innerHTML;

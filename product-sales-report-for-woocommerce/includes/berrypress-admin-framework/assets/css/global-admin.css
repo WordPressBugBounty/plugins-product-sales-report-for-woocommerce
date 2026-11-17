@@ -1,4 +1,3 @@
-@charset "UTF-8";
 /*!
  * BerryPress SCSS Framework
  * Copyright (c) 2026 BerryPress
@@ -7,7 +6,7 @@
  */
 /*!
 This file includes a modified icon font originally licensed under the Apache License 2.0.
-Modified by BerryPress - unused icons removed.”
+Modified by BerryPress - unused icons removed.
 */
 @font-face {
   font-family: "Material Symbols Rounded BerryPress";
@@ -35,10 +34,6 @@ Modified by BerryPress - unused icons removed.”
   width: auto;
 }
 
-i.berrypress-icon-search::before {
-  content: "\e8b6";
-}
-
 i.berrypress-icon-home::before {
   content: "\e88a";
 }
@@ -51,28 +46,12 @@ i.berrypress-icon-check::before {
   content: "\e5ca";
 }
 
-i.berrypress-icon-radio_button_checked::before {
-  content: "\e837";
-}
-
-i.berrypress-icon-radio_button_unchecked::before {
-  content: "\e836";
-}
-
 i.berrypress-icon-expand_more::before {
   content: "\e5cf";
 }
 
 i.berrypress-icon-close::before {
   content: "\e5cd";
-}
-
-i.berrypress-icon-remove::before {
-  content: "\e5cd";
-}
-
-i.berrypress-icon-error_outline::before {
-  content: "\e001";
 }
 
 i.berrypress-icon-first_page::before {
@@ -103,68 +82,16 @@ i.berrypress-icon-library_books::before {
   content: "\e02f";
 }
 
-i.berrypress-icon-question_mark::before {
-  content: "\e8af";
-}
-
-i.berrypress-icon-key_vertical::before {
-  content: "\e73c";
-}
-
 i.berrypress-icon-check_circle::before {
   content: "\e86c";
 }
 
-i.berrypress-icon-sync_alt::before {
-  content: "\ea18";
-}
-
-i.berrypress-icon-play_arrow::before {
-  content: "\e037";
-}
-
-i.berrypress-icon-filter_alt::before {
-  content: "\ef4f";
-}
-
-i.berrypress-icon-access_time::before {
-  content: "\e192";
-}
-
-i.berrypress-icon-cart::before {
-  content: "\f1cc";
-}
-
-i.berrypress-icon-bar-chart::before {
-  content: "\e26b";
-}
-
-i.berrypress-icon-add::before {
-  content: "\e145";
+i.berrypress-icon-external-link::before {
+  content: "\e89e";
 }
 
 i.berrypress-icon-info::before {
   content: "\e88e";
-}
-
-i.berrypress-icon-pro::before {
-  content: "\e65f";
-}
-
-i.berrypress-icon-addons::before {
-  content: "\f102";
-}
-
-i.berrypress-icon-keyboard_arrow_left::before {
-  content: "\e314";
-}
-
-i.berrypress-icon-keyboard_double_arrow_left::before {
-  content: "\eac3";
-}
-
-i.berrypress-icon-keyboard_arrow_right::before {
-  content: "\e315";
 }
 
 i.berrypress-icon-keyboard_double_arrow_right::before {

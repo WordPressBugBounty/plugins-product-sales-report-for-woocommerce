@@ -22,7 +22,7 @@ $importActionUrl         = add_query_arg(
 );
 ?>
 <div class="berrypress-modal ninjalytics-modal-import" id="ninjalytics-import-modal" role="dialog" aria-modal="true" aria-labelledby="ninjalytics-import-modal-title">
-	<button type="button" class="berrypress-modal-close berrypress-modal-close-top" aria-label="<?php esc_attr_e( 'Close Dialog', 'product-sales-report-for-woocommerce' ); ?>"><i class="berrypress-icon-close" aria-hidden="true"></i></button>
+	<button type="button" class="berrypress-modal-close berrypress-modal-close-top berrypress-btn-reset" aria-label="<?php esc_attr_e( 'Close Dialog', 'product-sales-report-for-woocommerce' ); ?>"><i class="berrypress-icon-close" aria-hidden="true"></i></button>
 	<div class="berrypress-card berrypress-card-100">
 		<div class="berrypress-card-content">
 			<h2 id="ninjalytics-import-modal-title"><?php esc_html_e( 'Import Report Settings', 'product-sales-report-for-woocommerce' ); ?></h2>
